@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\PropertyResource\RelationManagers;
 
-use App\Models\Enquiry;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EnquiriesRelationManager extends RelationManager
@@ -17,14 +17,26 @@ class EnquiriesRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
+        // এই ফর্মটি "View" এবং "Edit" অ্যাকশনের জন্য ব্যবহৃত হবে
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                    ->disabled(),
+                Forms\Components\TextInput::make('email')
+                    ->disabled(),
+                Forms\Components\TextInput::make('phone')
+                    ->disabled(),
+                Forms\Components\Textarea::make('message')
+                    ->columnSpanFull()
+                    ->disabled(),
+                Forms\Components\Toggle::make('is_read')
+                    ->label('Mark as Read'),
             ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -32,56 +44,44 @@ class EnquiriesRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
+                Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'read' => 'info',
-                        'contacted' => 'success',
-                    })
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('phone'),
+
+                // is_read স্ট্যাটাসটি সরাসরি টেবিল থেকেই পরিবর্তন করা যাবে
+                Tables\Columns\ToggleColumn::make('is_read')
+                    ->label('Read'),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Received At')
                     ->dateTime()
                     ->sortable()
-                    ->since(),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'read' => 'Read',
-                        'contacted' => 'Contacted',
-                    ]),
+                Tables\Filters\TernaryFilter::make('is_read')
+                    ->label('Status')
+                    ->placeholder('All')
+                    ->trueLabel('Read')
+                    ->falseLabel('Unread'),
             ])
             ->headerActions([
-//                Tables\Actions\CreateAction::make(),
+                // আমরা অ্যাডমিন প্যানেল থেকে নতুন জিজ্ঞাসা তৈরি করতে দেব না, তাই এটি খালি থাকবে
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\Action::make('markAsContacted')
-                    ->label('Mark as Contacted')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->action(function (Enquiry $record) {
-                        $record->update(['status' => 'contacted', 'is_read' => true, 'read_at' => now()]);
-                        $this->dispatch('refresh'); // টেবিল রিফ্রেশ করার জন্য
-                    })
-                    ->visible(fn (Enquiry $record): bool => $record->status !== 'contacted'),
-
-                // মূল EnquiryResource এ যাওয়ার জন্য বাটন
-                Tables\Actions\Action::make('view_details')
-                    ->label('View Details')
-                    ->url(fn (Enquiry $record): string => \App\Filament\Resources\EnquiryResource::getUrl('view', ['record' => $record]))
-                    ->icon('heroicon-o-arrow-top-right-on-square'),
-
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    // একাধিক Enquiry-কে একসাথে "Read" হিসেবে মার্ক করার জন্য
+                    Tables\Actions\BulkAction::make('markAsRead')
+                        ->label('Mark as Read')
+                        ->icon('heroicon-o-check-circle')
+                        ->action(fn (Collection $records) => $records->each->update(['is_read' => true]))
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

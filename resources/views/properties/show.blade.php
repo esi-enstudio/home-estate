@@ -39,9 +39,7 @@
                         </div>
                         <div class="col-xl-4 d-flex d-xl-block flex-wrap gap-3">
                             <div class="breadcrumb-icons d-flex align-items-center justify-content-xl-end justify-content-start gap-2 mb-xl-4 mb-2 mt-xl-0 mt-4">
-                                <a href="javascript:void(0);" class=""><i class="material-icons-outlined rounded">favorite_border</i></a>
-                                <a href="javascript:void(0);" class=""><i class="material-icons-outlined rounded">bookmark_add</i></a>
-                                <a href="javascript:void(0);" class=""><i class="material-icons-outlined rounded">compare_arrows</i></a>
+                                @livewire('favorite-button', ['property' => $property], key($property->id))
                             </div>
                             <div class="d-flex align-items-center gap-3 justify-content-xl-end justify-content-start">
                                 <h4 class="mb-0 text-primary text-xl-end text-start"> ৳{{ number_format($property->rent_price) }} <span class="fs-14 fw-normal text-white">/ {{ ucfirst($property->rent_type) }}</span> </h4>
@@ -348,19 +346,7 @@
                         </div>
 
                         <!-- Enquiry Form -->
-                        <div class="card">
-                            {{-- This can be a Livewire component for handling form submission without page reload --}}
-                            <div class="card-header"><h5 class="mb-0">Enquire Us</h5></div>
-                            <div class="card-body">
-                                <form>
-                                    <div class="mb-3"><label class="form-label fw-semibold"> Name </label><input type="text" class="form-control" placeholder="Your Name"></div>
-                                    <div class="mb-3"><label class="form-label fw-semibold"> Email </label><input type="email" class="form-control" placeholder="Your Email"></div>
-                                    <div class="mb-3"><label class="form-label fw-semibold"> Phone </label><input type="text" class="form-control" placeholder="Your Phone Number"></div>
-                                    <div class="mb-4"><label class="form-label fw-semibold"> Description </label><textarea class="form-control" rows="3" placeholder="I'm interested in this property..."></textarea></div>
-                                    <div><button type="submit" class="btn btn-dark w-100 py-2 fs-14">Submit</button></div>
-                                </form>
-                            </div>
-                        </div>
+                        @livewire('enquiry-form', ['property' => $property])
 
                         <!-- Map -->
                         @if($property->google_maps_location_link && (str_contains($property->google_maps_location_link, 'embed') || ($property->latitude && $property->longitude)))

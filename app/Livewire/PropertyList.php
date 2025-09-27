@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Property;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class PropertyList extends Component
@@ -28,6 +29,8 @@ class PropertyList extends Component
     public string $sortBy = 'default'; // 'default', 'title_asc'
     public string $sortPrice = 'default'; // 'default', 'lth' (low to high), 'htl' (high to low)
     public string $viewMode = 'grid'; // 'grid' or 'list'
+
+    public array $favoritedPropertyIds = [];
 
     /**
      * যখন sortBy বা sortPrice প্রোপার্টির মান পরিবর্তন হবে,
@@ -55,6 +58,30 @@ class PropertyList extends Component
     public function mount(): void
     {
         $this->loadProperties();
+        $this->loadFavoritedPropertyIds();
+    }
+
+    // এই নতুন মেথডটি বর্তমান ইউজারের ফেভারিট করা প্রপার্টির আইডিগুলো লোড করবে
+    public function loadFavoritedPropertyIds(): void
+    {
+        if (Auth::check()) {
+            $this->favoritedPropertyIds = Auth::user()->favoriteProperties()->pluck('property_id')->toArray();
+        }
+    }
+
+    // এই নতুন মেথডটি ফেভারিট বাটন ক্লিক করলে কাজ করবে
+    public function toggleFavorite(int $propertyId): void
+    {
+        if (!Auth::check()) {
+            // যদি ইউজার লগইন না করে থাকে, তাহলে তাকে লগইন পেজে পাঠিয়ে দিন
+            $this->redirect(route('filament.app.auth.login'));
+            return;
+        }
+
+        Auth::user()->favoriteProperties()->toggle($propertyId);
+
+        // ফেভারিট তালিকাটি রিফ্রেশ করুন
+        $this->loadFavoritedPropertyIds();
     }
 
     /**

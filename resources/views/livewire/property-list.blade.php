@@ -249,8 +249,14 @@
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between position-absolute bottom-0 end-0 start-0 p-3 z-1">
                                                 <h6 class="text-white mb-0">৳{{ number_format($property->rent_price) }} <span class="fs-14 fw-normal"> / {{ ucfirst($property->rent_type) }} </span></h6>
-                                                <a href="javascript:void(0)" class="favourite">
-                                                    <i class="material-icons-outlined">favorite_border</i>
+                                                <a href="#" wire:click.prevent="toggleFavorite({{ $property->id }})" class="favourite">
+                                                    @if(in_array($property->id, $favoritedPropertyIds))
+                                                        {{-- যদি ফেভারিট করা থাকে --}}
+                                                        <i class="material-icons-outlined text-danger">favorite</i>
+                                                    @else
+                                                        {{-- যদি ফেভারিট করা না থাকে --}}
+                                                        <i class="material-icons-outlined">favorite_border</i>
+                                                    @endif
                                                 </a>
                                             </div>
                                         </div>

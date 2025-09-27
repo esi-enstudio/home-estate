@@ -174,12 +174,17 @@ class Property extends Model implements HasMedia
     public function tenantTypes(): BelongsToMany { return $this->belongsToMany(TenantType::class, 'property_tenant_type'); }
     public function amenities(): BelongsToMany { return $this->belongsToMany(Amenity::class)->withPivot('details', 'is_key_feature')->withTimestamps(); }
 
+    public function enquiries(): HasMany
+    {
+        return $this->hasMany(Enquiry::class);
+    }
+
     public function reviews(): HasMany { return $this->hasMany(Review::class)->whereNull('parent_id'); }
 
     // --- নতুন সংযোজন: রিপ্লাই সহ সকল রিভিউ ---
     public function allReviews(): HasMany { return $this->hasMany(Review::class); }
 
-    public function wishlistedByUser(): BelongsToMany { return $this->belongsToMany(User::class, 'wishlists')->withTimestamps(); }
+//    public function wishlistedByUser(): BelongsToMany { return $this->belongsToMany(User::class, 'wishlists')->withTimestamps(); }
 
     // ====================================================================
     // লোকাল স্কোপ (LOCAL SCOPES)
@@ -229,5 +234,10 @@ class Property extends Model implements HasMedia
         }
 
         return $features;
+    }
+
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'property_user');
     }
 }
