@@ -19,7 +19,7 @@ class PropertyTypeResource extends Resource
 {
     protected static ?string $model = PropertyType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
 
     protected static ?string $navigationGroup = 'Property Management';
 
@@ -54,12 +54,10 @@ class PropertyTypeResource extends Resource
 
                 Forms\Components\Section::make('Icon & Status')
                     ->schema([
-                        Forms\Components\FileUpload::make('icon_path')
-                            ->label('Icon (SVG recommended)')
+                        Forms\Components\SpatieMediaLibraryFileUpload::make('image')
+                            ->collection('image')
                             ->image()
-                            ->imageEditor()
-                            ->directory('property-type-icons')
-                            ->required(),
+                            ->columnSpanFull(),
 
                         Forms\Components\TextInput::make('properties_count')
                             ->label('Total Properties')
@@ -76,21 +74,26 @@ class PropertyTypeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('icon_path')
-                    ->label('Icon')
-                    ->circular(),
-                Tables\Columns\TextColumn::make('name_en')
-                    ->label('Name (EN)')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
+                    ->collection('image') // <-- ফর্মের কালেকশনের নামের সাথে মিলতে হবে
+                    ->label('ছবি')
+                    ->circular() // ছবিটি বৃত্তাকার দেখাবে
+                    ->width(80)
+                    ->height(80),
                 Tables\Columns\TextColumn::make('name_bn')
-                    ->label('Name (BN)')
+                    ->label('নাম (বাংলা)')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('name_en')
+                    ->label('Name (English)')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('properties_count')
-                    ->label('Properties')
+                    ->label('প্রপার্টির সংখ্যা')
                     ->sortable()
-                    ->alignCenter(),
+                    ->badge(), // সংখ্যাটিকে একটি ব্যাজ হিসেবে দেখাবে
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

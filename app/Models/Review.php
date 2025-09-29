@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static create(array $array)
  * @method static where(string $string, mixed $id)
  * @method static find(int $reviewId)
+ * @method static distinct(string $string)
  */
 class Review extends Model
 {

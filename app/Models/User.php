@@ -6,10 +6,14 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @method static has(string $string)
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -52,5 +56,15 @@ class User extends Authenticatable
     public function favoriteProperties(): BelongsToMany
     {
         return $this->belongsToMany(Property::class, 'property_user')->withTimestamps();
+    }
+
+    /**
+     * Get all of the properties for the User.
+     * একজন ইউজারের অনেকগুলো প্রপার্টি থাকতে পারে।
+     * এই রিলেশনশিপটি 'trustedOwners' গণনার জন্য অপরিহার্য।
+     */
+    public function properties(): HasMany
+    {
+        return $this->hasMany(Property::class);
     }
 }

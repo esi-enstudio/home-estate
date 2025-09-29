@@ -6,6 +6,8 @@ use App\Traits\HasCustomSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @method static create(array $array)
@@ -14,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static count()
  * @property int|mixed $properties_count
  */
-class PropertyType extends Model
+class PropertyType extends Model implements HasMedia
 {
-    use HasCustomSlug;
+    use HasCustomSlug, InteractsWithMedia;
 
     protected $fillable = ['name_en', 'name_bn', 'slug', 'properties_count','icon_path'];
 
@@ -39,5 +41,11 @@ class PropertyType extends Model
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image') // আমরা 'image' নামে একটি কালেকশন তৈরি করছি
+        ->singleFile(); // প্রতিটি টাইপের জন্য একটি মাত্র ছবি থাকবে
     }
 }

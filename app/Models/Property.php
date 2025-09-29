@@ -19,6 +19,10 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+/**
+ * @method static where(string $string, string $string1)
+ * @method static whereIn(string $string, string[] $array)
+ */
 class Property extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SoftDeletes, HasCustomSlug;

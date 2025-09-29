@@ -8,13 +8,13 @@
 
         <div>
             <div class="banner-img-right" data-aos="fade-down" data-aos-duration="1000">
-                <img src="assets/img/section-bg/banner-bg-02.png" alt="">
+                <img src="{{ asset('assets/img/section-bg/banner-bg-02.png') }}" alt="">
             </div>
             <div>
-                <img src="assets/img/bg/banner-round-bg.svg" class="banner-round" alt="">
+                <img src="{{ asset('assets/img/bg/banner-round-bg.svg') }}" class="banner-round" alt="">
             </div>
             <div>
-                <img src="assets/img/bg/banner-shape.svg" class="banner-shape" alt="">
+                <img src="{{ asset('assets/img/bg/banner-shape.svg') }}" class="banner-shape" alt="">
             </div>
         </div>
 
@@ -26,11 +26,12 @@
                 <div class="col-lg-5">
                     <div class="banner-users d-flex align-items-center flex-wrap gap-2 mb-3">
                         <div class="avatar-list-stacked">
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="assets/img/users/user-01.jpg" class="img-fluid rounded-circle" alt="Img"></span>
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="assets/img/users/user-02.jpg" class="img-fluid rounded-circle" alt="Img"></span>
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="assets/img/users/user-03.jpg" class="img-fluid rounded-circle" alt="Img"></span>
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="assets/img/users/user-04.jpg" class="img-fluid rounded-circle" alt="Img"></span>
+                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-01.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
+                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-02.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
+                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-03.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
+                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-04.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
                         </div>
+
                         <div>
                             <div class="d-flex align-items-center mb-1">
                                 <h6 class="mb-0 me-2 text-white fw-semibold fs-14">Ratings 5.0</h6>
@@ -49,6 +50,7 @@
                     </div>
                     <div class="d-flex align-items-center">
                         <a href="buy-property-grid.html" class="btn btn-primary btn-lg d-inline-flex align-items-center me-3"><i class="material-icons-outlined me-2">shopping_basket</i>Buy Property</a>
+
                         <a href="rent-property-grid.html" class="btn btn-white btn-lg d-inline-flex align-items-center"><i class="material-icons-outlined me-2">king_bed</i>Rent Property</a>
                     </div>
                 </div> <!-- end col -->
@@ -105,183 +107,11 @@
     <!-- Search End -->
 
     <!-- About Us Section Start -->
-    <section class="about-us-section-2">
-        <div class="container">
-
-            <!-- start row -->
-            <div class="row align-items-center gy-4">
-
-                <div class="col-lg-6">
-
-                    <!-- Section Title Start -->
-                    <div class="title-head" data-aos="fade-up" data-aos-duration="500">
-                        <span class="badge bg-secondary mb-2">About Us</span>
-                        <h2 class="mb-2">We make property discovery simple, transparent, and stress-free.</h2>
-                        <p>These hand-picked locations highlight our strongest presence, fastest response times, and highest customer satisfaction. Whether you're looking for expert professionals or trusted services nearby, explore what's available in your area.</p>
-                        <div class="d-flex align-items-center">
-                            <a href="add-property-buy.html" class="btn btn-dark btn-lg me-3">Start Post Your Property</a>
-                            <a href="contact-us.html" class="btn btn-primary btn-lg">Contact Us</a>
-                        </div>
-                    </div>
-                    <!-- Section Title End -->
-
-                </div> <!-- end col -->
-
-                <div class="col-lg-6">
-                    <div class="position-relative" data-aos="fade-up" data-aos-duration="1000">
-                        <div><img src="assets/img/section-bg/section-bg-01.png" class="img-fluid" alt=""></div>
-                        <div class="position-absolute end-0 top-0">
-                            <img src="assets/img/bg/line-01.svg" alt="">
-                        </div>
-                        <div class="position-absolute start-0 bottom-0">
-                            <img src="assets/img/bg/line-02.svg" alt="">
-                        </div>
-                    </div>
-                </div> <!-- end col -->
-
-            </div>
-            <!-- end row -->
-
-            <div class="counter-list">
-
-                <!-- start row -->
-                <div class="row">
-
-                    <div class="col-lg-3 col-sm-6 d-flex" data-aos="fade-up" data-aos-duration="1000">
-                        <div class="counting-item flex-fill">
-								<span class="count-icon">
-									<img src="assets/img/icons/count-01.svg" alt="">
-								</span>
-                            <div>
-                                <h4 class="mb-1"><span class="counter-up">12000</span>+</h4>
-                                <p class="mb-0">Rentals Completed</p>
-                            </div>
-                        </div>
-                    </div> <!-- end col -->
-
-                    <div class="col-lg-3 col-sm-6 d-flex" data-aos="fade-up" data-aos-duration="1500">
-                        <div class="counting-item flex-fill">
-								<span class="count-icon">
-									<img src="assets/img/icons/count-02.svg" alt="">
-								</span>
-                            <div>
-                                <h4 class="mb-1"><span class="counter-up">1514</span>+</h4>
-                                <p class="mb-0">Trusted Owners</p>
-                            </div>
-                        </div>
-                    </div> <!-- end col -->
-
-                    <div class="col-lg-3 col-sm-6 d-flex" data-aos="fade-up" data-aos-duration="2000">
-                        <div class="counting-item flex-fill">
-								<span class="count-icon">
-									<img src="assets/img/icons/count-03.svg" alt="">
-								</span>
-                            <div>
-                                <h4 class="mb-1"><span class="counter-up">9</span>K+</h4>
-                                <p class="mb-0">Happy Clients</p>
-                            </div>
-                        </div>
-                    </div> <!-- end col -->
-
-                    <div class="col-lg-3 col-sm-6 d-flex" data-aos="fade-up" data-aos-duration="2500">
-                        <div class="counting-item flex-fill">
-								<span class="count-icon">
-									<img src="assets/img/icons/count-02.svg" alt="">
-								</span>
-                            <div>
-                                <h4 class="mb-1"><span class="counter-up">1514</span>+</h4>
-                                <p class="mb-0">Total Bookings</p>
-                            </div>
-                        </div>
-                    </div> <!-- end col -->
-
-                </div>
-                <!-- end row -->
-
-            </div>
-        </div>
-    </section>
+    <livewire:homepage-stats/>
     <!-- About Us Section End -->
 
     <!-- Property Type Section Start -->
-    <section class="property-type-section">
-        <div class="container">
-
-            <!-- Section Title Start -->
-            <div class="section-title-2" data-aos="fade-up" data-aos-duration="1000">
-                <div class="d-flex align-items-center justify-content-center">
-                    <span class="title-square bg-primary"></span><span class="title-square bg-secondary"></span>
-                    <h2>Recommended <span> Property</span> Types </h2>
-                    <span class="title-square bg-primary"></span><span class="title-square bg-secondary"></span>
-                </div>
-                <p>Discover our top service areas, where quality meets convenience.</p>
-            </div>
-            <!-- Section Title End -->
-
-            <!-- start row -->
-            <div class="row">
-
-                <div class="col-lg-3 col-sm-6" data-aos="fade-up" data-aos-duration="1000">
-                    <div class="property-type-item">
-                        <div class="property-img">
-                            <a href="buy-details.html"><img src="assets/img/property-type/property-type-01.jpg" class="img-fluid" alt=""></a>
-                            <a href="buy-details.html" class="overlay-arrow"><i class="material-icons-outlined">north_east</i></a>
-                        </div>
-                        <div class="text-center">
-                            <h5 class="mb-1"><a href="buy-details.html">Houses</a></h5>
-                            <p class="fs-14 mb-0">288 Property Available</p>
-                        </div>
-                    </div>
-                </div> <!-- end col -->
-
-                <div class="col-lg-3 col-sm-6" data-aos="fade-up" data-aos-duration="1500">
-                    <div class="property-type-item">
-                        <div class="property-img">
-                            <a href="buy-details.html"><img src="assets/img/property-type/property-type-02.jpg" class="img-fluid" alt=""></a>
-                            <a href="buy-details.html" class="overlay-arrow"><i class="material-icons-outlined">north_east</i></a>
-                        </div>
-                        <div class="text-center">
-                            <h5 class="mb-1"><a href="buy-details.html">Offices</a></h5>
-                            <p class="fs-14 mb-0">300 Property Available</p>
-                        </div>
-                    </div>
-                </div> <!-- end col -->
-
-                <div class="col-lg-3 col-sm-6" data-aos="fade-up" data-aos-duration="2000">
-                    <div class="property-type-item">
-                        <div class="property-img">
-                            <a href="buy-details.html"><img src="assets/img/property-type/property-type-03.jpg" class="img-fluid" alt=""></a>
-                            <a href="buy-details.html" class="overlay-arrow"><i class="material-icons-outlined">north_east</i></a>
-                        </div>
-                        <div class="text-center">
-                            <h5 class="mb-1"><a href="buy-details.html">Villas</a></h5>
-                            <p class="fs-14 mb-0">145 Property Available</p>
-                        </div>
-                    </div>
-                </div> <!-- end col -->
-
-                <div class="col-lg-3 col-sm-6" data-aos="fade-up" data-aos-duration="2500">
-                    <div class="property-type-item">
-                        <div class="property-img">
-                            <a href="buy-details.html"><img src="assets/img/property-type/property-type-04.jpg" class="img-fluid" alt=""></a>
-                            <a href="buy-details.html" class="overlay-arrow"><i class="material-icons-outlined">north_east</i></a>
-                        </div>
-                        <div class="text-center">
-                            <h5 class="mb-1"><a href="buy-details.html">Apartments</a></h5>
-                            <p class="fs-14 mb-0">875  Property Available</p>
-                        </div>
-                    </div>
-                </div> <!-- end col -->
-
-            </div>
-            <!-- end row -->
-
-            <div class="text-center pt-3">
-                <a href="buy-property-grid.html" class="btn btn-dark d-inline-flex align-items-center">View More Type<i class="material-icons-outlined ms-1">north_east</i></a>
-            </div>
-
-        </div>
-    </section>
+    <livewire:property-types-section/>
     <!-- Property Type Section End -->
 
     <!-- Support Section Start -->
