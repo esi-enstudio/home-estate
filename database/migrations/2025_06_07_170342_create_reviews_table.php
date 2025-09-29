@@ -28,6 +28,9 @@ return new class extends Migration
             $table->unsignedInteger('likes_count')->default(0);
             $table->unsignedInteger('dislikes_count')->default(0);
             $table->unsignedInteger('favorites_count')->default(0);
+            $table->boolean('is_testimonial')
+                ->default(false)
+                ->comment('Determines if the review should be shown on the homepage testimonials section.');
             $table->timestamps();
 
             // একজন ইউজার একটি বাসার জন্য মাত্র একবারই রিভিউ দিতে পারবে

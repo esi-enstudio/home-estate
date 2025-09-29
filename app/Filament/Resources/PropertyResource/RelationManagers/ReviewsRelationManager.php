@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PropertyResource\RelationManagers;
 
 use App\Models\Review;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
@@ -30,9 +31,15 @@ class ReviewsRelationManager extends RelationManager
                         'rejected' => 'Rejected',
                     ])
                     ->required(),
+
+                Forms\Components\Toggle::make('is_testimonial')
+                    ->label('Show this review on the homepage testimonials section.'),
             ]);
     }
 
+    /**
+     * @throws Exception
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -52,12 +59,15 @@ class ReviewsRelationManager extends RelationManager
                         'approved' => 'success',
                         'rejected' => 'danger',
                     }),
+                Tables\Columns\ToggleColumn::make('is_testimonial')
+                    ->label('হোমপেজে দেখান'),
                 Tables\Columns\TextColumn::make('replies_count')
                     ->label('Replies')
                     ->counts('replies'),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('is_testimonial')
+                    ->label('হোমপেজে দেখানো'),
             ])
             ->headerActions([
 //                Tables\Actions\CreateAction::make(),

@@ -1,7 +1,7 @@
 <section class="popular-listing-section">
     <div class="container">
         <!-- Section Title Start -->
-        <div class="section-title-2" data-aos="fade-up" data-aos-duration="500">
+        <div class="section-title-2">
             <div class="d-flex align-items-center justify-content-center">
                 <span class="title-square bg-primary"></span><span class="title-square bg-secondary"></span>
                 <h2>জনপ্রিয় <span>প্রপার্টি</span> আবিষ্কার করুন</h2>
@@ -28,7 +28,7 @@
             <div class="tab-pane fade active show">
                 <div class="row">
                     @forelse($properties as $property)
-                        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-duration="1500">
+                        <div class="col-xl-4 col-md-6">
                             {{-- পুনঃব্যবহারযোগ্য প্রপার্টি কার্ডটি এখানে অন্তর্ভুক্ত করা হলো --}}
                             @include('partials._property-card', ['property' => $property])
                         </div>

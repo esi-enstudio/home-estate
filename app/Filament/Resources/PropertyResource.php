@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers\AmenitiesRelationManager;
 use App\Filament\Resources\PropertyResource\RelationManagers\EnquiriesRelationManager;
+use App\Filament\Resources\PropertyResource\RelationManagers\ReviewsRelationManager;
 use App\Models\District;
 use App\Models\Property;
 use App\Models\PropertyType;
@@ -458,6 +459,7 @@ class PropertyResource extends Resource
         return [
             AmenitiesRelationManager::class,
             EnquiriesRelationManager::class,
+            ReviewsRelationManager::class,
         ];
     }
 
