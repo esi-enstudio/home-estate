@@ -42,7 +42,7 @@
                                     <h5>Sort By</h5>
                                     <div class="result-select">
                                         {{-- wire:model এর মাধ্যমে sortBy প্রোপার্টির সাথে বাইন্ড করা হলো --}}
-                                        <select class="select" wire:model.live="sortBy">
+                                        <select class="form-select" wire:model.live="sortBy">
                                             <option value="default">Default</option>
                                             <option value="title_asc">A-Z</option>
                                         </select>
@@ -53,7 +53,7 @@
                                     <h5>Price Range</h5>
                                     <div class="result-select">
                                         {{-- wire:model এর মাধ্যমে sortPrice প্রোপার্টির সাথে বাইন্ড করা হলো --}}
-                                        <select class="select" wire:model.live="sortPrice">
+                                        <select class="form-select" wire:model.live="sortPrice">
                                             <option value="default">Default</option>
                                             <option value="lth">Low to High</option>
                                             <option value="htl">High to Low</option>
@@ -260,6 +260,7 @@
                                                 </a>
                                             </div>
                                         </div>
+
                                         <div class="buy-grid-content">
                                             <div class="d-flex align-items-center justify-content-between mb-3">
                                                 <div class="d-flex align-items-center justify-content-center">
@@ -295,7 +296,7 @@
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div class="avatar avatar-lg user-avatar">
                                                         {{-- এখানে ব্যবহারকারীর প্রোফাইল ছবি যুক্ত করতে হবে --}}
-                                                        <img src="{{ $property->user->profile_photo_path ?? 'https://via.placeholder.com/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                                                        <img src="{{ $property->user->avatar_url ?? asset('assets/img/user-default-avatar.png') }}" alt="{{ $property->user->name }}" class="rounded-circle">
                                                     </div>
                                                     <h6 class="mb-0 fs-16 fw-medium text-dark">{{ $property->user->name }}<span class="d-block fs-14 text-body pt-1">Owner</span> </h6>
                                                 </div>

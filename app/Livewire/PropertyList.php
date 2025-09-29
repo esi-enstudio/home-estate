@@ -32,16 +32,33 @@ class PropertyList extends Component
 
     public array $favoritedPropertyIds = [];
 
+
     /**
-     * যখন sortBy বা sortPrice প্রোপার্টির মান পরিবর্তন হবে,
-     * তখন এই মেথডটি স্বয়ংক্রিয়ভাবে কল হবে।
+     * যখনই sortBy প্রোপার্টির মান পরিবর্তন হবে, এই মেথডটি স্বয়ংক্রিয়ভাবে কল হবে।
      */
-    public function updated($propertyName): void
+    public function updatedSortBy($value): void
     {
-        if (in_array($propertyName, ['sortBy', 'sortPrice'])) {
-            $this->page = 1; // সর্টিং পরিবর্তন হলে পেজিনেশন রিসেট হবে
-            $this->loadProperties();
+        // যদি ব্যবহারকারী একটি টাইটেল-ভিত্তিক সর্ট সিলেক্ট করে,
+        // তাহলে মূল্য-ভিত্তিক সর্টটিকে তার ডিফল্ট মানে রিসেট করে দাও।
+        if ($value !== 'default') {
+            $this->reset('sortPrice');
         }
+        $this->page = 1; // পেজিনেশন রিসেট করুন
+        $this->loadProperties();
+    }
+
+    /**
+     * যখনই sortPrice প্রোপার্টির মান পরিবর্তন হবে, এই মেথডটি স্বয়ংক্রিয়ভাবে কল হবে।
+     */
+    public function updatedSortPrice($value): void
+    {
+        // যদি ব্যবহারকারী একটি মূল্য-ভিত্তিক সর্ট সিলেক্ট করে,
+        // তাহলে টাইটেল-ভিত্তিক সর্টটিকে তার ডিফল্ট মানে রিসেট করে দাও।
+        if ($value !== 'default') {
+            $this->reset('sortBy');
+        }
+        $this->page = 1; // পেজিনেশন রিসেট করুন
+        $this->loadProperties();
     }
 
     /**

@@ -203,13 +203,13 @@ class Property extends Model implements HasMedia
 
     /**
      * Get a formatted and filtered list of property features for display.
-     * Only features with a non-empty value will be returned.
-     * ভবিষ্যতে যদি আপনাকে নতুন কোনো ফিচার (যেমন total_floors) যোগ করতে হয়, তাহলে আপনাকে শুধু Property মডেলের $featureMap অ্যারেতে একটি নতুন লাইন যোগ করতে হবে। ব্লেড ফাইলে কোনো পরিবর্তনের প্রয়োজনই হবে না!
+     * This now includes both dedicated columns and JSON-based additional features.
+     *
      * @return array
      */
     public function getFormattedFeatures(): array
     {
-        // এখানে আমরা আমাদের সকল ফিচার, তাদের লেবেল, আইকন এবং একক (unit) ম্যাপ করে রাখব
+        // --- ধাপ ১: মূল ফিচারগুলো আগের মতোই ম্যাপ করা ---
         $featureMap = [
             'bedrooms'         => ['label' => 'Bedrooms', 'icon' => 'bed', 'suffix' => ''],
             'bathrooms'        => ['label' => 'Bathrooms', 'icon' => 'bathtub', 'suffix' => ''],
@@ -223,15 +223,31 @@ class Property extends Model implements HasMedia
         $features = [];
 
         foreach ($featureMap as $attribute => $details) {
-            // যদি এই প্রপার্টিতে ওই নির্দিষ্ট ফিচারের মান থাকে (null, empty string, or 0 নয়)
             if (!empty($this->{$attribute})) {
                 $features[] = [
                     'label' => $details['label'],
-                    'value' => $this->{$attribute} . $details['suffix'], // মানের সাথে একক যোগ করা হলো
+                    'value' => $this->{$attribute} . $details['suffix'],
                     'icon'  => $details['icon'],
                 ];
             }
         }
+
+        // === START: নতুন এবং ডাইনামিক অংশ ===
+        // --- ধাপ ২: 'additional_features' JSON কলাম থেকে ডেটা যোগ করা ---
+        // প্রথমে নিশ্চিত করুন যে additional_features খালি নয় এবং এটি একটি অ্যারে
+        if (!empty($this->additional_features) && is_array($this->additional_features)) {
+            foreach ($this->additional_features as $featureName => $featureValue) {
+                // শুধুমাত্র যদি নাম এবং মান উভয়ই থাকে, তবেই যোগ করুন
+                if (!empty($featureName) && !empty($featureValue)) {
+                    $features[] = [
+                        'label' => $featureName,
+                        'value' => $featureValue,
+                        'icon'  => 'check_circle', // সকল অতিরিক্ত ফিচারের জন্য একটি সুন্দর ডিফল্ট আইকন
+                    ];
+                }
+            }
+        }
+        // === END: নতুন এবং ডাইনামিক অংশ ===
 
         return $features;
     }
