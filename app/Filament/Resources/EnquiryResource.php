@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReviewResource\Pages;
-use App\Filament\Resources\ReviewResource\RelationManagers;
-use App\Models\Review;
+use App\Filament\Resources\EnquiryResource\Pages;
+use App\Filament\Resources\EnquiryResource\RelationManagers;
+use App\Models\Enquiry;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,14 +13,14 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ReviewResource extends Resource
+class EnquiryResource extends Resource
 {
-    protected static ?string $model = Review::class;
+    protected static ?string $model = Enquiry::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
     protected static ?string $navigationGroup = 'ইন্টার‍্যাকশনস';
-    protected static ?string $navigationLabel = 'সকল রিভিউ';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationLabel = 'সকল জিজ্ঞাসা';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -35,9 +35,9 @@ class ReviewResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('property.title')->label('Property')->searchable(),
-                Tables\Columns\TextColumn::make('user.name')->label('Reviewer')->searchable(),
-                Tables\Columns\TextColumn::make('rating')->badge(),
-                Tables\Columns\BadgeColumn::make('status')->colors(['primary'=>'pending', 'success'=>'approved', 'danger'=>'rejected']),
+                Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('email'),
+                Tables\Columns\ToggleColumn::make('is_read')->label('Read'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime('d M Y')->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -64,9 +64,9 @@ class ReviewResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListReviews::route('/'),
-            'create' => Pages\CreateReview::route('/create'),
-            'edit' => Pages\EditReview::route('/{record}/edit'),
+            'index' => Pages\ListEnquiries::route('/'),
+            'create' => Pages\CreateEnquiry::route('/create'),
+            'edit' => Pages\EditEnquiry::route('/{record}/edit'),
         ];
     }
 }

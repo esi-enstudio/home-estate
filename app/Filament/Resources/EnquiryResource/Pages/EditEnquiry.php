@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ReviewResource\Pages;
+namespace App\Filament\Resources\EnquiryResource\Pages;
 
-use App\Filament\Resources\ReviewResource;
+use App\Filament\Resources\EnquiryResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditReview extends EditRecord
+class EditEnquiry extends EditRecord
 {
-    protected static string $resource = ReviewResource::class;
+    protected static string $resource = EnquiryResource::class;
 
     protected function getHeaderActions(): array
     {

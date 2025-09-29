@@ -19,11 +19,13 @@ class PropertyTypeResource extends Resource
 {
     protected static ?string $model = PropertyType::class;
 
+    // === START: Grouping & Icon Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-
-    protected static ?string $navigationGroup = 'Property Management';
-
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'প্রপার্টি ম্যানেজমেন্ট';
+    protected static ?string $navigationLabel = 'প্রপার্টি টাইপ';
+    protected static ?string $modelLabel = 'প্রপার্টি টাইপ';
+    protected static ?int $navigationSort = 2;
+    // === END: Grouping & Icon Configuration ===
 
     public static function form(Form $form): Form
     {
