@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Property;
+use App\Models\PropertyType;
 use App\Models\Review;
 use App\Observers\PropertyObserver;
+use App\Observers\PropertyTypeObserver;
 use App\Observers\ReviewObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Review::observe(ReviewObserver::class);
         Property::observe(PropertyObserver::class);
+        PropertyType::observe(PropertyTypeObserver::class);
     }
 }

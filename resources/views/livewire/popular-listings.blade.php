@@ -4,10 +4,10 @@
         <div class="section-title-2">
             <div class="d-flex align-items-center justify-content-center">
                 <span class="title-square bg-primary"></span><span class="title-square bg-secondary"></span>
-                <h2>জনপ্রিয় <span>প্রপার্টি</span> আবিষ্কার করুন</h2>
+                <h2>যেখানে <span>স্বপ্ন</span> মেলে বাস্তবের সাথে</h2>
                 <span class="title-square bg-primary"></span><span class="title-square bg-secondary"></span>
             </div>
-            <p>আপনার স্বপ্নের বাড়ি কেনার জন্য প্রস্তুত? এখানেই খুঁজে নিন</p>
+            <p>আপনার ভবিষ্যতের বাড়ি খোঁজার যাত্রা শুরু হোক এখান থেকেই।</p>
         </div>
         <!-- Section Title End -->
 

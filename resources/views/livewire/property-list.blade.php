@@ -155,30 +155,6 @@
                                         </select>
                                     </div>
 
-                                    {{--                                        <div class="mb-2">--}}
-                                    {{--                                            <label class="form-label mb-1">Balconies</label>--}}
-                                    {{--                                            <select class="form-select">--}}
-                                    {{--                                                <option value="">Any</option>--}}
-                                    {{--                                                @for($i = 1; $i <= 10; $i++) <option value="{{ $i }}">{{ $i }}</option> @endfor--}}
-                                    {{--                                            </select>--}}
-                                    {{--                                        </div>--}}
-
-                                    {{--                                        <div class="mb-2">--}}
-                                    {{--                                            <label class="form-label mb-1">Floor Level</label>--}}
-                                    {{--                                            <select class="form-select">--}}
-                                    {{--                                                <option value="">Any</option>--}}
-                                    {{--                                                @for($i = 1; $i <= 10; $i++) <option value="{{ $i }}">{{ $i }}</option> @endfor--}}
-                                    {{--                                            </select>--}}
-                                    {{--                                        </div>--}}
-
-                                    {{--                                        <div class="mb-2">--}}
-                                    {{--                                            <label class="form-label mb-1">Total Floor</label>--}}
-                                    {{--                                            <select class="form-select">--}}
-                                    {{--                                                <option value="">Any</option>--}}
-                                    {{--                                                @for($i = 1; $i <= 20; $i++) <option value="{{ $i }}">{{ $i }}</option> @endfor--}}
-                                    {{--                                            </select>--}}
-                                    {{--                                        </div>--}}
-
                                     <div>
                                         <label class="form-label mb-1"> Min Sqft </label>
                                         <div class="input-group input-group-flat mb-0">
@@ -225,10 +201,10 @@
                                             <a href="{{ route('properties.show', $property) }}">
                                                 @if ($featuredImage)
                                                     {{-- যদি ছবি থাকে, তাহলে WebP থাম্বনেইলটি দেখাও --}}
-                                                    <img class="img-fluid" src="{{ $property->getFirstMediaUrl('featured_image', 'thumbnail') ?: 'https://via.placeholder.com/400x250' }}" alt="{{ $property->title }}">
+                                                    <img class="img-fluid" src="{{ $property->getFirstMediaUrl('featured_image', 'thumbnail') }}" alt="{{ $property->title }}">
                                                 @else
                                                     {{-- যদি কোনো ছবি না থাকে, তাহলে placeholder দেখাও --}}
-                                                    <img class="img-fluid" src="{{ asset('assets/img/default-property-img.png') }}" alt="{{ $property->title }}">
+                                                    <img class="img-fluid" src="https://placehold.co/832x472" alt="{{ $property->title }}">
                                                 @endif
                                             </a>
                                             <div class="d-flex align-items-center justify-content-between position-absolute top-0 start-0 end-0 p-3 z-1">
@@ -315,9 +291,16 @@
                                     <div class="property-card flex-fill">
                                         <div class="property-listing-item p-0 mb-0 shadow-none d-flex flex-lg-nowrap flex-wrap">
                                             <div class="buy-grid-img buy-list-img rent-list-img mb-0 rounded-0">
-                                                <a href="#">
-                                                    <img class="img-fluid" src="{{ $property->getFirstMediaUrl('images', 'thumbnail') ?: 'https://via.placeholder.com/400x250' }}" alt="{{ $property->title }}">
+                                                <a href="{{ route('properties.show', $property) }}">
+                                                    @if ($featuredImage)
+                                                        {{-- যদি ছবি থাকে, তাহলে WebP থাম্বনেইলটি দেখাও --}}
+                                                        <img class="img-fluid" src="{{ $property->getFirstMediaUrl('featured_image', 'thumbnail') }}" alt="{{ $property->title }}">
+                                                    @else
+                                                        {{-- যদি কোনো ছবি না থাকে, তাহলে placeholder দেখাও --}}
+                                                        <img class="img-fluid" src="https://placehold.co/832x472" alt="{{ $property->title }}">
+                                                    @endif
                                                 </a>
+
                                                 <div class="d-flex align-items-center justify-content-between position-absolute top-0 start-0 end-0 p-3 z-1">
                                                     <div class="d-flex align-items-center gap-2">
                                                         @if($property->created_at->gt(now()->subDays(7)))
@@ -347,7 +330,7 @@
                                                 </div>
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                                     <div>
-                                                        <h6 class="title mb-1"><a href="#">{{ $property->title }}</a></h6>
+                                                        <h6 class="title mb-1"><a href="{{ route('properties.show', $property) }}">{{ $property->title }}</a></h6>
                                                         <p class="d-flex align-items-center fs-14 mb-0"><i class="material-icons-outlined me-1 ms-0">location_on</i>{{ $property->address_area }}, {{ $property->district->name }}</p>
                                                     </div>
                                                 </div>
@@ -359,7 +342,7 @@
                                                 <div class="d-flex align-items-center justify-content-between flex-wrap border-top border-light-100 pt-3">
                                                     <div class="d-flex align-items-center gap-2">
                                                         <div class="avatar avatar-lg user-avatar">
-                                                            <img src="{{ $property->user->profile_photo_path ?? 'https://via.placeholder.com/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                                                            <img src="{{ $property->user->avatar_url ?? 'https://via.placeholder.com/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
                                                         </div>
                                                         <h6 class="mb-0 fs-16 fw-medium text-dark">{{ $property->user->name }}<span class="d-block fs-14 text-body pt-1">Owner</span></h6>
                                                     </div>
@@ -389,13 +372,14 @@
                     @if($hasMorePages)
                         <div class="text-center">
                             <button wire:click="loadMore" wire:loading.attr="disabled" class="btn btn-dark d-inline-flex align-items-center">
-                <span wire:loading.remove wire:target="loadMore">
-                    <i class="material-icons-outlined me-1">autorenew</i>Load More
-                </span>
+                                <span wire:loading.remove wire:target="loadMore">
+                                    <i class="material-icons-outlined me-1">autorenew</i>Load More
+                                </span>
+
                                 {{-- লোড হওয়ার সময় এই লেখাটি দেখাবে --}}
                                 <span wire:loading wire:target="loadMore">
-                    Loading...
-                </span>
+                                    Loading...
+                                </span>
                             </button>
                         </div>
                     @endif
@@ -405,5 +389,4 @@
         </div>
     </div>
     <!-- End Content -->
-
 </div>

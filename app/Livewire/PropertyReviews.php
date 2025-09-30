@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Mail\NewReviewMail;
 use App\Models\Property;
 use App\Models\Review;
 use App\Models\ReviewReaction;
+use App\Notifications\NewReviewNotification;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class PropertyReviews extends Component
@@ -30,7 +33,7 @@ class PropertyReviews extends Component
     public string $title = '';
     public string $body = '';
 
-    public bool $showSuccessMessage = false;
+    public ?string $successMessage = null;
 
     // Validation rules
     protected function rules(): array
@@ -146,41 +149,66 @@ class PropertyReviews extends Component
 
     public function submitReview(): void
     {
+        // ধাপ ১: ব্যবহারকারী লগইন করা আছে কিনা তা পরীক্ষা করা
         if (!Auth::check()) {
-            $this->dispatch('show-login-alert'); // এটি একটি ইভেন্ট যা আপনি JS দিয়ে শুনতে পারেন
+            // JS কে জানানোর জন্য একটি ইভেন্ট পাঠান যাতে লগইন পপআপ দেখানো যায়
+            $this->dispatch('show-login-alert');
             return;
         }
 
-        // ========== START: নতুন চেক যোগ করা হলো ==========
+        // ধাপ ২: ব্যবহারকারী এই প্রপার্টির মালিক কিনা তা পরীক্ষা করা (ঐচ্ছিক কিন্তু প্রস্তাবিত)
+        if ($this->property->user_id === Auth::id()) {
+            session()->flash('error', 'দুঃখিত, আপনি নিজের প্রপার্টিতে রিভিউ দিতে পারবেন না।');
+            return;
+        }
+
+        // ধাপ ৩: ব্যবহারকারী ইতোমধ্যে রিভিউ দিয়েছে কিনা তা পরীক্ষা করা
         $existingReview = Review::where('user_id', Auth::id())
             ->where('property_id', $this->property->id)
-            ->whereNull('parent_id') // শুধুমাত্র টপ-লেভেল রিভিউ চেক করা হচ্ছে
+            ->whereNull('parent_id')
             ->exists();
 
         if ($existingReview) {
-            // একটি ফ্ল্যাশ মেসেজ সেট করা হচ্ছে যা ভিউতে দেখানো যাবে
-            session()->flash('error', 'You have already submitted a review for this property.');
-            // ভিউতে থাকা মডালটি বন্ধ করার জন্য একটি ইভেন্ট পাঠানো যেতে পারে (ঐচ্ছিক)
-            // $this->dispatch('close-review-modal');
+            session()->flash('error', 'আপনি ইতোমধ্যে এই প্রপার্টির জন্য একটি রিভিউ জমা দিয়েছেন।');
             return;
         }
-        // ========== END: নতুন চেক যোগ করা হলো ==========
 
-        $this->validate();
+        // ধাপ ৪: ডেটা ভ্যালিডেট করা
+        $validatedData = $this->validate();
 
-        Review::create([
+        // ধাপ ৫: রিভিউ তৈরি করা
+        $review = Review::create([
             'property_id' => $this->property->id,
-            'user_id' => Auth::id(),
-            'rating' => $this->rating,
-            'title' => $this->title,
-            'body' => $this->body,
-            'status' => 'pending',
+            'user_id'     => Auth::id(),
+            'rating'      => $validatedData['rating'],
+            'title'       => $validatedData['title'],
+            'body'        => $validatedData['body'],
+            'status'      => 'pending', // মডারেশনের জন্য ডিফল্ট 'pending'
         ]);
 
-        $this->reset(['rating', 'title', 'body']);
-        $this->showSuccessMessage = true;
+        // ধাপ ৬: প্রপার্টি মালিককে নোটিফাই করা (ইমেইল এবং ডাটাবেস)
+        try {
+            $owner = $this->property->user;
+            if ($owner) {
+                $owner->notify(new NewReviewNotification($review));
+                Mail::to($owner->email)->send(new NewReviewMail($review));
+            }
+        } catch (\Exception $e) {
+            // যদি নোটিফিকেশন পাঠাতে কোনো সমস্যা হয়, তাহলে সেটি লগ করা হবে
+            // কিন্তু ব্যবহারকারীর অভিজ্ঞতা बाधित হবে না।
+            report($e);
+        }
 
-        $this->page = 1;
+        // ধাপ ৭: ফর্ম রিসেট করা
+        $this->reset(['rating', 'title', 'body']);
+
+        // মডাল বন্ধ করা এবং টোস্ট দেখানোর জন্য একটি ইভেন্ট পাঠান
+        // আমরা টোস্টের জন্য একটি মেসেজ এবং টাইপ (success) পাস করছি
+        $this->successMessage = 'ধন্যবাদ! আপনার রিভিউটি সফলভাবে জমা হয়েছে এবং পর্যালোচনার অপেক্ষায় আছে।';
+        $this->dispatch('close-review-modal');
+
+        // ধাপ ৯: কম্পোনেন্টের ডেটা রিফ্রেশ করা
+        $this->page = 1; // পেজিনেশন প্রথম পাতায় নিয়ে আসা
         $this->calculateRatingStats();
         $this->loadReviews();
     }

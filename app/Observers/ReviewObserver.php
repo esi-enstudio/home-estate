@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Property;
 use App\Models\Review;
+use Illuminate\Support\Facades\Cache;
 
 class ReviewObserver
 {
@@ -44,11 +45,20 @@ class ReviewObserver
     // --- Update Event (সবচেয়ে গুরুত্বপূর্ণ পরিবর্তন এখানে) ---
     public function updated(Review $review): void
     {
+        // === ধাপ ১: প্রপার্টির রিভিউ পরিসংখ্যান আপডেট করা ===
         // শুধুমাত্র যদি 'status' কলামটি পরিবর্তন হয়ে থাকে, তবেই পরিসংখ্যান আপডেট হবে।
-        // যেমন: pending -> approved, অথবা approved -> rejected।
         if ($review->wasChanged('status')) {
             $this->updatePropertyReviewStats($review->property);
         }
+
+        // === START: নতুন এবং গুরুত্বপূর্ণ পরিবর্তন ===
+        // === ধাপ ২: হোমপেজের Testimonial ক্যাশ রিসেট করা ===
+        // শুধুমাত্র যদি 'is_testimonial' ফ্ল্যাগটি পরিবর্তন হয়ে থাকে,
+        // তাহলে হোমপেজের প্রশংসাপত্রের ক্যাশটি মুছে ফেলুন।
+        if ($review->wasChanged('is_testimonial')) {
+            Cache::forget('customer_testimonials_stats');
+        }
+        // === END: নতুন এবং গুরুত্বপূর্ণ পরিবর্তন ===
     }
 
     /**
