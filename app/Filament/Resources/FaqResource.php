@@ -18,40 +18,50 @@ class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
+    // === START: Navigation & Grouping Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
-    protected static ?string $navigationGroup = 'Site Management';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
+    protected static ?string $navigationLabel = 'সচরাচর জিজ্ঞাসিত প্রশ্ন';
+    protected static ?string $modelLabel = 'প্রশ্ন';
+    protected static ?string $pluralModelLabel = 'প্রশ্নসমূহ';
+    protected static ?int $navigationSort = 4;
+    // === END: Navigation & Grouping Configuration ===
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make()
+                Forms\Components\Section::make('প্রশ্ন ও উত্তর')
                     ->schema([
-                        Forms\Components\TextInput::make('question')
+                        Forms\Components\Textarea::make('question')
+                            ->label('প্রশ্ন')
                             ->required()
-                            ->maxLength(255)
                             ->columnSpanFull(),
+
                         Forms\Components\RichEditor::make('answer')
+                            ->label('উত্তর')
                             ->required()
                             ->columnSpanFull(),
-                        Forms\Components\Select::make('category')
-                            ->options([
-                                'general' => 'General',
-                                'renting' => 'Renting',
-                                'selling' => 'Selling',
-                                'other' => 'Other',
-                            ])
-                            ->required()
-                            ->native(false),
+                    ]),
+
+                Forms\Components\Section::make('স্ট্যাটাস ও ক্রম')
+                    ->schema([
                         Forms\Components\TextInput::make('sort_order')
+                            ->label('সাজানোর ক্রম (Order)')
                             ->numeric()
-                            ->default(0),
+                            ->default(0)
+                            ->helperText('ছোট সংখ্যাগুলো আগে দেখানো হবে।'),
+
                         Forms\Components\Toggle::make('is_active')
+                            ->label('সক্রিয়')
                             ->default(true)
-                            ->columnSpanFull()
-                            ->required(),
-                    ])->columns(2),
+                            ->helperText('এটি নিষ্ক্রিয় করলে প্রশ্নটি ওয়েবসাইটে দেখানো হবে না।'),
+
+                        Forms\Components\Toggle::make('is_featured')
+                            ->label('হোমপেজে দেখান')
+                            ->default(true)
+                            ->helperText('এটি চালু থাকলে প্রশ্নটি হোমপেজের FAQ সেকশনে প্রদর্শিত হবে।'),
+                    ]),
             ]);
     }
 
@@ -63,35 +73,39 @@ class FaqResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('question')
+                    ->label('প্রশ্ন')
                     ->searchable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('category')
-                    ->badge()
-                    ->searchable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->boolean(),
+                    ->limit(60)
+                    ->wrap(),
+
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('সক্রিয়'),
+
+                Tables\Columns\ToggleColumn::make('is_featured')
+                    ->label('হোমপেজে দেখান'),
+
                 Tables\Columns\TextColumn::make('sort_order')
+                    ->label('ক্রম')
                     ->sortable(),
             ])
-            ->defaultSort('sort_order', 'asc')
-            ->defaultPaginationPageOption(5)
             ->filters([
-                Tables\Filters\SelectFilter::make('category')
-                    ->options([
-                        'general' => 'General',
-                        'renting' => 'Renting',
-                        'selling' => 'Selling',
-                        'other' => 'Other',
-                    ]),
+                Tables\Filters\TernaryFilter::make('is_active')->label('সক্রিয় স্ট্যাটাস'),
+                Tables\Filters\TernaryFilter::make('is_featured')->label('হোমপেজের স্ট্যাটাস'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->reorderable('sort_order')
+            ->defaultSort('sort_order', 'asc');
     }
 
     public static function getRelations(): array

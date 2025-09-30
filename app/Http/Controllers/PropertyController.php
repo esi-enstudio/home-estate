@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,7 +14,7 @@ class PropertyController extends Controller
      * Display a listing of the resource.
      * এই পেজটি Livewire কম্পোনেন্টকে রেন্ডার করবে।
      */
-    public function index()
+    public function index(): Factory|\Illuminate\Contracts\View\View
     {
         // এখন আর ডেটা লোড করার কোনো প্রয়োজন নেই।
         // শুধুমাত্র মূল ভিউ ফাইলটি রিটার্ন করা হচ্ছে।

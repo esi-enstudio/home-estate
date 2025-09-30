@@ -62,6 +62,10 @@
                             </ul>
                         </li>
 
+                        <li class="{{ request()->routeIs('blog.*') ? 'active' : '' }}">
+                            <a href="{{ route('blog.index') }}">Blog</a>
+                        </li>
+
                     </ul>
 
                     <div class="menu-dropdown">

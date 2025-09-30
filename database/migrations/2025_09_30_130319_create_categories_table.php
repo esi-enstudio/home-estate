@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('faqs', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('question');
-            $table->text('answer');
-            $table->boolean('is_featured')->default(true)->comment('Show on homepage');
-            $table->boolean('is_active')->default(true);
-            $table->unsignedInteger('sort_order')->default(0);
+            $table->string('name');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('faqs');
+        Schema::dropIfExists('categories');
     }
 };

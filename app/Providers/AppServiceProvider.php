@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Faq;
 use App\Models\Property;
 use App\Models\PropertyType;
 use App\Models\Review;
+use App\Observers\FaqObserver;
 use App\Observers\PropertyObserver;
 use App\Observers\PropertyTypeObserver;
 use App\Observers\ReviewObserver;
@@ -28,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
         Review::observe(ReviewObserver::class);
         Property::observe(PropertyObserver::class);
         PropertyType::observe(PropertyTypeObserver::class);
+        Faq::observe(FaqObserver::class);
     }
 }
