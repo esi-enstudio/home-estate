@@ -82,7 +82,7 @@
                                 @foreach($relatedPosts as $related)
                                     <div>
                                         <div class="blog-item-01">
-                                            <div class="blog-img"><a href="{{ route('blog.show', $related) }}"><img src="{{ $related->getFirstMediaUrl('featured_image') ?: 'https://placehold.co/400x250' }}" alt="{{ $related->title }}" class="img-fluid"></a></div>
+                                            <div class="blog-img"><a href="{{ route('blog.show', $related) }}"><img src="{{ $related->getFirstMediaUrl('featured_post_image') ?: 'https://placehold.co/400x250' }}" alt="{{ $related->title }}" class="img-fluid"></a></div>
                                             <div class="blog-content">
                                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
                                                     {{-- <span class="badge badge-sm bg-secondary fw-semibold">{{ $related->category->name }}</span> --}}

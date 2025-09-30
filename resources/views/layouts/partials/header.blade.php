@@ -66,6 +66,14 @@
                             <a href="{{ route('blog.index') }}">Blog</a>
                         </li>
 
+                        <li class="{{ request()->routeIs('about') ? 'active' : '' }}">
+                            <a href="{{ route('about') }}">About Us</a>
+                        </li>
+
+                        <li class="{{ request()->routeIs('contact') ? 'active' : '' }}">
+                            <a href="{{ route('contact') }}">Contact Us</a>
+                        </li>
+
                     </ul>
 
                     <div class="menu-dropdown">

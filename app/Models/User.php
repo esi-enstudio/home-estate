@@ -13,6 +13,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @method static has(string $string)
+ * @method static count()
+ * @method static whereHas(string $string, \Closure $param)
  */
 class User extends Authenticatable
 {
