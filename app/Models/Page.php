@@ -47,7 +47,7 @@ class Page extends Model
     {
         return Attribute::make(
         // --- GET (ডেটা দেখানোর সময়) ---
-        // Blade-এ যখন $page->content_bn কল করা হবে, তখন এটি কাজ করবে।
+        // Blade-এ যখন $page->content কল করা হবে, তখন এটি কাজ করবে।
         // এটি নিশ্চিত করবে যে ডাবল এনকোডেড ডেটা সঠিকভাবে প্রদর্শিত হচ্ছে।
             get: fn (?string $value) => html_entity_decode($value),
 

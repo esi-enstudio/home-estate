@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\View\Composers\FooterPagesComposer;
+use App\Http\View\Composers\FooterComposer;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +23,6 @@ class ViewServiceProvider extends ServiceProvider
     {
         // যখনই 'partials._footer' ভিউটি রেন্ডার হবে,
         // FooterPagesComposer ক্লাসটি তার compose() মেথডটি চালাবে।
-        View::composer('partials._footer', FooterPagesComposer::class);
+        View::composer('partials._footer', FooterComposer::class);
     }
 }
