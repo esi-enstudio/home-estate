@@ -4,107 +4,7 @@
 
 @section('content')
     <!-- Home Banner Section Start -->
-    <section class="home-banner-two">
-
-        <div>
-            <div class="banner-img-right" data-aos="fade-down" data-aos-duration="1000">
-                <img src="{{ asset('assets/img/section-bg/banner-bg-02.png') }}" alt="">
-            </div>
-            <div>
-                <img src="{{ asset('assets/img/bg/banner-round-bg.svg') }}" class="banner-round" alt="">
-            </div>
-            <div>
-                <img src="{{ asset('assets/img/bg/banner-shape.svg') }}" class="banner-shape" alt="">
-            </div>
-        </div>
-
-        <div class="container">
-
-            <!-- start row -->
-            <div class="row">
-
-                <div class="col-lg-5">
-                    <div class="banner-users d-flex align-items-center flex-wrap gap-2 mb-3">
-                        <div class="avatar-list-stacked">
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-01.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-02.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-03.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
-                            <span class="avatar avatar-md rounded-circle border-0"><img src="{{ asset('assets/img/users/user-04.jpg') }}" class="img-fluid rounded-circle" alt="Img"></span>
-                        </div>
-
-                        <div>
-                            <div class="d-flex align-items-center mb-1">
-                                <h6 class="mb-0 me-2 text-white fw-semibold fs-14">Ratings 5.0</h6>
-                                <i class="material-icons-outlined text-warning">star</i>
-                                <i class="material-icons-outlined text-warning">star</i>
-                                <i class="material-icons-outlined text-warning">star</i>
-                                <i class="material-icons-outlined text-warning">star</i>
-                                <i class="material-icons-outlined text-warning">star</i>
-                            </div>
-                            <p class="mb-0 text-white fs-13">Trusted By Client around the World</p>
-                        </div>
-                    </div>
-                    <div class="banner-title aos" data-aos="fade-up">
-                        <h1>Find your <span>Next Home</span> Away from Home.</h1>
-                        <p>Say goodbye to the complexities and headaches of traditional solutions and embrace a streamlined approach.</p>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <a href="buy-property-grid.html" class="btn btn-primary btn-lg d-inline-flex align-items-center me-3"><i class="material-icons-outlined me-2">shopping_basket</i>Buy Property</a>
-
-                        <a href="rent-property-grid.html" class="btn btn-white btn-lg d-inline-flex align-items-center"><i class="material-icons-outlined me-2">king_bed</i>Rent Property</a>
-                    </div>
-                </div> <!-- end col -->
-
-            </div>
-            <!-- end row -->
-
-        </div>
-    </section>
-    <!-- Home Banner Section End -->
-
-    <!-- Search Start -->
-    <div class="home-search-2">
-        <div class="container">
-            <form action="https://dreamsestate.dreamstechnologies.com/html/buy-property-grid-sidebar.html">
-                <div class="d-flex align-items-end flex-wrap flex-md-nowrap gap-3">
-                    <div class="flex-fill select-field">
-                        <label class="form-label">Buy / Sell</label>
-                        <select class="select">
-                            <option>Select</option>
-                            <option>Buy</option>
-                            <option>Sell</option>
-                        </select>
-                    </div>
-                    <div class="flex-fill select-field">
-                        <label class="form-label">Type of Property</label>
-                        <select class="select">
-                            <option>Select</option>
-                            <option>Buy Property</option>
-                            <option>Rent Property</option>
-                        </select>
-                    </div>
-                    <div class="flex-fill select-field">
-                        <label class="form-label">Location</label>
-                        <input type="text" class="form-control">
-                    </div>
-                    <div class="flex-fill select-field">
-                        <label class="form-label">Min Price</label>
-                        <input type="text" class="form-control" placeholder="$">
-                    </div>
-                    <div class="flex-fill select-field">
-                        <label class="form-label">Max Price</label>
-                        <input type="text" class="form-control" placeholder="$">
-                    </div>
-                    <div class="select-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="material-icons-outlined">search</i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Search End -->
+    @include('partials._home-banner')
 
     <!-- About Us Section Start -->
     <livewire:homepage-stats/>
@@ -119,25 +19,16 @@
         <div class="horizontal-slide d-flex" data-direction="right" data-speed="slow">
             <div class="slide-list d-flex">
                 <div class="support-item">
-                    <h5>Personalized Itineraries</h5>
+                    <h5>আজই ফ্রিতে আপনার প্রোপার্টির বিজ্ঞাপন দিন।</h5>
                 </div>
                 <div class="support-item">
-                    <h5>Comprehensive Planning</h5>
+                    <h5>আজই ফ্রিতে আপনার প্রোপার্টির বিজ্ঞাপন দিন।</h5>
                 </div>
                 <div class="support-item">
-                    <h5>Expert Guidance</h5>
+                    <h5>আজই ফ্রিতে আপনার প্রোপার্টির বিজ্ঞাপন দিন।</h5>
                 </div>
                 <div class="support-item">
-                    <h5>Local Experience</h5>
-                </div>
-                <div class="support-item">
-                    <h5>Customer Support</h5>
-                </div>
-                <div class="support-item">
-                    <h5>Sustainability Efforts</h5>
-                </div>
-                <div class="support-item">
-                    <h5>Multiple Regions</h5>
+                    <h5>আজই ফ্রিতে আপনার প্রোপার্টির বিজ্ঞাপন দিন।</h5>
                 </div>
             </div>
         </div>

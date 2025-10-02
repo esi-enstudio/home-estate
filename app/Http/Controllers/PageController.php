@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faq;
 use App\Models\Page;
 use Illuminate\Http\Request;
 
@@ -24,5 +25,13 @@ class PageController extends Controller
             abort(404);
         }
         return view('pages.show', compact('page'));
+    }
+
+    public function faq()
+    {
+        // ডাটাবেজ থেকে সকল সক্রিয় FAQ লোড করা হচ্ছে এবং sort_order অনুযায়ী সাজানো হচ্ছে
+        $faqs = Faq::where('is_active', true)->orderBy('sort_order')->get();
+
+        return view('pages.faq', compact('faqs'));
     }
 }

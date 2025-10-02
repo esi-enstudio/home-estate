@@ -23,6 +23,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static where(string $string, string $string1)
  * @method static whereIn(string $string, string[] $array)
  * @method static count()
+ * @method static trending()
  */
 class Property extends Model implements HasMedia
 {
@@ -260,5 +261,33 @@ class Property extends Model implements HasMedia
     public function favoritedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'property_user');
+    }
+
+    /**
+     * Scope a query to only include trending properties.
+     * This calculates a "trending score" based on recent activity.
+     *
+     */
+    public function scopeTrending(Builder $query): Builder
+    {
+        $sevenDaysAgo = now()->subDays(7)->toDateTimeString(); // <-- স্ট্রিং-এ রূপান্তরিত করা হলো
+
+        return $query
+            ->where('status', 'active')
+            ->select('properties.*')
+            // === START: মূল পরিবর্তন এখানে ===
+            ->addSelect(
+                DB::raw(
+                    "(SELECT
+                        (p.views_count * 1) +
+                        (SELECT COUNT(*) FROM enquiries WHERE enquiries.property_id = p.id AND enquiries.created_at >= '{$sevenDaysAgo}') * 5 +
+                        (SELECT COUNT(*) FROM property_user WHERE property_user.property_id = p.id AND property_user.created_at >= '{$sevenDaysAgo}') * 3 +
+                        (CASE WHEN p.is_trending = 1 THEN 50 ELSE 0 END)
+                    FROM properties as p WHERE p.id = properties.id)
+                    as trending_score"
+                )
+            )
+            // === END ===
+            ->orderByDesc('trending_score');
     }
 }

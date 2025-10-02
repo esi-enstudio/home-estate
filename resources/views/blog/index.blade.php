@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Blogs | '. config('app.name'))
+
 @section('content')
     <div class="page-wrapper">
 

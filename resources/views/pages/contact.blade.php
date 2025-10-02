@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Contact Us | '. config('app.name'))
+
 @section('content')
     <div class="page-wrapper">
 
@@ -37,7 +39,7 @@
                             <div class="card-body p-4">
                                 <h4 class="mb-2">প্রোডাক্ট ও অ্যাকাউন্ট সাপোর্ট</h4>
                                 <p class="mb-3">আপনার অ্যাকাউন্ট, ফিচার এবং পরিষেবা সম্পর্কিত যেকোনো সহায়তার জন্য আমাদের বিশেষজ্ঞ সাপোর্ট দলের সাথে যোগাযোগ করুন।</p>
-                                <a href="{{-- route('faq') --}}" class="btn btn-dark">সচরাচর জিজ্ঞাসিত প্রশ্ন</a>
+                                <a href="{{ route('faq') }}" class="btn btn-dark">সচরাচর জিজ্ঞাসিত প্রশ্ন</a>
                             </div>
                         </div>
                     </div>

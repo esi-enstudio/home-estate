@@ -6363,7 +6363,7 @@ span.select2-container.select2-container--default.select2-container--open {
   background-size: cover;
   background-attachment: fixed;
   background-position: center;
-  padding-top: 180px;
+  padding: 180px 0px 50px;
   border-radius: 0 0 20px 20px;
   position: relative;
   z-index: 1;

@@ -196,7 +196,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            WishlistRelationManager::class,
+//            WishlistRelationManager::class,
         ];
     }
 

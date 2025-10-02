@@ -25,7 +25,7 @@
     <div class="main-wrapper">
 
         <!-- Header Start -->
-        @include('layouts.partials.header')
+        @include('partials._header')
         <!-- Header End -->
 
         @yield('content')

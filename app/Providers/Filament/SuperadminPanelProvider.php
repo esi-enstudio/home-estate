@@ -4,11 +4,13 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Auth\Register;
+use Exception;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -23,6 +25,9 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class SuperadminPanelProvider extends PanelProvider
 {
+    /**
+     * @throws Exception
+     */
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -32,6 +37,7 @@ class SuperadminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->registration(Register::class)
             ->passwordReset()
+            ->brandLogo(fn () => view('filament.admin.auth.brand'))
             ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
@@ -58,10 +64,40 @@ class SuperadminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->renderHook(
+                'panels::topbar.start', // অথবা 'panels::topbar.end'
+                fn () => view('components.topbar.custom-menu'),
+            )
+            ->navigationGroups([
+                // একটি নেভিগেশন গ্রুপ তৈরি করা হচ্ছে
+                NavigationGroup::make()
+                    ->label('Settings')
+                    ->icon('heroicon-o-cog-6-tooth'), // <-- গ্রুপের জন্য আইকন
+
+                // আপনি চাইলে আরও গ্রুপ যোগ করতে পারেন
+//                NavigationGroup::make()
+//                    ->label('News')
+//                    ->icon('heroicon-o-pencil-square'),
             ])
             ->spa();
     }

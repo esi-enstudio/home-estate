@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', $post->title. ' | '. config('app.name'))
+
 @section('content')
     <div class="page-wrapper">
 

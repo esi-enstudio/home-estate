@@ -14,6 +14,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static find(mixed $originalCategoryId)
  * @method static withCount(string $string)
  * @method static count()
+ * @method static orderBy(string $string)
  * @property int|mixed $properties_count
  */
 class PropertyType extends Model implements HasMedia

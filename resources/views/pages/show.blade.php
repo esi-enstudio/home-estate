@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', $page->title . ' | '. config('app.name'))
+
 @section('content')
     <div class="page-wrapper">
 

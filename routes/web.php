@@ -31,3 +31,5 @@ Route::get('/contact-us', [PageController::class, 'contact'])->name('contact');
 
 // এই রাউটটি সকল স্ট্যাটিক পেজ হ্যান্ডেল করবে
 Route::get('/page/{page:slug}', [PageController::class, 'show'])->name('page.show');
+
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
