@@ -17,14 +17,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class FooterLinkResource extends Resource
 {
     protected static ?string $model = FooterLink::class;
-    // === START: Navigation & Grouping Configuration ===
+
     protected static ?string $navigationIcon = 'heroicon-o-link';
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'ফুটার লিংক';
-    protected static ?string $modelLabel = 'ফুটার লিংক';
-    protected static ?string $pluralModelLabel = 'ফুটার লিংকসমূহ';
+    protected static ?string $navigationGroup = 'Site Management';
+    protected static ?string $navigationLabel = 'Footer Links';
     protected static ?int $navigationSort = 6;
-    // === END: Navigation & Grouping Configuration ===
 
     public static function form(Form $form): Form
     {

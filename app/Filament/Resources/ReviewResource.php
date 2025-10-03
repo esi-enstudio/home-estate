@@ -19,14 +19,9 @@ class ReviewResource extends Resource
 {
     protected static ?string $model = Review::class;
 
-    // === START: Navigation & Grouping Configuration ===
-    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static ?string $navigationGroup = 'ইন্টার‍্যাকশনস';
-    protected static ?string $navigationLabel = 'সকল রিভিউ';
-    protected static ?string $modelLabel = 'রিভিউ';
-    protected static ?string $pluralModelLabel = 'রিভিউসমূহ';
-    protected static ?int $navigationSort = 2;
-    // === END: Navigation & Grouping Configuration ===
+    protected static ?string $navigationGroup = 'Interactions';
+    protected static ?string $navigationLabel = 'All Reviews';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

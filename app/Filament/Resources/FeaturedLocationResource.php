@@ -17,14 +17,10 @@ class FeaturedLocationResource extends Resource
 {
     protected static ?string $model = FeaturedLocation::class;
 
-    // === START: Navigation & Grouping Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'ফিচার্ড এলাকা';
-    protected static ?string $modelLabel = 'ফিচার্ড এলাকা';
-    protected static ?string $pluralModelLabel = 'ফিচার্ড এলাকাসমূহ';
+    protected static ?string $navigationGroup = 'Site Management';
+    protected static ?string $navigationLabel = 'Featured Area';
     protected static ?int $navigationSort = 2;
-    // === END: Navigation & Grouping Configuration ===
 
     public static function form(Form $form): Form
     {

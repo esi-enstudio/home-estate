@@ -26,7 +26,6 @@ class UserFactory extends Factory
     {
         $name = $this->faker->name;
         return [
-            'slug' => Str::slug($name) . '-' . Str::random(5),
             'name' => $name,
             'phone' => $this->faker->unique()->phoneNumber,
             'email' => $this->faker->unique()->safeEmail,

@@ -11,12 +11,12 @@ use Filament\Pages\SettingsPage;
 
 class ManageHeader extends SettingsPage
 {
-    protected static ?string $navigationIcon = 'heroicon-o-view-columns';
     protected static string $settings = HeaderSettings::class;
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $navigationLabel = 'Header';
+    protected static ?int $navigationSort = 2;
 
     // === START: আরও সুন্দর এবং ব্যবহারকারী-বান্ধব লেবেল ===
-    protected static ?string $navigationLabel = 'হেডার সেটিংস';
     protected static ?string $title = 'হেডার সেটিংস';
     // === END ===
 

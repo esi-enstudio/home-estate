@@ -9,8 +9,9 @@ use Filament\Pages\SettingsPage;
 
 class ManageFooter extends SettingsPage
 {
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $navigationLabel = 'Footer';
+    protected static ?int $navigationSort = 3;
     protected static string $settings = FooterSettings::class;
 
     public function form(Form $form): Form
@@ -29,7 +30,7 @@ class ManageFooter extends SettingsPage
                                 Forms\Components\TextInput::make('join_button_text')->label('Button Text'),
                                 Forms\Components\TextInput::make('join_button_link')->label('Button Link'),
                             ])->columns(2),
-                            
+
                             Forms\Components\Section::make('যোগাযোগের তথ্য')->schema([
                                 Forms\Components\Textarea::make('location')->label('ঠিকানা'),
                                 Forms\Components\TextInput::make('phone')->label('ফোন নম্বর'),

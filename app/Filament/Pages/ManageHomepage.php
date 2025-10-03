@@ -10,10 +10,10 @@ use Filament\Pages\SettingsPage;
 
 class ManageHomepage extends SettingsPage
 {
-    protected static ?string $navigationIcon = 'heroicon-o-photo';
     protected static string $settings = HomepageSettings::class;
-    protected static ?string $navigationGroup = 'হোমপেজ ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'ব্যানার সেকশন';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $navigationLabel = 'Homepage';
+    protected static ?int $navigationSort = 1;
 
     public function form(Form $form): Form
     {

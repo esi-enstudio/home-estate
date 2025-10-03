@@ -18,14 +18,9 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    // === START: Navigation & Grouping Configuration ===
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'ব্লগ ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'পোস্ট';
-    protected static ?string $modelLabel = 'পোস্ট';
-    protected static ?string $pluralModelLabel = 'পোস্টসমূহ';
+    protected static ?string $navigationGroup = 'Blog Management';
+    protected static ?string $navigationLabel = 'Post';
     protected static ?int $navigationSort = 1;
-    // === END: Navigation & Grouping Configuration ===
 
     public static function form(Form $form): Form
     {

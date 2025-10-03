@@ -10,6 +10,7 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
@@ -22,6 +23,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 
 class SuperadminPanelProvider extends PanelProvider
 {
@@ -64,6 +67,8 @@ class SuperadminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
+                FilamentEditProfilePlugin::make()
+                    ->shouldShowDeleteAccountForm(false),
                 FilamentShieldPlugin::make()
                     ->gridColumns([
                         'default' => 1,
@@ -81,6 +86,12 @@ class SuperadminPanelProvider extends PanelProvider
                         'sm' => 2,
                     ]),
             ])
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label(fn() => auth()->user()->name)
+                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->icon('heroicon-m-user-circle'),
+            ])
             ->authMiddleware([
                 Authenticate::class,
             ])
@@ -95,9 +106,17 @@ class SuperadminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-cog-6-tooth'), // <-- গ্রুপের জন্য আইকন
 
                 // আপনি চাইলে আরও গ্রুপ যোগ করতে পারেন
-//                NavigationGroup::make()
-//                    ->label('News')
-//                    ->icon('heroicon-o-pencil-square'),
+                NavigationGroup::make()
+                    ->label('Blog Management')
+                    ->icon('heroicon-o-document-text'),
+
+                NavigationGroup::make()
+                    ->label('User Management')
+                    ->icon('heroicon-o-users'),
+
+                NavigationGroup::make()
+                    ->label('Interactions')
+                    ->icon('heroicon-o-chat-bubble-left-right'),
             ])
             ->spa();
     }

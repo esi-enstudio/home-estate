@@ -10,21 +10,14 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    // === START: Navigation & Grouping Configuration ===
-    protected static ?string $navigationIcon = 'heroicon-o-bookmark-square';
-    protected static ?string $navigationGroup = 'ব্লগ ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'ক্যাটাগরি';
-    protected static ?string $modelLabel = 'ক্যাটাগরি';
-    protected static ?string $pluralModelLabel = 'ক্যাটাগরিসমূহ';
+    protected static ?string $navigationGroup = 'Blog Management';
+    protected static ?string $navigationLabel = 'Category';
     protected static ?int $navigationSort = 2;
-    // === END: Navigation & Grouping Configuration ===
 
     public static function form(Form $form): Form
     {

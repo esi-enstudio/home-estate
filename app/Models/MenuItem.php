@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static where(string $string, true $true)
+ * @method static make()
  */
 class MenuItem extends Model
 {

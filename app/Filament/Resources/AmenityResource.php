@@ -23,13 +23,10 @@ class AmenityResource extends Resource
 {
     protected static ?string $model = Amenity::class;
 
-    // === START: Grouping & Icon Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
-    protected static ?string $navigationGroup = 'প্রপার্টি ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'সুবিধাসমূহ (Amenities)';
-    protected static ?string $modelLabel = 'সুবিধা';
+    protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $navigationLabel = 'Amenities';
     protected static ?int $navigationSort = 3;
-    // === END: Grouping & Icon Configuration ===
 
     public static function form(Form $form): Form
     {

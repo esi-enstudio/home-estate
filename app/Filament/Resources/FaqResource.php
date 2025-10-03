@@ -18,14 +18,10 @@ class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
-    // === START: Navigation & Grouping Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'সচরাচর জিজ্ঞাসিত প্রশ্ন';
-    protected static ?string $modelLabel = 'প্রশ্ন';
-    protected static ?string $pluralModelLabel = 'প্রশ্নসমূহ';
+    protected static ?string $navigationGroup = 'Site Management';
+    protected static ?string $navigationLabel = 'FAQ';
     protected static ?int $navigationSort = 4;
-    // === END: Navigation & Grouping Configuration ===
 
     public static function form(Form $form): Form
     {

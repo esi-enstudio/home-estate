@@ -32,12 +32,10 @@ class PropertyResource extends Resource
     protected static ?string $model = Property::class;
     protected static ?string $recordTitleAttribute = 'title';
 
-    // === START: Grouping & Icon Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';
-    protected static ?string $navigationGroup = 'প্রপার্টি ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'সকল প্রপার্টি';
+    protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $navigationLabel = 'My Properties';
     protected static ?int $navigationSort = 1;
-    // === END: Grouping & Icon Configuration ===
 
     public static function form(Form $form): Form
     {

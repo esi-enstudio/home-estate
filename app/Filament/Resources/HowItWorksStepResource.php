@@ -18,8 +18,8 @@ class HowItWorksStepResource extends Resource
     protected static ?string $model = HowItWorksStep::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'কার্যপ্রণালী ধাপ';
+    protected static ?string $navigationGroup = 'Site Management';
+    protected static ?string $navigationLabel = 'How It Works';
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form

@@ -28,12 +28,9 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
     protected static ?string $recordTitleAttribute = 'name';
 
-    // === START: Grouping & Icon Configuration ===
-    protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationGroup = 'ইউজার ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'সকল ইউজার';
+    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationLabel = 'All Users';
     protected static ?int $navigationSort = 1;
-    // === END: Grouping & Icon Configuration ===
 
     public static function form(Form $form): Form
     {

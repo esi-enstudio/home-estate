@@ -1,4 +1,5 @@
 <section class="customer-review-section">
+    @if($testimonials->isNotEmpty())
     <div class="container">
         <!-- Section Title Start -->
         <div class="section-title-2" data-aos="fade-up" data-aos-duration="500">
@@ -11,36 +12,36 @@
         </div>
         <!-- Section Title End -->
 
-        @if($testimonials->isNotEmpty())
-            <div class="review-slider swiper" data-aos="fade-up">
-                <div class="swiper-wrapper">
-                    @foreach($testimonials as $testimonial)
-                        <div class="review-item-two swiper-slide">
-                            <span class="mb-3 d-block"><img src="{{ asset('assets/img/icons/quote-down.svg') }}" class="w-auto m-auto" alt="উক্তি"></span>
-                            <div class="review-content">
-                                <p class="mb-2">"{{ Str::limit($testimonial->body, 120) }}"</p>
-                                <div class="d-flex align-items-center justify-content-center">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="material-icons-outlined text-warning">{{ $i <= $testimonial->rating ? 'star' : 'star_border' }}</i>
-                                    @endfor
-                                </div>
-                            </div>
+
+        <div class="review-slider swiper" data-aos="fade-up">
+            <div class="swiper-wrapper">
+                @foreach($testimonials as $testimonial)
+                    <div class="review-item-two swiper-slide">
+                        <span class="mb-3 d-block"><img src="{{ asset('assets/img/icons/quote-down.svg') }}" class="w-auto m-auto" alt="উক্তি"></span>
+                        <div class="review-content">
+                            <p class="mb-2">"{{ Str::limit($testimonial->body, 120) }}"</p>
                             <div class="d-flex align-items-center justify-content-center">
-                                <a href="javascript:void(0)" class="avatar avatar-lg avatar-rounded flex-shrink-0 me-2">
-                                    <img src="{{ $testimonial->user->avatar_url ?? 'https://placehold.co/100' }}" alt="{{ $testimonial->user->name }}">
-                                </a>
-                                <div>
-                                    <h6 class="fs-16 fw-semibold mb-0"><a href="javascript:void(0)">{{ $testimonial->user->name }}</a></h6>
-                                    <span class="fs-14">সম্মানিত গ্রাহক</span>
-                                </div>
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="material-icons-outlined text-warning">{{ $i <= $testimonial->rating ? 'star' : 'star_border' }}</i>
+                                @endfor
                             </div>
                         </div>
-                    @endforeach
-                </div>
-                <div class="swiper-pagination"></div>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <a href="javascript:void(0)" class="avatar avatar-lg avatar-rounded flex-shrink-0 me-2">
+                                <img src="{{ $testimonial->user->avatar_url ?? 'https://placehold.co/100' }}" alt="{{ $testimonial->user->name }}">
+                            </a>
+                            <div>
+                                <h6 class="fs-16 fw-semibold mb-0"><a href="javascript:void(0)">{{ $testimonial->user->name }}</a></h6>
+                                <span class="fs-14">সম্মানিত গ্রাহক</span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
+            <div class="swiper-pagination"></div>
+        </div>
 
-            <div class="text-center">
+        <div class="text-center">
                 <div class="d-inline-flex align-items-center flex-wrap gap-2 review-users">
                     <div class="avatar-list-stacked">
                         @foreach($testimonials->take(4) as $testimonial)
@@ -60,8 +61,9 @@
                     </div>
                 </div>
             </div>
-        @endif
+
     </div>
+    @endif
 </section>
 
 

@@ -17,10 +17,9 @@ class MessageResource extends Resource
 {
     protected static ?string $model = Message::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-envelope';
-    protected static ?string $navigationGroup = 'ইন্টার‍্যাকশনস';
-    protected static ?string $navigationLabel = 'যোগাযোগ বার্তা';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Interactions';
+    protected static ?string $navigationLabel = 'Contact message';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
