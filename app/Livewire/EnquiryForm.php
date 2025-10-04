@@ -49,7 +49,7 @@ class EnquiryForm extends Component
         }
 
         // একটি আকর্ষণীয় ডিফল্ট মেসেজ
-        $this->message = "I'm interested in your property '{$this->property->title}' (Code: {$this->property->property_code}). Please contact me with more details.";
+        $this->message = "হ্যালো! আমি আপনার প্রপার্টি '{$this->property->title}' (Code: {$this->property->property_code}) দেখে বেশ আগ্রহী হয়েছি। দয়া করে এ সম্পর্কে আরও তথ্য জানালে খুশি হবো। 😊";
     }
 
     public function saveEnquiry(): void

@@ -17,10 +17,9 @@ class EnquiryResource extends Resource
 {
     protected static ?string $model = Enquiry::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
-    protected static ?string $navigationGroup = 'ইন্টার‍্যাকশনস';
-    protected static ?string $navigationLabel = 'সকল জিজ্ঞাসা';
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Interactions';
+    protected static ?string $navigationLabel = 'Enquiries';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

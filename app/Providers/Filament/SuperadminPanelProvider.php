@@ -68,6 +68,7 @@ class SuperadminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentEditProfilePlugin::make()
+                    ->shouldRegisterNavigation(false)
                     ->shouldShowDeleteAccountForm(false),
                 FilamentShieldPlugin::make()
                     ->gridColumns([
@@ -100,11 +101,6 @@ class SuperadminPanelProvider extends PanelProvider
                 fn () => view('components.topbar.custom-menu'),
             )
             ->navigationGroups([
-                // একটি নেভিগেশন গ্রুপ তৈরি করা হচ্ছে
-                NavigationGroup::make()
-                    ->label('Settings')
-                    ->icon('heroicon-o-cog-6-tooth'), // <-- গ্রুপের জন্য আইকন
-
                 // আপনি চাইলে আরও গ্রুপ যোগ করতে পারেন
                 NavigationGroup::make()
                     ->label('Blog Management')
@@ -117,6 +113,11 @@ class SuperadminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Interactions')
                     ->icon('heroicon-o-chat-bubble-left-right'),
+
+                // একটি নেভিগেশন গ্রুপ তৈরি করা হচ্ছে
+                NavigationGroup::make()
+                    ->label('Settings')
+                    ->icon('heroicon-o-cog-6-tooth'), // <-- গ্রুপের জন্য আইকন
             ])
             ->spa();
     }

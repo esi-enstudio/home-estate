@@ -9,7 +9,7 @@
          data-view-increment-url="{{ route('properties.increment-view', $property) }}"
     >
         <div class="buy-details-header-item">
-            <!-- Start Breadscrumb -->
+            <!-- Start Breadcrumb -->
             <div class="breadcrumb-bar custom-breadcrumb-bar">
                 <div class="container">
                     <div class="row align-items-center text-center position-relative z-1">
@@ -43,7 +43,7 @@
                             </div>
                             <div class="d-flex align-items-center gap-3 justify-content-xl-end justify-content-start">
                                 <h4 class="mb-0 text-primary text-xl-end text-start"> ৳{{ number_format($property->rent_price) }} <span class="fs-14 fw-normal text-white">/ {{ ucfirst($property->rent_type) }}</span> </h4>
-                                <a href="#" class="btn btn-primary btn-lg d-flex align-items-center"><i class="material-icons-outlined rounded me-1">calendar_today</i>Book Now</a>
+{{--                                <a href="#" class="btn btn-primary btn-lg d-flex align-items-center"><i class="material-icons-outlined rounded me-1">calendar_today</i>Book Now</a>--}}
                             </div>
                         </div>
                     </div>
@@ -329,7 +329,7 @@
                                     <div class="card-body">
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="avatar avatar-lg">
-                                                <img src="{{ $property->user->profile_photo_path ?? 'https://via.placeholder.com/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                                                <img src="{{ $property->user->avatar_url ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
                                             </div>
                                             <div>
                                                 <h6 class="mb-1 fs-16 fw-semibold"><a class="d-block w-100" href="#">{{ $property->user->name }}</a></h6>

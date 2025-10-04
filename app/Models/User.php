@@ -4,7 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,7 +21,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static whereHas(string $string, \Closure $param)
  * @method static where(string $string, mixed $phone)
  */
-class User extends Authenticatable implements HasAvatar
+class User extends Authenticatable implements HasAvatar, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -90,5 +92,24 @@ class User extends Authenticatable implements HasAvatar
     {
         $avatarColumn = config('filament-edit-profile.avatar_column', 'avatar_url');
         return $this->$avatarColumn ? Storage::url($this->$avatarColumn) : null;
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // ১. 'admin' প্যানেলের জন্য:
+        // শুধুমাত্র 'Super Admin' রোল থাকা ব্যবহারকারীরাই অ্যাক্সেস পাবে।
+        if ($panel->getId() === 'superadmin') {
+            return $this->hasRole('super_admin');
+        }
+
+        // ২. 'app' প্যানেলের জন্য:
+        // সকল রেজিস্টার্ড ব্যবহারকারী (সুপার-অ্যাডমিন সহ) অ্যাক্সেস পাবে।
+        // যেহেতু কোনো বিশেষ শর্ত নেই, তাই আমরা শুধু true রিটার্ন করব।
+        if ($panel->getId() === 'app') {
+            return true;
+        }
+
+        // ৩. অন্য কোনো অজানা প্যানেলের জন্য ডিফল্টভাবে অ্যাক্সেস দেওয়া হবে না।
+        return false;
     }
 }

@@ -11,6 +11,7 @@ use App\Models\Property;
 use App\Models\PropertyType;
 use App\Models\Union;
 use App\Models\Upazila;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -394,6 +395,9 @@ class PropertyResource extends Resource
             ]);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -420,7 +424,8 @@ class PropertyResource extends Resource
                 Tables\Columns\IconColumn::make('is_verified')
                     ->boolean(),
 
-                Tables\Columns\BadgeColumn::make('status')
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
                     ->colors([
                         'primary' => 'pending',
                         'success' => 'active',

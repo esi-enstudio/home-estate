@@ -5,23 +5,24 @@
 @section('content')
     <div class="page-wrapper">
 
-        <!-- Start Breadscrumb -->
+        <!-- Start Breadcrumb -->
         <div class="breadcrumb-bar">
-            {{-- ... (Breadcrumb images can be static) ... --}}
+            <img src="{{ asset('assets/img/bg/breadcrumb-bg-01.png') }}" alt="" class="breadcrumb-bg-01 d-none d-lg-block">
+            <img src="{{ asset('assets/img/bg/breadcrumb-bg-02.png') }}" alt="" class="breadcrumb-bg-02 d-none d-lg-block">
+            <img src="{{ asset('assets/img/bg/breadcrumb-bg-03.png') }}" alt="" class="breadcrumb-bg-03">
             <div class="row align-items-center text-center position-relative z-1">
                 <div class="col-md-12 col-12 breadcrumb-arrow">
-                    <h1 class="breadcrumb-title">ব্লগ বিস্তারিত</h1>
+                    <h1 class="breadcrumb-title">Blog Details</h1>
                     <nav aria-label="breadcrumb" class="page-breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/"><span><i class="mdi mdi-home-outline me-1"></i></span>হোম</a></li>
-                            <li class="breadcrumb-item"><a href="/blog">ব্লগ</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('home') }}"><span><i class="mdi mdi-home-outline me-1"></i></span>হোম</a></li>
                             <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($post->title, 30) }}</li>
                         </ol>
                     </nav>
                 </div>
             </div>
         </div>
-        <!-- End Breadscrumb -->
+        <!-- End Breadcrumb -->
 
         <!-- Start Content -->
         <div class="content">

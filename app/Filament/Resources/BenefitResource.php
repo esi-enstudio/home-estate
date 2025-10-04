@@ -17,19 +17,16 @@ class BenefitResource extends Resource
 {
     protected static ?string $model = Benefit::class;
 
-    // === START: Grouping & Icon Configuration ===
     protected static ?string $navigationIcon = 'heroicon-o-check-badge';
-    protected static ?string $navigationGroup = 'ওয়েবসাইট ম্যানেজমেন্ট';
-    protected static ?string $navigationLabel = 'ওয়েবসাইটের সুবিধা';
-    protected static ?string $modelLabel = 'সুবিধা';
-    protected static ?int $navigationSort = 1;
-    // === END: Grouping & Icon Configuration ===
+    protected static ?string $navigationGroup = 'Site Management';
+    protected static ?string $navigationLabel = 'Special Benefits';
+    protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title_bn')->label('শিরোনাম (বাংলা)')->required(),
+                Forms\Components\TextInput::make('title_bn')->label('Title')->required(),
                 Forms\Components\Textarea::make('description_bn')->label('বিবরণ (বাংলা)')->required()->columnSpanFull(),
                 Forms\Components\TextInput::make('icon_class')->label('Material Icon Class')->default('check_circle'),
                 Forms\Components\TextInput::make('sort_order')->label('Sort Order')->numeric()->default(0),
@@ -41,7 +38,7 @@ class BenefitResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title_bn')->label('শিরোনাম'),
+                Tables\Columns\TextColumn::make('title_bn')->label('Title'),
                 Tables\Columns\IconColumn::make('is_active')->label('Status')->boolean(),
                 Tables\Columns\TextColumn::make('sort_order')->label('Order')->sortable(),
             ])

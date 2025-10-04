@@ -2,8 +2,15 @@
 
 namespace App\Observers;
 
+use App\Mail\NewPropertyPendingMail;
 use App\Models\Property;
-use App\Models\PropertyType; // <-- PropertyType মডেলটি ইম্পোর্ট করুন
+use App\Models\PropertyType;
+use App\Models\User;
+use App\Notifications\NewPropertyPending;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
+
+// <-- PropertyType মডেলটি ইম্পোর্ট করুন
 
 class PropertyObserver
 {
@@ -13,6 +20,24 @@ class PropertyObserver
      */
     public function created(Property $property): void
     {
+        // প্রপার্টির মালিককে লোড করুন
+        $owner = $property->user;
+
+        // চেক করুন মালিক বিদ্যমান কিনা এবং তার 'Super Admin' রোল নেই
+        // (আপনার রোল চেক করার লজিক ভিন্ন হতে পারে, যেমন $owner->is_admin)
+        if ($owner && !$owner->hasRole('super_admin')) {
+            // সকল সুপার অ্যাডমিনকে খুঁজে বের করুন
+            $admins = User::whereHas('roles', fn($q) => $q->where('name', 'super_admin'))->get();
+            $adminEmail = config('mail.admin_address', 'admin@example.com');
+
+            if ($admins->isNotEmpty()) {
+                // ডাটাবেস নোটিফিকেশন পাঠান
+                Notification::send($admins, new NewPropertyPending($property));
+            }
+            // ইমেইল পাঠান
+            Mail::to($adminEmail)->send(new NewPropertyPendingMail($property));
+        }
+
         // নতুন প্রপার্টি তৈরি হলে, সংশ্লিষ্ট PropertyType এর কাউন্টার ১ বাড়াও।
         if ($property->propertyType) {
             $property->propertyType->increment('properties_count');

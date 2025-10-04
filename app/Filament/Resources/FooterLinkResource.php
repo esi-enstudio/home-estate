@@ -21,7 +21,7 @@ class FooterLinkResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-link';
     protected static ?string $navigationGroup = 'Site Management';
     protected static ?string $navigationLabel = 'Footer Links';
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 7;
 
     public static function form(Form $form): Form
     {
