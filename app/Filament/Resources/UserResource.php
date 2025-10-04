@@ -3,6 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use Exception;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components;
 use App\Filament\Resources\UserResource\RelationManagers;
@@ -19,6 +26,9 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -36,158 +46,197 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                Grid::make(3)->schema([
+                    // === START: বাম পাশের মূল কন্টেন্ট (২/৩ অংশ) ===
+                    Group::make()->schema([
+                        Section::make('প্রোফাইল তথ্য')
+                            ->schema([
+                                FileUpload::make('avatar_url')
+                                    ->label('প্রোফাইল ছবি')
+                                    ->image()->avatar()->directory('avatars')->imageEditor()
+                                    ->columnSpanFull(),
+                                TextInput::make('name')->label('পুরো নাম')->required(),
+                                Textarea::make('bio')->label('সংক্ষিপ্ত পরিচিতি')->rows(3)->columnSpanFull(),
+                            ])->columns(1),
 
-                TextInput::make('phone')
-                    ->label('Phone Number')
-                    ->required()
-                    ->tel()
-                    ->minLength(11)
-                    ->maxLength(11)
-                    ->rule('digits:11')
-                    ->hint(function (Get $get) {
-                        // শুধু create পেজে hint দেখানোর জন্য
-                        if (!str(request()->route()->getName())->contains('.create')) {
-                            return null;
-                        }
+                        Section::make('যোগাযোগ ও নিরাপত্তা')
+                            ->schema([
+                                TextInput::make('email')->label('ইমেইল')->email()->unique(ignoreRecord: true)->nullable(),
+                                TextInput::make('phone')->label('ফোন নম্বর')->tel()->required()->unique(ignoreRecord: true)
+                                    ->live(onBlur: true)
+                                    ->hint(function (Get $get, string $operation) {
+                                        if ($operation !== 'create') return null;
+                                        $phone = $get('phone');
+                                        if (empty($phone)) return null;
+                                        $exists = \App\Models\User::where('phone', $phone)->exists();
+                                        return new HtmlString($exists ? '<span style="color: red;">এই নম্বরটি ব্যবহৃত হয়েছে।</span>' : '<span style="color: green;">এই নম্বরটি ব্যবহারযোগ্য।</span>');
+                                    }),
+                                TextInput::make('password')
+                                    ->password()
+                                    ->dehydrated(fn ($state) => filled($state))->required(fn (string $context): bool => $context === 'create')
+                                    ->rule(Password::default()),
+                                TextInput::make('password_confirmation')->password()->requiredWith('password')->dehydrated(false),
+                            ])->columns(2),
 
-                        $value = $get('phone_number');
+                        Section::make('সোশ্যাল মিডিয়া লিংক')
+                            ->schema([
+                                KeyValue::make('social_links')
+                                    ->label('')
+                                    ->keyLabel('প্ল্যাটফর্ম') // e.g., Facebook
+                                    ->valueLabel('প্রোফাইল URL') // e.g., https://facebook.com/username
+                                    ->reorderable(),
+                            ]),
+                    ])->columnSpan(2),
 
-                        if (!$value || strlen($value) !== 11) {
-                            return new HtmlString('<span class="text-gray-500">Enter a valid 11-digit number</span>');
-                        }
+                    // === START: ডান পাশের সাইডবার (১/৩ অংশ) ===
+                    Group::make()->schema([
+                        Section::make('স্ট্যাটাস ও ভূমিকা')
+                            ->schema([
+                                Select::make('status')->options([
+                                    'active' => 'Active',
+                                    'inactive' => 'Inactive',
+                                    'banned' => 'Banned',
+                                    'pending' => 'Pending',
+                                ])->default('active')->required(),
 
-                        $exists = User::where('phone_number', $value)->exists();
+                                Select::make('roles')->relationship('roles', 'name')->multiple()->preload()->searchable(),
+                            ]),
 
-                        return new HtmlString(
-                            $exists
-                                ? '<span class="text-red-600 font-medium">Not available</span>'
-                                : '<span class="text-green-600 font-medium">Available</span>'
-                        );
-                    })
-                    ->hintIcon('heroicon-o-phone')
-                    ->live(onBlur: true)
-                    ->reactive(),
+                        Section::make('ভেরিফিকেশন ও পরিসংখ্যান')
+                            ->schema([
+                                Placeholder::make('email_verified_at')
+                                    ->label('ইমেইল ভেরিফাইড')
+                                    ->content(fn ($record) => $record?->email_verified_at ? $record->email_verified_at->format('d M Y, h:i A') : new HtmlString('<span style="color: red;">না</span>')),
 
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255),
+                                Placeholder::make('phone_verified_at')
+                                    ->label('ফোন ভেরিফাইড')
+                                    ->content(fn ($record) => $record?->phone_verified_at ? $record->phone_verified_at->format('d M Y, h:i A') : new HtmlString('<span style="color: red;">না</span>')),
 
-                TextInput::make('password')
-                    ->password()
-                    ->rule(Password::default())
-                    ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->required(fn (string $context) => $context === 'create')
-                    ->maxLength(255),
-
-                TextInput::make('password_confirmation')
-                    ->password()
-                    ->requiredWith('password')
-                    ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
-                    ->dehydrated(fn ($state) => filled($state)) // Ignore empty values on update
-                    ->same('password'),
-
-                Forms\Components\Textarea::make('bio')
-                    ->rows(3)
-                    ->columnSpanFull(),
-
-                Select::make('type')
-                    ->options([
-                        'house_owner' => 'House Owner',
-                        'tenant' => 'Tenant',
-                    ]),
-
-                Select::make('status')
-                    ->default('active')
-                    ->options([
-                        'active' => 'Active',
-                        'inactive' => 'Inactive',
-                    ]),
-
-                Forms\Components\Select::make('roles')
-                    ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload()
-                    ->searchable(),
-
-                FileUpload::make('avatar_url')
-                    ->label('Avatar')
-                    ->disk('public')
-                    ->directory('avatars'),
-
-            ]);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                ImageColumn::make('avatar_url')->label('Avatar')->circular(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('roles.name')
-                    ->badge()
-                    ->formatStateUsing(fn ($state) => Str::title($state))
-                    ->color('danger'),
-                TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'danger',
-                        default => 'warning',
-                    })
-                    ->formatStateUsing(fn ($state) => Str::title($state))
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                                Placeholder::make('reviews_count')->label('মোট রিভিউ দিয়েছেন')->content(fn ($record) => $record?->reviews_count ?? 0),
+                                Placeholder::make('average_rating')->label('গড় রেটিং পেয়েছেন')->content(fn ($record) => number_format($record?->average_rating ?? 0, 1) . ' / 5.0'),
+                            ]),
+                    ])->columnSpan(1),
                 ]),
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    /**
+     * @throws Exception
+     */
+    public static function table(Table $table): Table
     {
-        return $infolist
-            ->schema([
-                Components\Section::make('Personal Information')
-                    ->columns(2)
-                    ->schema([
-                        Components\TextEntry::make('name'),
-                        Components\TextEntry::make('email'),
-                        Components\TextEntry::make('phone'), // যদি 'phone' কলাম থাকে
-                        Components\TextEntry::make('role')->badge(),
+        return $table
+            ->columns([
+                // কলাম ১: ইউজার তথ্য (নাম, ইমেইল ও ছবি)
+                Tables\Columns\ImageColumn::make('avatar_url')
+                    ->label('ছবি')
+                    ->circular()
+                    ->defaultImageUrl(url('/images/default-avatar.png')), // একটি ডিফল্ট ছবি দিন
+
+                Tables\Columns\TextColumn::make('name')
+                    ->label('নাম ও ইমেইল')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (User $record): string => $record->email ?? 'N/A'),
+
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('ফোন নাম্বার')
+                    ->searchable()
+                    ->sortable(),
+
+                // কলাম ২: ভূমিকা (Roles)
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('ভূমিকা')
+                    ->badge()
+                    ->separator(','),
+
+                // কলাম ৩: স্ট্যাটাস
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'success' => 'active',
+                        'secondary' => 'inactive',
+                        'danger' => 'banned',
+                        'warning' => 'pending',
                     ]),
 
-                Components\Section::make('System Information')
-                    ->columns(2)
-                    ->schema([
-                        Components\TextEntry::make('created_at')->dateTime(),
-                        Components\TextEntry::make('updated_at')->dateTime(),
+                // কলাম ৪: ভেরিফিকেশন স্ট্যাটাস
+                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->label('ইমেইল ভেরিফাইড')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->trueColor('success')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->falseColor('danger'),
+
+                Tables\Columns\IconColumn::make('phone_verified_at')
+                    ->label('ফোন ভেরিফাইড')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->trueColor('success')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->falseColor('danger'),
+
+                // কলাম ৫: যোগদানের তারিখ
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('যোগদান')
+                    ->dateTime('d M Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true), // ডিফল্টভাবে হাইড থাকবে
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'active' => 'Active',
+                        'inactive' => 'Inactive',
+                        'banned' => 'Banned',
+                        'pending' => 'Pending',
                     ]),
-            ]);
+                Tables\Filters\SelectFilter::make('roles')
+                    ->relationship('roles', 'name'),
+                Tables\Filters\TernaryFilter::make('email_verified_at')->label('Email Verified')->nullable(),
+            ])
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    // === START: আকর্ষণীয় বাল্ক অ্যাকশন ===
+                    Tables\Actions\BulkAction::make('changeStatus')
+                        ->label('স্ট্যাটাস পরিবর্তন করুন')
+                        ->icon('heroicon-o-tag')
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Select::make('status')
+                                ->options([
+                                    'active' => 'Active',
+                                    'inactive' => 'Inactive',
+                                    'banned' => 'Banned',
+                                ])->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each->update(['status' => $data['status']]);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    // === END ===
+                ]),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->name;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'phone'];
     }
 
     public static function getRelations(): array
@@ -201,7 +250,7 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-//            'create' => Pages\CreateUser::route('/create'),
+            'create' => Pages\CreateUser::route('/create'),
             'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];

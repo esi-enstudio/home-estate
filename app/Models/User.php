@@ -17,6 +17,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static has(string $string)
  * @method static count()
  * @method static whereHas(string $string, \Closure $param)
+ * @method static where(string $string, mixed $phone)
  */
 class User extends Authenticatable implements HasAvatar
 {
@@ -55,17 +56,20 @@ class User extends Authenticatable implements HasAvatar
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
+     * এটিই আপনার সমস্যার চূড়ান্ত সমাধান করবে।
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
+        'password' => 'hashed', // <-- পাসওয়ার্ডের জন্য এটি সেরা অনুশীলন
+
+        // Eloquent কে বলে দেওয়া হচ্ছে যে 'social_links' কলামটিকে
+        // সেভ করার সময় JSON-এ এবং পড়ার সময় অ্যারে-তে রূপান্তর করতে হবে।
+        'social_links' => 'array',
+    ];
 
     public function favoriteProperties(): BelongsToMany
     {
