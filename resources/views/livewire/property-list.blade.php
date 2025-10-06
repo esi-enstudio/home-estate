@@ -272,7 +272,7 @@
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div class="avatar avatar-lg user-avatar">
                                                         {{-- এখানে ব্যবহারকারীর প্রোফাইল ছবি যুক্ত করতে হবে --}}
-                                                        <img src="{{ $property->user->avatar_url ?? asset('assets/img/user-default-avatar.png') }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($property->user->avatar_url) ?? asset('assets/img/user-default-avatar.png') }}" alt="{{ $property->user->name }}" class="rounded-circle">
                                                     </div>
                                                     <h6 class="mb-0 fs-16 fw-medium text-dark">{{ $property->user->name }}<span class="d-block fs-14 text-body pt-1">Owner</span> </h6>
                                                 </div>

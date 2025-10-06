@@ -3,6 +3,8 @@
 namespace App\Mail;
 
 use App\Models\Property;
+use Exception;
+use Filament\Facades\Filament;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -26,17 +28,24 @@ class NewPropertyPendingMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'নতুন প্রপার্টি অনুমোদনের জন্য অপেক্ষারত',
+            subject: 'নতুন প্রপার্টি অনুমোদনের জন্য অপেক্ষারত: ' . $this->property->title,
         );
     }
 
     /**
      * Get the message content definition.
+     * @throws Exception
      */
     public function content(): Content
     {
+        $manageUrl = Filament::getPanel('superadmin')
+            ->getResourceUrl(Property::class, 'edit', ['record' => $this->property]);
+
         return new Content(
             markdown: 'emails.new-property-pending',
+            with: [
+                'manageUrl' => $manageUrl,
+            ]
         );
     }
 

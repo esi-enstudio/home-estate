@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\PropertyResource\RelationManagers;
+namespace App\Filament\App\Resources\PropertyResource\RelationManagers;
 
 use Exception;
 use Filament\Forms;
@@ -34,6 +34,7 @@ class EnquiriesRelationManager extends RelationManager
                     ->label('Mark as Read'),
             ]);
     }
+
 
     /**
      * @throws Exception

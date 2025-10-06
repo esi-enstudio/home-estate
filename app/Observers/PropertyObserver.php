@@ -2,48 +2,74 @@
 
 namespace App\Observers;
 
+use App\Filament\Resources\PropertyResource;
 use App\Mail\NewPropertyPendingMail;
 use App\Models\Property;
 use App\Models\PropertyType;
 use App\Models\User;
-use App\Notifications\NewPropertyPending;
+use Exception;
+use Filament\Facades\Filament;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 // <-- PropertyType মডেলটি ইম্পোর্ট করুন
 
 class PropertyObserver
 {
+    public bool $afterCommit = true;
+
     /**
      * Handle the Property "created" event.
      * Fires after a property is created.
+     * @throws Exception
      */
     public function created(Property $property): void
     {
-        // প্রপার্টির মালিককে লোড করুন
+        // ডাটাবেজ থেকে সর্বশেষ ডেটা (ডিফল্ট 'status' সহ) নিয়ে মডেলটিকে রিফ্রেশ করা হচ্ছে।
+        $property->refresh();
+
         $owner = $property->user;
 
-        // চেক করুন মালিক বিদ্যমান কিনা এবং তার 'Super Admin' রোল নেই
-        // (আপনার রোল চেক করার লজিক ভিন্ন হতে পারে, যেমন $owner->is_admin)
+        // আপনার রোলের নাম 'super_admin' (ছোট হাতের) অনুযায়ী আপডেট করা হয়েছে
         if ($owner && !$owner->hasRole('super_admin')) {
-            // সকল সুপার অ্যাডমিনকে খুঁজে বের করুন
+            Log::info("Condition met: Owner is not a Super Admin. Owner: {$owner->name}");
+
             $admins = User::whereHas('roles', fn($q) => $q->where('name', 'super_admin'))->get();
             $adminEmail = config('mail.admin_address', 'admin@example.com');
 
             if ($admins->isNotEmpty()) {
-                // ডাটাবেস নোটিফিকেশন পাঠান
-                Notification::send($admins, new NewPropertyPending($property));
+                Log::info("Sending notification to admins...");
+
+                // === START: মূল পরিবর্তন - Superadmin প্যানেলের জন্য URL তৈরি ===
+                $url = Filament::getPanel('superadmin')
+                    ->getResourceUrl(Property::class, 'edit', ['record' => $property]);
+                // === END ===
+
+                Notification::make()
+                    ->title('নতুন প্রপার্টি পর্যালোচনার জন্য জমা হয়েছে')
+                    ->icon('heroicon-o-home-modern')
+                    ->body("{$owner->name} একটি নতুন প্রপার্টি '{$property->title}' জমা দিয়েছেন।")
+                    ->actions([
+                        Action::make('view')
+                            ->label('প্রপার্টিটি দেখুন')
+                            ->url($url), // <-- নতুন URL ভ্যারিয়েবলটি এখানে ব্যবহার করা হচ্ছে
+                    ])
+                    ->sendToDatabase($admins);
+
+                Log::info("Notification sent with URL: " . $url);
             }
-            // ইমেইল পাঠান
-            Mail::to($adminEmail)->send(new NewPropertyPendingMail($property));
+
+            if ($adminEmail) {
+                Mail::to($adminEmail)->send(new NewPropertyPendingMail($property));
+            }
         }
 
-        // নতুন প্রপার্টি তৈরি হলে, সংশ্লিষ্ট PropertyType এর কাউন্টার ১ বাড়াও।
+        // --- পুরোনো লজিক অপরিবর্তিত ---
         if ($property->propertyType) {
             $property->propertyType->increment('properties_count');
         }
-
-        // স্কোর গণনা করার জন্য saved মেথডটিকে কল করুন (ঐচ্ছিক, যদি আপনি created এবং updated আলাদা রাখেন)
         $this->calculateAndSetScore($property);
     }
 

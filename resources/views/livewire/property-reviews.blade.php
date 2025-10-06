@@ -72,7 +72,7 @@
                             <div class="mb-2 d-flex align-center gap-2 flex-wrap">
                                 <div class="avatar avatar-lg">
                                     <img
-                                        src="{{ $review->user->avatar_url ?? 'https://placehold.co/100' }}"
+                                        src="{{ \Illuminate\Support\Facades\Storage::url($review->user->avatar_url) ?? 'https://placehold.co/100' }}"
                                         alt="{{ $review->user->name }}"
                                         class="img-fluid rounded-circle"
                                     >

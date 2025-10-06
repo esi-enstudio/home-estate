@@ -96,6 +96,7 @@ class Property extends Model implements HasMedia
         'available_from' => 'date',
         'additional_features' => 'array',
         'faqs' => 'array',
+        'meta_keywords' => 'array',
 
         // Decimal Casts for precision
         'latitude' => 'decimal:8',

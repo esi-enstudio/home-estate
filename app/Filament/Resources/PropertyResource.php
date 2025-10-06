@@ -23,6 +23,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Panel;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -37,6 +38,91 @@ class PropertyResource extends Resource
     protected static ?string $navigationGroup = 'Property Management';
     protected static ?string $navigationLabel = 'My Properties';
     protected static ?int $navigationSort = 1;
+
+
+    /**
+     * কোন প্রপার্টি টাইপের জন্য কোন ফিল্ডগুলো দেখানো হবে, তার একটি কেন্দ্রীয় ম্যাপ।
+     * এটি রক্ষণাবেক্ষণ করা খুবই সহজ।
+     */
+    private static array $fieldsByPropertyType = [
+        // আবাসিক (Residential) - এদের জন্য প্রায় সব ফিল্ডই প্রযোজ্য
+        'apartment'   => ['bedrooms', 'bathrooms', 'balconies', 'floor_level', 'total_floors', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
+        'duplex'      => ['bedrooms', 'bathrooms', 'balconies', 'floor_level', 'total_floors', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
+        'house'       => ['bedrooms', 'bathrooms', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
+        'villa'       => ['bedrooms', 'bathrooms', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
+        'penthouse'   => ['bedrooms', 'bathrooms', 'balconies', 'floor_level', 'total_floors', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
+        'room'        => ['bedrooms', 'bathrooms', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
+        'tin-shed'    => ['bedrooms', 'bathrooms', 'additional_features', 'house_rules', 'faqs'],
+        'semi-ripe'   => ['bedrooms', 'bathrooms', 'additional_features', 'house_rules', 'faqs'],
+
+        // বাণিজ্যিক (Commercial) - এদের জন্য house_rules প্রযোজ্য নয়
+        'commercial-space' => ['floor_level', 'total_floors', 'additional_features', 'faqs'],
+        'office'           => ['floor_level', 'total_floors', 'additional_features', 'faqs'],
+        'shopping-mall'    => ['total_floors', 'additional_features', 'faqs'],
+        'factory'          => ['additional_features', 'faqs'],
+        'warehouse'        => ['additional_features', 'faqs'],
+        'hotel'            => ['total_floors', 'additional_features', 'faqs'],
+        'hospital'         => ['total_floors', 'additional_features', 'faqs'],
+
+        // ভূমি (Land) - এদের জন্য শুধুমাত্র faqs প্রযোজ্য হতে পারে
+        'land' => ['faqs'],
+    ];
+
+    /**
+     * সকল প্রপার্টি টাইপের জন্য প্রযোজ্য সাধারণ ফিল্ড।
+     */
+    private static array $commonFields = ['size_sqft', 'year_built'];
+
+    /**
+     * এই মেথডটি প্রতিটি ফিল্ডের জন্য visibility চেক করবে।
+     * এটি static caching ব্যবহার করে যাতে প্রতি রিকোয়েস্টে শুধুমাত্র একবার ডাটাবেজ কোয়েরি হয়।
+     */
+    private static function isFieldVisible(string $fieldName, Get $get): bool
+    {
+        // স্ট্যাটিক ভ্যারিয়েবলগুলো শুধুমাত্র একবার ইনিশিয়ালাইজ হয় এবং রিকোয়েস্টের মধ্যে তাদের মান ধরে রাখে।
+        static $propertyTypeSlug = null;
+        static $lastTypeId = null;
+
+        $currentTypeId = $get('property_type_id');
+
+        // যদি কোনো টাইপ সিলেক্ট করা না থাকে, তাহলে ফিল্ড দেখাও না।
+        if (empty($currentTypeId)) {
+            return false;
+        }
+
+        // যদি টাইপ পরিবর্তন হয়, তবেই কেবল নতুন করে ডাটাবেজ থেকে slug আনা হবে।
+        if ($lastTypeId !== $currentTypeId) {
+            $lastTypeId = $currentTypeId;
+            $propertyTypeSlug = PropertyType::find($currentTypeId)?->slug;
+        }
+
+        if (empty($propertyTypeSlug)) {
+            return false;
+        }
+
+        // চেক করুন ফিল্ডটি সাধারণ ফিল্ডের তালিকায় আছে কিনা।
+        if (in_array($fieldName, self::$commonFields)) {
+            return true;
+        }
+
+        // চেক করুন ফিল্ডটি ওই নির্দিষ্ট প্রপার্টি টাইপের জন্য প্রযোজ্য কিনা।
+        $visibleFields = self::$fieldsByPropertyType[$propertyTypeSlug] ?? [];
+        return in_array($fieldName, $visibleFields);
+    }
+
+    /**
+     * Checks if a section should be visible by checking if any of its fields are visible.
+     */
+    private static function isSectionVisible(array $fields, Get $get): bool
+    {
+        // সেকশনের ফিল্ডগুলোর মধ্যে যেকোনো একটি দৃশ্যমান হলেই সেকশনটি দেখানো হবে।
+        foreach ($fields as $field) {
+            if (self::isFieldVisible($field, $get)) {
+                return true; // একটি পাওয়া গেলেই আর চেক করার দরকার নেই
+            }
+        }
+        return false; // কোনো ফিল্ডই দৃশ্যমান না হলে সেকশনটি হাইড করা হবে
+    }
 
     public static function form(Form $form): Form
     {
@@ -73,163 +159,100 @@ class PropertyResource extends Resource
                             ->schema([
                                 Forms\Components\Section::make('মূল তথ্য (Core Information)')
                                     ->schema([
-                                        TextInput::make('property_code')
-                                            ->label('প্রপার্টি কোড')
-                                            ->disabled() // ইউজার এটি পরিবর্তন করতে পারবে না
-                                            ->hiddenOn('create'), // নতুন প্রপার্টি তৈরির সময় এটি হাইড থাকবে
+                                        Forms\Components\Grid::make(3)->schema([
+                                            TextInput::make('property_code')
+                                                ->label('প্রপার্টি কোড')
+                                                ->disabled()
+                                                ->dehydrated() // disabled থাকা সত্ত্বেও সেভ হবে
+                                                ->placeholder('স্বয়ংক্রিয়ভাবে তৈরি হবে')
+                                                ->columnSpan(1),
 
-                                        TextInput::make('title')
-                                            ->label('বাসার শিরোনাম')
-                                            ->required()
-                                            ->maxLength(255),
+                                            TextInput::make('title')
+                                                ->label('শিরোনাম (Title)')
+                                                ->required()
+                                                ->maxLength(255)
+                                                ->columnSpan(2),
+                                        ]),
 
                                         RichEditor::make('description')
-                                            ->label('বিস্তারিত বর্ণনা')
+                                            ->label('বিস্তারিত বর্ণনা (Description)')
                                             ->required()
                                             ->columnSpanFull(),
                                     ]),
 
-                                Forms\Components\Section::make('Images & Media')
+                                Forms\Components\Section::make('ছবি ও ভিডিও (Images & Video)')
                                     ->schema([
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('featured_image')
-                                            ->label('ফিচার্ড বা প্রধান ছবি (থাম্বনেইল)')
+                                            ->label('ফিচার্ড ছবি (Featured Image)')
                                             ->collection('featured_image')
-                                            ->multiple(false)
-                                            ->required()
-                                            ->image()
-                                            ->maxSize(2048)
-                                            ->imageResizeMode('cover')
-                                            ->panelLayout('compact')
-                                            ->helperText('এটি আপনার প্রপার্টির প্রধান ছবি হিসেবে ওয়েবসাইটে দেখানো হবে।'),
+                                            ->required()->image()->imageEditor()->maxSize(2048)
+                                            ->panelLayout('compact'),
 
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('gallery_images')
-                                            ->label('গ্যালারির জন্য অতিরিক্ত ছবি')
+                                            ->label('গ্যালারির ছবি (Gallery Images)')
                                             ->collection('gallery')
-                                            ->multiple()
-                                            ->reorderable()
-                                            ->image()
-                                            ->maxSize(2048)
-                                            ->maxFiles(10)
+                                            ->multiple()->reorderable()->image()->maxSize(2048)->maxFiles(10)
                                             ->panelLayout('compact'),
 
                                         Forms\Components\TextInput::make('video_url')
-                                            ->label('ভিডিও লিংক (ইউটিউব/ভিমিও)')
+                                            ->label('ভিডিও লিংক (Video URL)')
+                                            ->prefixIcon('heroicon-o-video-camera')
                                             ->url(),
                                     ]),
 
-                                Forms\Components\Section::make('বাসার স্পেসিফিকেশন (Property Specifications)')
+                                Forms\Components\Section::make('প্রপার্টির স্পেসিফিকেশন (Specifications)')
                                     ->schema([
                                         Forms\Components\Grid::make(3)->schema([
-                                            // Bedrooms - শুধু আবাসিক প্রপার্টির জন্য
-                                            Select::make('bedrooms')
-                                                ->label('বেডরুম')
-                                                ->options(array_combine(range(0, 10), range(0, 10)))
-                                                ->required()
-                                                ->visible(function ($get) {
-                                                    $propertyType = PropertyType::find($get('property_type_id'));
-                                                    return in_array($propertyType?->slug, ['apartment', 'duplex', 'tin-shed', 'semi-ripe', 'room', 'house', 'villa', 'penthouse']);
-                                                }),
+                                            Select::make('property_type_id')
+                                                ->label('প্রপার্টির ধরণ (Property Type)')
+                                                ->relationship('propertyType', 'name_bn')
+                                                ->searchable()->preload()->live()->required()
+                                                ->columnSpanFull(),
 
-                                            // Bathrooms - শুধু আবাসিক প্রপার্টির জন্য
-                                            Select::make('bathrooms')
-                                                ->label('বাথরুম')
-                                                ->options(array_combine(range(0, 10), range(0, 10)))
-                                                ->required()
-                                                ->visible(function ($get) {
-                                                    $propertyType = PropertyType::find($get('property_type_id'));
-                                                    return in_array($propertyType?->slug, ['apartment', 'duplex', 'tin-shed', 'semi-ripe', 'room', 'house', 'villa', 'penthouse']);
-                                                }),
+                                            Select::make('bedrooms')->label('বেডরুম')->options(array_combine(range(0, 10), range(0, 10)))
+                                                ->visible(fn (Get $get) => self::isFieldVisible('bedrooms', $get)),
+                                            Select::make('bathrooms')->label('বাথরুম')->options(array_combine(range(0, 10), range(0, 10)))
+                                                ->visible(fn (Get $get) => self::isFieldVisible('bathrooms', $get)),
+                                            Select::make('balconies')->label('বারান্দা')->options(array_combine(range(0, 10), range(0, 10)))
+                                                ->visible(fn (Get $get) => self::isFieldVisible('balconies', $get)),
 
-                                            // Balconies - শুধু এপার্টমেন্ট/ডুপ্লেক্স/পেন্টহাউস এর জন্য
-                                            Select::make('balconies')
-                                                ->label('বারান্দা')
-                                                ->options(array_combine(range(0, 10), range(0, 10)))
-                                                ->visible(function ($get) {
-                                                    $propertyType = PropertyType::find($get('property_type_id'));
-                                                    return in_array($propertyType?->slug, ['apartment', 'duplex', 'penthouse']);
-                                                }),
-
-                                            // Size - সব প্রপার্টির জন্য
-                                            TextInput::make('size_sqft')
-                                                ->label('আকার (স্কয়ার ফিট)')
-                                                ->required()
-                                                ->numeric(),
-
-                                            // Floor level - এপার্টমেন্ট, ডুপ্লেক্স, কমার্শিয়াল স্পেস, অফিসের জন্য
-                                            TextInput::make('floor_level')
-                                                ->label('ফ্লোর লেভেল')
-                                                ->numeric()
-                                                ->maxLength(255)
-                                                ->visible(function ($get) {
-                                                    $propertyType = PropertyType::find($get('property_type_id'));
-                                                    return in_array($propertyType?->slug, ['apartment', 'duplex', 'commercial-space', 'office', 'penthouse', 'shopping-mall']);
-                                                }),
-
-                                            // Total floors - মাল্টি-স্টোরি বিল্ডিং এর জন্য
-                                            TextInput::make('total_floors')
-                                                ->label('মোট তলা')
-                                                ->numeric()
-                                                ->minValue(1)
-                                                ->maxValue(100)
-                                                ->nullable()
-                                                ->visible(function ($get) {
-                                                    $propertyType = PropertyType::find($get('property_type_id'));
-                                                    return in_array($propertyType?->slug, ['apartment', 'duplex', 'commercial-space', 'office', 'shopping-mall', 'hospital', 'hotel']);
-                                                }),
-
-                                            // Facing direction - আবাসিক প্রপার্টির জন্য
-                                            Select::make('facing_direction')
-                                                ->label('কোনমুখী ফ্ল্যাট')
-                                                ->options([
-                                                    'south' => 'দক্ষিণ',
-                                                    'north' => 'উত্তর',
-                                                    'east' => 'পূর্ব',
-                                                    'west' => 'পশ্চিম',
-                                                    'south-east' => 'দক্ষিণ-পূর্ব',
-                                                    'north-east' => 'উত্তর-পূর্ব',
-                                                ])
-                                                ->visible(function ($get) {
-                                                    $propertyType = PropertyType::find($get('property_type_id'));
-                                                    return in_array($propertyType?->slug, ['apartment', 'duplex', 'room', 'house', 'villa', 'penthouse']);
-                                                }),
-
-                                            // Year built - সব প্রপার্টির জন্য
-                                            TextInput::make('year_built')
-                                                ->label('নির্মাণ সাল')
-                                                ->numeric()
-                                                ->maxValue(date('Y')),
+                                            TextInput::make('size_sqft')->label('আকার (স্কয়ার ফিট)')->numeric()->required()
+                                                ->visible(fn (Get $get) => self::isFieldVisible('size_sqft', $get)),
+                                            TextInput::make('floor_level')->label('ফ্লোর লেভেল')
+                                                ->visible(fn (Get $get) => self::isFieldVisible('floor_level', $get)),
+                                            TextInput::make('total_floors')->label('মোট তলা')->numeric()
+                                                ->visible(fn (Get $get) => self::isFieldVisible('total_floors', $get)),
+                                            Select::make('facing_direction')->label('কোনমুখী')
+                                                ->options(['south' => 'দক্ষিণ', 'north' => 'উত্তর', 'east' => 'পূর্ব', 'west' => 'পশ্চিম', 'south-east' => 'দক্ষিণ-পূর্ব', 'north-east' => 'উত্তর-পূর্ব'])
+                                                ->visible(fn (Get $get) => self::isFieldVisible('facing_direction', $get)),
+                                            TextInput::make('year_built')->label('নির্মাণ সাল')->numeric()->maxValue(date('Y'))
+                                                ->visible(fn (Get $get) => self::isFieldVisible('year_built', $get)),
                                         ]),
                                     ]),
 
-                                Forms\Components\Section::make('অতিরিক্ত সুবিধা ও নিয়মাবলী (Additional Features & Rules)')
+                                Forms\Components\Section::make('অতিরিক্ত তথ্য (Additional Information)')
+                                    ->visible(fn (Get $get) => self::isSectionVisible(['additional_features', 'house_rules', 'faqs'], $get))
                                     ->schema([
-                                        KeyValue::make('additional_features')
-                                            ->label('অন্যান্য সুবিধা')
-                                            ->keyLabel('ফিচারের নাম') // "Key" ইনপুট ফিল্ডের লেবেল
-                                            ->valueLabel('সংখ্যা বা বিবরণ') // "Value" ইনপুট ফিল্ডের লেবেল
-                                            ->addActionLabel('নতুন সুবিধা যোগ করুন') // নতুন আইটেম যোগ করার বাটনের লেখা
-                                            ->helperText('এখানে ফ্ল্যাটের ভেতরের অতিরিক্ত সুবিধাগুলো যোগ করুন, যেমন - AC, Fridge, Geyser ইত্যাদি।')
-                                            ->columnSpanFull(),
+                                        KeyValue::make('additional_features')->label('অন্যান্য সুবিধা (Additional Features)')
+                                            ->keyLabel('ফিচারের নাম')->valueLabel('বিবরণ')->addActionLabel('নতুন সুবিধা যোগ করুন')
+                                            ->visible(fn (Get $get) => self::isFieldVisible('additional_features', $get)),
 
-                                        Textarea::make('house_rules')
-                                            ->label('বাসার নিয়মাবলী')
-                                            ->rows(5)
-                                            ->helperText('প্রতিটি নিয়ম একটি নতুন লাইনে লিখুন।'),
+                                        Textarea::make('house_rules')->label('বাসার নিয়মাবলী (House Rules)')->rows(4)
+                                            ->visible(fn (Get $get) => self::isFieldVisible('house_rules', $get)),
 
-                                        Forms\Components\Repeater::make('faqs')
-                                            ->label('Frequently Asked Questions (FAQs)')
+                                        Forms\Components\Repeater::make('faqs')->label('সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQs)')
                                             ->schema([
                                                 Forms\Components\TextInput::make('question')->required(),
                                                 Forms\Components\Textarea::make('answer')->required(),
-                                            ])
-                                            ->columns(2),
+                                            ])->columns(2)->visible(fn (Get $get) => self::isFieldVisible('faqs', $get)),
                                     ]),
 
-                                Forms\Components\Section::make('SEO Meta Data')
+                                Forms\Components\Section::make('SEO')
+                                    ->description('সার্চ ইঞ্জিনের জন্য মেটা ডেটা যোগ করুন।')
                                     ->schema([
-                                        Forms\Components\TextInput::make('meta_title'),
-                                        Forms\Components\Textarea::make('meta_description'),
-                                        Forms\Components\TagsInput::make('meta_keywords'),
+                                        Forms\Components\TextInput::make('meta_title')->label('মেটা টাইটেল'),
+                                        Forms\Components\Textarea::make('meta_description')->label('মেটা বর্ণনা')->rows(2),
+                                        Forms\Components\TagsInput::make('meta_keywords')->label('মেটা কিওয়ার্ড'),
                                     ]),
 
                             ])->columnSpan(2),
@@ -240,155 +263,174 @@ class PropertyResource extends Resource
                                 Forms\Components\Section::make('মূল্য এবং প্রাপ্যতা (Pricing & Availability)')
                                     ->schema([
                                         Forms\Components\Select::make('status')
+                                            ->label('স্ট্যাটাস (Status)')
                                             ->options([
-                                                'pending' => 'Pending',
-                                                'active' => 'Active',
-                                                'rented' => 'Rented',
-                                                'inactive' => 'Inactive',
-                                                'sold_out' => 'Sold Out',
+                                                'pending' => 'অপেক্ষারত (Pending)',
+                                                'active' => 'সক্রিয় (Active)',
+                                                'rented' => 'ভাড়া হয়ে গেছে (Rented)',
+                                                'inactive' => 'নিষ্ক্রিয় (Inactive)',
+                                                'sold_out' => 'বিক্রি হয়ে গেছে (Sold Out)',
                                             ])
                                             ->required()
                                             ->default('pending'),
 
                                         TextInput::make('rent_price')
-                                            ->label('মাসিক ভাড়া')
+                                            ->label('ভাড়া/মূল্য (Price)')
                                             ->required()
                                             ->numeric()
                                             ->prefix('৳'),
 
                                         Forms\Components\Select::make('rent_type')
-                                            ->label('Rent Type')
+                                            ->label('ভাড়ার ধরণ (Rent Type)')
                                             ->options([
-                                                'day' => 'Day',
-                                                'week' => 'Week',
-                                                'month' => 'Month',
-                                                'year' => 'Year',
+                                                'day' => 'দৈনিক (Day)',
+                                                'week' => 'সাপ্তাহিক (Week)',
+                                                'month' => 'মাসিক (Month)',
+                                                'year' => 'বাৎসরিক (Year)',
                                             ])
                                             ->required()
-                                            ->default('month'),
+                                            ->default('month')
+                                            ->native(false), // <-- সুন্দর UI-এর জন্য
 
                                         TextInput::make('service_charge')
-                                            ->label('সার্ভিস চার্জ')
+                                            ->label('সার্ভিস চার্জ (Service Charge)')
                                             ->numeric()
                                             ->default(0)
                                             ->prefix('৳'),
 
                                         TextInput::make('security_deposit')
-                                            ->label('সিকিউরিটি ডিপোজিট')
+                                            ->label('সিকিউরিটি ডিপোজিট (Security Deposit)')
                                             ->numeric()
                                             ->default(0)
                                             ->prefix('৳'),
 
-                                        Forms\Components\Select::make('is_negotiable')
-                                            ->options(['negotiable' => 'Negotiable', 'fixed' => 'Fixed'])
-                                            ->required()->default('fixed'),
+                                        Forms\Components\ToggleButtons::make('is_negotiable')
+                                            ->label('মূল্য নির্ধারণ (Price Negotiation)')
+                                            ->options([
+                                                'negotiable' => 'আলোচনা সাপেক্ষ',
+                                                'fixed' => 'একদাম',
+                                            ])
+                                            ->colors([
+                                                'negotiable' => 'info',
+                                                'fixed' => 'primary',
+                                            ])
+                                            ->icons([
+                                                'negotiable' => 'heroicon-o-chat-bubble-left-right',
+                                                'fixed' => 'heroicon-o-lock-closed',
+                                            ])
+                                            ->inline() // <-- বাটনগুলোকে পাশাপাশি দেখাবে
+                                            ->required()
+                                            ->default('fixed'),
 
                                         DatePicker::make('available_from')
-                                            ->label('কবে থেকে পাওয়া যাবে')
+                                            ->label('কবে থেকে পাওয়া যাবে (Available From)')
                                             ->required(),
                                     ]),
 
-                                Forms\Components\Section::make('Associations')
+                                Forms\Components\Section::make('সম্পর্কিত তথ্য (Associations)')
                                     ->schema([
-                                        Forms\Components\Select::make('user_id')->label('Owner')
+                                        Forms\Components\Select::make('user_id')
+                                            ->label('মালিক (Owner)')
                                             ->relationship('user', 'name')
-                                            ->searchable()->required(),
-
-                                        Select::make('property_type_id')
-                                            ->relationship(
-                                                'propertyType', // relationship name
-                                                'name_en' // default title column (will be overridden by getOptionLabelFromRecordUsing)
-                                            )
-                                            ->getOptionLabelFromRecordUsing(function (PropertyType $record) {
-                                                return "{$record->name_en} ({$record->name_bn})";
-                                            })
-                                            ->searchable(['name_en', 'name_bn'])
-                                            ->helperText('এটি কি ফ্ল্যাট, ডুপ্লেক্স নাকি অন্য কোনো ধরনের প্রপার্টি? তা নির্বাচন করুন।')
-                                            ->label('Property Type')
-                                            ->live()
+                                            // শুধুমাত্র অ্যাডমিন প্যানেলেই এটি সার্চযোগ্য হবে
+                                            ->searchable()
                                             ->preload()
+
+                                            // ডিফল্ট মান হিসেবে লগইন করা ইউজারের আইডি সেট করা হচ্ছে
+                                            ->default(auth()->id())
                                             ->required(),
 
-                                        Forms\Components\Select::make('purpose')
-                                            ->options(['rent' => 'For Rent', 'sell' => 'For Sell'])
-                                            ->required()->default('rent'),
+                                        // === START: 'purpose' এর আকর্ষণীয় সংস্করণ ===
+                                        Forms\Components\ToggleButtons::make('purpose')
+                                            ->label('উদ্দেশ্য (Purpose)')
+                                            ->options([
+                                                'rent' => 'ভাড়া (Rent)',
+                                                'sell' => 'বিক্রয় (Sell)',
+                                            ])
+                                            ->colors([
+                                                'rent' => 'info',
+                                                'sell' => 'success',
+                                            ])
+                                            ->icons([
+                                                'rent' => 'heroicon-o-key',
+                                                'sell' => 'heroicon-o-banknotes',
+                                            ])
+                                            ->inline() // বাটনগুলোকে পাশাপাশি দেখাবে
+                                            ->required()
+                                            ->default('rent'),
+                                        // === END ===
                                     ]),
 
                                 Forms\Components\Section::make('অবস্থান (Location)')
                                     ->schema([
+                                        // Dependent Selects for Location
                                         Select::make('division_id')
-                                            ->label('বিভাগ')
-                                            ->required()
+                                            ->label('বিভাগ (Division)')
                                             ->relationship('division', 'bn_name')
-                                            ->helperText('প্রপার্টিটি কোন বিভাগে অবস্থিত তা নির্বাচন করুন।')
-                                            ->searchable()
-                                            ->preload()
-                                            ->live()
-                                            ->afterStateUpdated(fn (Set $set) => $set('district_id', null)),
+                                            ->searchable()->preload()->live()
+                                            ->afterStateUpdated(fn (Set $set) => $set('district_id', null))
+                                            ->required(),
 
                                         Select::make('district_id')
-                                            ->label('জেলা')
+                                            ->label('জেলা (District)')
                                             ->options(fn (Get $get): Collection => District::query()
                                                 ->where('division_id', $get('division_id'))
                                                 ->pluck('bn_name', 'id'))
-                                            ->getOptionLabelUsing(fn ($value): ?string => District::find($value)?->bn_name)
                                             ->searchable()->live()->preload()
                                             ->afterStateUpdated(fn (Set $set) => $set('upazila_id', null))
-                                            ->helperText('প্রপার্টিটি কোন জেলায় অবস্থিত তা নির্বাচন করুন।')
                                             ->required(),
 
                                         Select::make('upazila_id')
-                                            ->label('উপজেলা')
+                                            ->label('উপজেলা (Upazila)')
                                             ->options(fn (Get $get): Collection => Upazila::query()
                                                 ->where('district_id', $get('district_id'))
                                                 ->pluck('bn_name', 'id'))
-                                            // --- এখানে getOptionLabel() যোগ করা হয়েছে ---
-                                            ->getOptionLabelUsing(fn ($value): ?string => Upazila::find($value)?->bn_name)
                                             ->searchable()->live()->preload()
                                             ->afterStateUpdated(fn (Set $set) => $set('union_id', null))
-                                            ->helperText('প্রপার্টিটি কোন উপজেলায় অবস্থিত তা নির্বাচন করুন।')
                                             ->required(),
 
                                         Select::make('union_id')
-                                            ->label('ইউনিয়ন')
-                                            ->helperText('প্রপার্টিটি কোন ইউনিয়নে অবস্থিত তা নির্বাচন করুন (যদি থাকে)।')
+                                            ->label('ইউনিয়ন (Union)')
                                             ->options(fn (Get $get): Collection => Union::query()
                                                 ->where('upazila_id', $get('upazila_id'))
                                                 ->pluck('bn_name', 'id'))
-                                            ->getOptionLabelUsing(fn ($value): ?string => Union::find($value)?->bn_name)
-                                            ->searchable()
-                                            ->preload()
-                                            ->nullable(),
+                                            ->searchable()->preload()->nullable(),
 
-                                        TextInput::make('address_street')->label('রাস্তার ঠিকানা')->required(),
-                                        TextInput::make('address_area')->label('এলাকা')->helperText('(যেমন: চন্ডিবেড় মধ্যপাড়া, ভৈরবপুর উত্তরপাড়া)')->required(),
-                                        TextInput::make('address_zipcode')->label('জিপ কোড')->numeric(),
-                                        TextInput::make('google_maps_location_link')->label('গুগল ম্যাপস লিংক')->url(),
+                                        // Address Fields
+                                        Textarea::make('address_street')->label('বাসা ও রাস্তার ঠিকানা (Street Address)')->required()->columnSpanFull(),
+                                        TextInput::make('address_area')->label('এলাকা (Area)')->helperText('যেমন: ধানমন্ডি, গুলশান')->required(),
+                                        TextInput::make('address_zipcode')->label('পোস্ট কোড (Post Code)')->numeric(),
 
-                                        TextInput::make('latitude')
-                                            ->label('Latitude (অক্ষাংশ)')
-                                            ->helperText('যেমন: 23.77701234')
-                                            ->nullable()
-                                            // ডেটাবেসে পাঠানোর আগে ফরম্যাট করা
-                                            ->dehydrateStateUsing(fn (?string $state): ?string => $state ? rtrim(rtrim($state, '0'), '.') : null)
-                                            ->rule('regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'), // অক্ষাংশের জন্য ভ্যালিডেশন
+                                        // Map & Coordinates
+                                        TextInput::make('google_maps_location_link')->label('গুগল ম্যাপস লিংক (Google Maps Link)')->url()->columnSpanFull(),
+                                        TextInput::make('latitude')->label('অক্ষাংশ (Latitude)')->numeric()->rule('regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'),
+                                        TextInput::make('longitude')->label('দ্রাঘিমাংশ (Longitude)')->numeric()->rule('regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/'),
 
-                                        TextInput::make('longitude')
-                                            ->label('Longitude (দ্রাঘিমাংশ)')
-                                            ->helperText('যেমন: 90.39945100')
-                                            ->nullable()
-                                            // ডেটাবেসে পাঠানোর আগে ফরম্যাট করা
-                                            ->dehydrateStateUsing(fn (?string $state): ?string => $state ? rtrim(rtrim($state, '0'), '.') : null)
-                                            ->rule('regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/'), // দ্রাঘিমাংশের জন্য ভ্যালিডাউনলোড
-                                    ]),
+                                    ])->columns(2), // পুরো সেকশনটিকে ২ কলামে ভাগ করা হলো
 
-                                Forms\Components\Section::make('Visibility')
+                                Forms\Components\Section::make('দৃশ্যমানতা ও স্ট্যাটাস (Visibility & Status)')
                                     ->schema([
-                                        Forms\Components\Toggle::make('is_available')->default(true),
-                                        Forms\Components\Toggle::make('is_featured'),
-                                        Forms\Components\Toggle::make('is_trending'),
-                                        Forms\Components\Toggle::make('is_verified'),
-                                    ]),
+                                        Forms\Components\Toggle::make('is_available')
+                                            ->label('ভাড়ার জন্য উপলব্ধ (Available)')
+                                            ->onColor('success')
+                                            ->offColor('danger')
+                                            ->default(true),
+
+                                        Forms\Components\Toggle::make('is_featured')
+                                            ->label('ফিচার্ড হিসেবে দেখান (Featured)')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
+
+                                        Forms\Components\Toggle::make('is_trending')
+                                            ->label('ট্রেন্ডিং হিসেবে দেখান (Trending)')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
+
+                                        Forms\Components\Toggle::make('is_verified')
+                                            ->label('যাচাইকৃত (Verified)')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
+                                    ])->columns(1), // ৪টি টগলকে সুন্দরভাবে পাশাপাশি দেখানো হলো
 
                             ])->columnSpan(1),
                     ])
@@ -438,6 +480,7 @@ class PropertyResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('property_type_id')
                     ->label('Property Type')
@@ -449,6 +492,7 @@ class PropertyResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

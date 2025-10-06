@@ -1,36 +1,30 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use Exception;
+use App\Filament\App\Resources\UserResource\Pages;
+use App\Filament\App\Resources\UserResource\RelationManagers;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Textarea;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
-use App\Filament\Resources\UserResource\RelationManagers;
-use App\Filament\Resources\UserResource\RelationManagers\WishlistRelationManager;
-use App\Models\User;
-use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class UserResource extends Resource
@@ -38,7 +32,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationGroup = 'User Management';
-    protected static ?string $navigationLabel = 'All Users';
+    protected static ?string $navigationLabel = 'My Profile';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -63,6 +57,7 @@ class UserResource extends Resource
                                 TextInput::make('email')->label('ইমেইল')->email()->unique(ignoreRecord: true)->nullable(),
                                 TextInput::make('phone')->label('ফোন নম্বর')->tel()->required()->unique(ignoreRecord: true)
                                     ->live(onBlur: true)
+                                    ->disabled(fn (string $operation): bool => $operation === 'edit')
                                     ->hint(function (Get $get, string $operation) {
                                         if ($operation !== 'create') return null;
                                         $phone = $get('phone');
@@ -70,10 +65,12 @@ class UserResource extends Resource
                                         $exists = \App\Models\User::where('phone', $phone)->exists();
                                         return new HtmlString($exists ? '<span style="color: red;">এই নম্বরটি ব্যবহৃত হয়েছে।</span>' : '<span style="color: green;">এই নম্বরটি ব্যবহারযোগ্য।</span>');
                                     }),
+
                                 TextInput::make('password')
                                     ->password()
                                     ->dehydrated(fn ($state) => filled($state))->required(fn (string $context): bool => $context === 'create')
                                     ->rule(Password::default()),
+
                                 TextInput::make('password_confirmation')->password()->requiredWith('password')->dehydrated(false),
                             ])->columns(2),
 
@@ -89,18 +86,6 @@ class UserResource extends Resource
 
                     // === START: ডান পাশের সাইডবার (১/৩ অংশ) ===
                     Group::make()->schema([
-                        Section::make('স্ট্যাটাস ও ভূমিকা')
-                            ->schema([
-                                Select::make('status')->options([
-                                    'active' => 'Active',
-                                    'inactive' => 'Inactive',
-                                    'banned' => 'Banned',
-                                    'pending' => 'Pending',
-                                ])->default('active')->required(),
-
-                                Select::make('roles')->relationship('roles', 'name')->multiple()->preload()->searchable(),
-                            ]),
-
                         Section::make('ভেরিফিকেশন ও পরিসংখ্যান')
                             ->schema([
                                 Placeholder::make('email_verified_at')
@@ -119,9 +104,6 @@ class UserResource extends Resource
             ]);
     }
 
-    /**
-     * @throws Exception
-     */
     public static function table(Table $table): Table
     {
         return $table
@@ -184,16 +166,7 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true), // ডিফল্টভাবে হাইড থাকবে
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'active' => 'Active',
-                        'inactive' => 'Inactive',
-                        'banned' => 'Banned',
-                        'pending' => 'Pending',
-                    ]),
-                Tables\Filters\SelectFilter::make('roles')
-                    ->relationship('roles', 'name'),
-                Tables\Filters\TernaryFilter::make('email_verified_at')->label('Email Verified')->nullable(),
+                //
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -241,7 +214,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-//            WishlistRelationManager::class,
+            //
         ];
     }
 
@@ -250,13 +223,13 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 
-    public static function getNavigationBadge(): ?string
+    // এই মেথডটি নিশ্চিত করবে যে ইউজার শুধুমাত্র তার নিজের প্রপার্টি দেখতে পাবে
+    public static function getEloquentQuery(): Builder
     {
-        return static::getModel()::count();
+        return parent::getEloquentQuery()->where('id', auth()->id());
     }
 }

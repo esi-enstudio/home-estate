@@ -28,7 +28,10 @@
                                 </div>
                                 <i class="fa-solid fa-circle text-body"></i>
                                 <div class="fs-14 mb-0 text-white d-flex align-items-center flex-wrap gap-1 custom-address-item">
-                                    <i class="material-icons-outlined text-white me-1">location_on</i>{{ $property->address_street }}, {{ $property->address_area }}, {{ $property->district->name }}
+                                    <i class="material-icons-outlined text-white me-1">location_on</i>
+
+                                    {{ $property->address_street }} <span class="text-warning fw-semibold">({{ $property->address_area }})</span>
+
                                     @if($property->google_maps_location_link)
                                         <a href="{{ $property->google_maps_location_link }}" target="_blank" class="text-primary fs-14 text-decoration-underline ms-1"> View Location</a>
                                     @endif
@@ -329,7 +332,7 @@
                                     <div class="card-body">
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="avatar avatar-lg">
-                                                <img src="{{ $property->user->avatar_url ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                                                <img src="{{ \Illuminate\Support\Facades\Storage::url($property->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
                                             </div>
                                             <div>
                                                 <h6 class="mb-1 fs-16 fw-semibold"><a class="d-block w-100" href="#">{{ $property->user->name }}</a></h6>
