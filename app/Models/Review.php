@@ -23,7 +23,7 @@ class Review extends Model
     public function property(): BelongsTo
     { return $this->belongsTo(Property::class); }
     public function replies(): HasMany
-    { return $this->hasMany(Review::class, 'parent_id'); }
+    { return $this->hasMany(Review::class, 'parent_id')->with('user'); }
 
     public function authUserReaction(): HasOne
     {

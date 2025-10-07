@@ -79,7 +79,12 @@ class PropertyReviews extends Component
         $query = $this->property->reviews()
             ->where('status', 'approved')
             ->whereNull('parent_id')
-            ->with('user');
+            ->with([
+                'user',
+                'replies' => function ($query) {
+                    $query->where('status', 'approved');
+                }
+            ]);
 
         // যদি ইউজার লগইন করা থাকে, তাহলে তার প্রতিক্রিয়াও লোড করা হবে
         if (auth()->check()) {

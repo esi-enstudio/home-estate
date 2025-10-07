@@ -52,7 +52,8 @@
                     </div>
 
                     <div class="col-lg-6 d-flex">
-                        <div class="card shadow-none review-progress flex-fill mb-0"><div class="card-body">
+                        <div class="card shadow-none review-progress flex-fill mb-0">
+                            <div class="card-body">
                                 @foreach($ratingStats as $star => $stats)
                                     <div class="progress-lvl @if($loop->last) mb-0 @else mb-2 @endif">
                                         <p>{{ $star }} Star Ratings</p>
@@ -67,7 +68,7 @@
                 </div>
 
                 @forelse($reviews as $review)
-                    <div class="card shadow-none review-items">
+                    <div class="card shadow-none review-items @if($review->replies->where('status', 'approved')->isNotEmpty() || !$loop->last)mb-4 @endif" style="padding: 20px;">
                         <div class="card-body">
                             <div class="mb-2 d-flex align-center gap-2 flex-wrap">
                                 <div class="avatar avatar-lg">
@@ -119,6 +120,39 @@
                             </div>
                             {{-- ========== END: ডাইনামিক রিঅ্যাকশন সেকশন ========== --}}
                         </div>
+
+                        {{-- ========== START: রিপ্লাই দেখানোর জন্য নতুন এবং পরিবর্তিত সেকশন ========== --}}
+                        {{-- 'children' এর পরিবর্তে সঠিক রিলেশনশিপের নাম 'replies' ব্যবহার করা হচ্ছে --}}
+                        @if ($review->replies->where('status', 'approved')->isNotEmpty())
+                            @foreach($review->replies->where('status', 'approved') as $reply)
+                                <!-- Start reply item-->
+                                <div class="card shadow-none review-items bg-light border-0 mb-0 ms-lg-5 ms-md-5 ms-3">
+                                    <div class="card-body">
+                                        <div class="d-flex align-center flex-wrap justify-content-between gap-1 mb-2">
+                                            <div class="d-flex align-center gap-2 flex-wrap">
+                                                <div class="avatar avatar-lg">
+                                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($reply->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $reply->user->name }}" class="img-fluid rounded-circle">
+                                                </div>
+                                                <div>
+                                                    <h6 class="fs-16 fw-medium mb-1 d-flex align-items-center gap-2">
+                                                        {{ $reply->user->name }}
+                                                        {{-- মালিকের রিপ্লাইতে 'Owner' ব্যাজ দেখানো হচ্ছে --}}
+                                                        @if ($reply->user_id === $property->user_id)
+                                                            <span class="badge bg-primary">Owner</span>
+                                                        @endif
+                                                    </h6>
+                                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                        <p class="fs-14 mb-0 text-body">{{ $reply->created_at->diffForHumans() }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="mb-2 text-body">{{ $reply->body }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                        {{-- ========== END: রিপ্লাই দেখানোর জন্য নতুন সেকশন ========== --}}
                     </div>
                 @empty
                     <p class="text-center my-4">No reviews yet for this property.</p>
