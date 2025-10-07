@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 class AmenitiesRelationManager extends RelationManager
 {
     protected static string $relationship = 'amenities';
+    protected static ?string $title = 'সুযোগ-সুবিধা';
 
     public function form(Form $form): Form
     {

@@ -32,7 +32,19 @@
             <div class="accordion-body">
                 <div class="sub-head d-flex align-items-center justify-content-between mb-4">
                     <h6 class="fs-16 fw-semibold"> Reviews ({{ $totalReviewsCount }}) </h6>
-                    <a href="javascript:void(0);" class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#add_review_modal"><i class="material-icons-outlined me-1 fs-13">edit_note</i> Write a Review </a>
+
+                    @auth
+                        <a href="javascript:void(0);" class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#add_review_modal">
+                            <i class="material-icons-outlined me-1 fs-13">edit_note</i> আপনার মতামত দিন
+                        </a>
+                    @endauth
+
+                    {{-- গেস্ট ব্যবহারকারীরা লগইন করার জন্য একটি লিঙ্ক দেখতে পাবে --}}
+                    @guest
+                        <a href="{{ route('filament.app.auth.login') }}" class="btn btn-dark d-flex align-items-center">
+                            <i class="material-icons-outlined me-1 fs-13">lock</i> রিভিউ দিতে লগইন করুন
+                        </a>
+                    @endguest
                 </div>
 
                 <div class="row mb-3 gap-xl-0 gap-lg-0 gap-3">

@@ -4,24 +4,19 @@ namespace App\Filament\App\Resources\PropertyResource\RelationManagers;
 
 use App\Models\Review;
 use Exception;
-use Filament\Forms;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\ColumnGroup;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\HtmlString;
 
 class ReviewsRelationManager extends RelationManager
 {
     protected static string $relationship = 'reviews';
-    protected static ?string $title = 'Reviews and Replies';
+    protected static ?string $title = 'রিভিউসমূহ এবং উত্তর';
+    protected static ?string $modelLabel = 'রিভিউ';
 
     public function form(Form $form): Form
     {
@@ -72,10 +67,6 @@ class ReviewsRelationManager extends RelationManager
                         // --- মূল পরিবর্তন এখানে ---
                         ->icon('heroicon-s-heart'),
                 ])->alignCenter(),
-
-//                Tables\Columns\TextColumn::make('likes_count')->label('Likes')->badge(),
-//                Tables\Columns\TextColumn::make('dislikes_count')->label('Dislikes')->badge(),
-//                Tables\Columns\TextColumn::make('favorites_count')->label('Favorites')->badge(),
             ])
             ->filters([
 

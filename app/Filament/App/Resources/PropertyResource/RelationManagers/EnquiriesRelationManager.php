@@ -3,8 +3,6 @@
 namespace App\Filament\App\Resources\PropertyResource\RelationManagers;
 
 use Exception;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
@@ -22,7 +20,7 @@ class EnquiriesRelationManager extends RelationManager
 {
     protected static string $relationship = 'enquiries';
 
-    protected static ?string $title = 'আপনার জিজ্ঞাসাসমূহ (Enquiries)';
+    protected static ?string $title = 'ভাড়াটিয়ার জিজ্ঞাসাসমূহ';
     protected static ?string $modelLabel = 'জিজ্ঞাসা';
 
 
