@@ -56,10 +56,6 @@ class AmenitiesRelationManager extends RelationManager
                             ->unique()
                             ->maxLength(255),
 
-                        TextInput::make('icon_class')
-                            ->label('Icon Class (e.g., fas fa-wifi)')
-                            ->maxLength(255),
-
                         Select::make('type')
                             ->options([
                                 'facility' => 'Facility',
@@ -86,7 +82,7 @@ class AmenitiesRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

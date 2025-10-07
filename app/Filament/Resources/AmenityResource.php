@@ -107,8 +107,7 @@ class AmenityResource extends Resource
                     ->counts('properties') // রিলেশনশিপ থেকে গণনা করবে
                     ->sortable(),
 
-                Tables\Columns\IconColumn::make('show_on_homepage')
-                    ->boolean(),
+                Tables\Columns\ToggleColumn::make('show_on_homepage'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -127,6 +126,7 @@ class AmenityResource extends Resource
             ->defaultPaginationPageOption(5)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

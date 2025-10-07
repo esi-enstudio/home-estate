@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('message');
             $table->foreignId('user_id')->nullable()->comment('Enquiry from logged in user')->constrained()->nullOnDelete();
             $table->boolean('is_read')->default(false);
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

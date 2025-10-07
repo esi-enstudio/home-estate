@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Enquiry extends Model
 {
-    protected $fillable = ['property_id','name','email','phone','message','user_id','is_read'];
+    protected $fillable = ['property_id','name','email','phone','message','user_id','is_read','read_at'];
 }
