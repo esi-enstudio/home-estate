@@ -11,6 +11,7 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -44,26 +45,32 @@ class EnquiriesRelationManager extends RelationManager
                     ->copyMessage('ফোন নম্বর কপি করা হয়েছে'),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('সময়')
+                    ->label('বার্তাটি এসেছে')
                     ->since(),
 
                 Tables\Columns\TextColumn::make('read_at')
-                    ->label('পঠিত')
+                    ->label('পঠিত হয়েছে')
                     ->dateTime('d M Y, h:i A')
                     ->since()
                     ->placeholder('এখনো পড়া হয়নি'), // যদি read_at null হয়, তাহলে এটি দেখাবে
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_read')
-                    ->label('Status')
-                    ->placeholder('All')
-                    ->trueLabel('Read')
-                    ->falseLabel('Unread'),
+
             ])
             ->headerActions([]) // মালিক নতুন জিজ্ঞাসা তৈরি করতে পারবে না
             ->actions([
                 Tables\Actions\ViewAction::make()
+                    ->label('দেখুন')
+                    ->mutateRecordDataUsing(function (Model $record, array $data): array {
+                        // যদি বার্তাটি অপঠিত থাকে, তাহলে এটিকে 'পঠিত' হিসেবে আপডেট করুন
+                        if (is_null($record->read_at)) {
+                            $record->update(['read_at' => now()]);
+                        }
+
+                        // Infolist-কে দেখানোর জন্য ডেটা রিটার্ন করুন
+                        return $data;
+                    })
                     ->infolist([
                         Section::make('ব্যবহারকারীর তথ্য')
                             ->schema([
@@ -71,14 +78,14 @@ class EnquiriesRelationManager extends RelationManager
                                     TextEntry::make('name')->label('নাম'),
                                     TextEntry::make('phone')->label('ফোন নম্বর'),
                                     TextEntry::make('email')->label('ইমেইল')->copyable(),
-                                    TextEntry::make('created_at')->label('সময়')->dateTime('d M Y, h:i A'),
+                                    TextEntry::make('created_at')->label('বার্তাটি এসেছে')->dateTime('d M Y, h:i A'),
                                 ]),
                             ]),
                         Section::make('বার্তার বিবরণ')
                             ->schema([
                                 TextEntry::make('subject')->label('বিষয়'),
                                 TextEntry::make('message')->label('বিস্তারিত বার্তা')
-                                    ->formatStateUsing(fn (string $state): string => nl2br(e($state))) // নতুন লাইনগুলোকে সম্মান করবে
+                                    ->formatStateUsing(fn (string $state): string => $state) // নতুন লাইনগুলোকে সম্মান করবে
                                     ->columnSpanFull(),
                                 IconEntry::make('is_read')->label('স্ট্যাটাস')->boolean()
                                     ->trueIcon('heroicon-o-check-circle')
@@ -87,10 +94,14 @@ class EnquiriesRelationManager extends RelationManager
                                     ->falseColor('warning')
                                     ->getStateUsing(fn (Model $record): string => $record->is_read ? 'পঠিত' : 'অপঠিত'),
                             ]),
-                    ])
-                    ->before(function (Model $record) {
-                        // যদি 'read_at' কলামটি আগে থেকেই null না হয় (অর্থাৎ পড়া হয়ে থাকে),
-                        // তাহলে অপ্রয়োজনীয় ডাটাবেজ আপডেট করার প্রয়োজন নেই।
+                    ]),
+
+                // একটি অদৃশ্য (hidden) অ্যাকশন যা শুধুমাত্র ডেটা আপডেট করার কাজ করবে
+                Action::make('markAsRead')
+                    ->label('Mark as Read')
+                    ->icon('heroicon-o-eye')
+                    ->hidden() // <-- এই অ্যাকশনটি UI-তে দেখা যাবে না
+                    ->action(function (Model $record) {
                         if (is_null($record->read_at)) {
                             $record->update(['read_at' => now()]);
                         }

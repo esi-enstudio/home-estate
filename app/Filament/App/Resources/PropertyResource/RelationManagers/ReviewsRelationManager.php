@@ -10,9 +10,13 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\ColumnGroup;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class ReviewsRelationManager extends RelationManager
 {
@@ -22,18 +26,7 @@ class ReviewsRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                    ])
-                    ->required(),
-
-                Forms\Components\Toggle::make('is_testimonial')
-                    ->label('Show this review on the homepage testimonials section.'),
-            ]);
+            ->schema([]);
     }
 
     /**
@@ -49,8 +42,8 @@ class ReviewsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('rating')
                     ->icon('heroicon-s-star')
                     ->color('warning'),
-                Tables\Columns\TextColumn::make('title'),
-                Tables\Columns\TextColumn::make('body')->label('Content')->searchable(),
+                Tables\Columns\TextColumn::make('title')->searchable(),
+                Tables\Columns\TextColumn::make('body')->label('Content')->wrap()->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -58,10 +51,31 @@ class ReviewsRelationManager extends RelationManager
                         'approved' => 'success',
                         'rejected' => 'danger',
                     }),
+                ColumnGroup::make('প্রতিক্রিয়া (Reactions)', [
+                    Tables\Columns\TextColumn::make('likes_count')
+                        ->label('Likes')
+                        ->badge()
+                        // --- মূল পরিবর্তন এখানে ---
+                        ->icon('heroicon-s-hand-thumb-up'), // 's-thumb-up' এর পরিবর্তে
 
-                Tables\Columns\TextColumn::make('replies_count')
-                    ->label('Replies')
-                    ->counts('replies'),
+                    Tables\Columns\TextColumn::make('dislikes_count')
+                        ->label('Dislikes')
+                        ->badge()
+                        ->color('secondary')
+                        // --- মূল পরিবর্তন এখানে ---
+                        ->icon('heroicon-s-hand-thumb-down'), // 's-thumb-down' এর পরিবর্তে
+
+                    Tables\Columns\TextColumn::make('favorites_count')
+                        ->label('Favorites')
+                        ->badge()
+                        ->color('danger')
+                        // --- মূল পরিবর্তন এখানে ---
+                        ->icon('heroicon-s-heart'),
+                ])->alignCenter(),
+
+//                Tables\Columns\TextColumn::make('likes_count')->label('Likes')->badge(),
+//                Tables\Columns\TextColumn::make('dislikes_count')->label('Dislikes')->badge(),
+//                Tables\Columns\TextColumn::make('favorites_count')->label('Favorites')->badge(),
             ])
             ->filters([
 
