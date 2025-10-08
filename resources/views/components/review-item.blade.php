@@ -39,14 +39,29 @@
                         <img src="{{ \Storage::url($item->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $item->user->name }}" class="img-fluid rounded-circle">
                     </div>
                     <div>
-                        <h6 class="fs-16 fw-medium mb-1 d-flex align-items-center gap-2">
-                            {{ $item->user->name }}
-                            @if ($item->user_id === $property->user_id)
-                                <span class="badge bg-primary">Owner</span>
-                            @elseif ($item->user->hasRole('super_admin'))
-                                <span class="badge bg-danger">Admin</span>
-                            @endif
+                        {{--
+                            d-flex: Flexbox চালু করে।
+                            flex-column: মোবাইল স্ক্রিনে (ডিফল্ট) আইটেমগুলো উপরে নিচে থাকবে।
+                            flex-sm-row: ছোট স্ক্রিন (sm) এবং তার চেয়ে বড় স্ক্রিনে আইটেমগুলো পাশাপাশি থাকবে।
+                            align-items-sm-center: বড় স্ক্রিনে আইটেমগুলোকে উল্লম্বভাবে মাঝখানে অ্যালাইন করবে।
+                        --}}
+                        <h6 class="fs-16 fw-medium mb-1 d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+
+                            {{-- order-2: মোবাইল স্ক্রিনে এটি দ্বিতীয় আইটেম হিসেবে (নিচে) থাকবে --}}
+                            {{-- order-sm-1: ছোট (sm) স্ক্রিন ও তার উপরে এটি প্রথম আইটেম (বামে) হবে --}}
+                            <span class="order-2 order-sm-1">{{ $item->user->name }}</span>
+
+                            {{-- order-1: মোবাইল স্ক্রিনে এটি প্রথম আইটেম হিসেবে (উপরে) থাকবে --}}
+                            {{-- order-sm-2: ছোট (sm) স্ক্রিন ও তার উপরে এটি দ্বিতীয় আইটেম (ডানে) হবে --}}
+                            <div class="order-1 order-sm-2">
+                                @if ($item->user_id === $property->user_id)
+                                    <span class="badge bg-primary">Owner</span>
+                                @elseif ($item->user->hasRole('super_admin'))
+                                    <span class="badge bg-danger">Super Admin</span>
+                                @endif
+                            </div>
                         </h6>
+
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <p class="fs-14 mb-0 text-body">{{ $item->created_at->diffForHumans() }}</p>
                             @if($item->rating)
@@ -67,7 +82,7 @@
 
                 {{-- Action Buttons --}}
                 @auth
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-column align-items-end flex-sm-row align-items-sm-center gap-2">
                         {{-- শুধুমাত্র लेखक (author) এই বাটনগুলো দেখতে পাবে --}}
                         @if(auth()->id() === $item->user_id)
                             <a href="javascript:void(0);" wire:click="edit({{ $item->id }})"
