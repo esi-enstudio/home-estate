@@ -80,9 +80,20 @@
                 </div>
 
                 @forelse($reviews as $review)
-                    <div class="card shadow-none review-items @if($review->replies->where('status', 'approved')->isNotEmpty() || !$loop->last)mb-4 @endif" style="padding: 20px;">
+                        <div x-data="{ openReplyBox: false }"
+                             wire:key="review-{{ $review->id }}"
+                             {{--
+                                Livewire থেকে 'reply-submitted-successfully' ইভেন্টটি এলে,
+                                AlpineJS 'openReplyBox'-এর মান 'false' করে দেবে।
+                             --}}
+                             x-on:reply-submitted-successfully.window="openReplyBox = false"
+                             class="card shadow-none review-items
+                             @if($review->replies->where('status', 'approved')->isNotEmpty() || !$loop->last)mb-4 @endif"
+                             style="padding: 20px;">
+
                         <div class="card-body">
-                            <div class="mb-2 d-flex align-center gap-2 flex-wrap">
+                            <div class="d-flex align-center flex-wrap justify-content-between gap-1 mb-2">
+                                <div class="mb-2 d-flex align-center gap-2 flex-wrap">
                                 <div class="avatar avatar-lg">
                                     <img
                                         src="{{ \Illuminate\Support\Facades\Storage::url($review->user->avatar_url) ?? 'https://placehold.co/100' }}"
@@ -114,7 +125,48 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="mb-2 text-body">{{ $review->body }}</p>
+                                @auth {{-- শুধুমাত্র লগইন করা ব্যবহারকারীরাই রিপ্লাই বাটন দেখতে পাবে --}}
+{{--                                <a href="javascript:void(0);" @click="openReplyBox = !openReplyBox" class="btn d-inline-flex align-items-center fs-13 fw-semibold reply-btn">--}}
+{{--                                    <i class="material-icons-outlined text-dark me-1">repeat</i> Reply--}}
+{{--                                </a>--}}
+                                <div class="d-flex gap-2">
+                                    {{-- শুধুমাত্র लेखक (author) এই বাটনগুলো দেখতে পাবে --}}
+                                    @if(auth()->id() === $review->user_id)
+                                        <a href="javascript:void(0);" wire:click="edit({{ $review->id }})"
+                                           class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn"
+                                           title="Edit">
+                                            <i class="material-icons-outlined fs-16">edit</i>
+                                        </a>
+
+                                        <a href="javascript:void(0);" wire:click="delete({{ $review->id }})"
+                                           wire:confirm="আপনি কি নিশ্চিতভাবে এটি মুছে ফেলতে চান?"
+                                           class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn bg-danger text-white"
+                                           title="Delete">
+                                            <i class="material-icons-outlined fs-16">delete</i>
+                                        </a>
+                                    @endif
+                                    <a href="javascript:void(0);" @click="$dispatch('open-reply-box', { reviewId: {{ $review->id }} })"
+                                       class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn">
+                                        <i class="material-icons-outlined text-dark me-1">repeat</i> Reply
+                                    </a>
+                                </div>
+                                @endauth
+                            </div>
+
+                            {{-- === START: ইন-লাইন এডিটিং UI === --}}
+                            @if($editingReviewId === $review->id)
+                                <div>
+                                    <textarea wire:model.defer="editingReviewBody" class="form-control mb-2" rows="3"></textarea>
+                                    @error('editingReviewBody') <span class="text-danger fs-14">{{ $message }}</span> @enderror
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button wire:click="cancelEdit" class="btn btn-sm btn-secondary">বাতিল</button>
+                                        <button wire:click="update" class="btn btn-sm btn-primary">সেভ করুন</button>
+                                    </div>
+                                </div>
+                            @else
+                                <p class="mb-2 text-body">{{ $review->body }}</p>
+                            @endif
+                            {{-- === END === --}}
 
                             {{-- ========== START: ডাইনামিক রিঅ্যাকশন সেকশন ========== --}}
                             <div class="d-flex align-items-center gap-3">
@@ -133,12 +185,27 @@
                             {{-- ========== END: ডাইনামিক রিঅ্যাকশন সেকশন ========== --}}
                         </div>
 
+                        {{-- === START: কলাপসিবল রিপ্লাই ফর্ম === --}}
+                        <div x-show="openReplyBox" x-transition class="card-body border-top pt-3">
+                            <form wire:submit.prevent="submitReply({{ $review->id }})">
+                                <div class="mb-2">
+                                    <textarea wire:model.defer="replyBody" class="form-control" rows="3" placeholder="আপনার উত্তর লিখুন..."></textarea>
+                                    @error('replyBody') <span class="text-danger fs-14">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" @click="openReplyBox = false" class="btn btn-sm btn-secondary">বাতিল</button>
+                                    <button type="submit" class="btn btn-sm btn-primary">উত্তর দিন</button>
+                                </div>
+                            </form>
+                        </div>
+                        {{-- === END === --}}
+
                         {{-- ========== START: রিপ্লাই দেখানোর জন্য নতুন এবং পরিবর্তিত সেকশন ========== --}}
                         {{-- 'children' এর পরিবর্তে সঠিক রিলেশনশিপের নাম 'replies' ব্যবহার করা হচ্ছে --}}
                         @if ($review->replies->where('status', 'approved')->isNotEmpty())
                             @foreach($review->replies->where('status', 'approved') as $reply)
                                 <!-- Start reply item-->
-                                <div class="card shadow-none review-items bg-light border-0 mb-0 ms-lg-5 ms-md-5 ms-3">
+                                    <div wire:key="reply-{{ $reply->id }}" class="card shadow-none review-items bg-light border-0 mb-0 ms-lg-5 ms-md-5 ms-3 mt-3">
                                     <div class="card-body">
                                         <div class="d-flex align-center flex-wrap justify-content-between gap-1 mb-2">
                                             <div class="d-flex align-center gap-2 flex-wrap">
@@ -148,18 +215,57 @@
                                                 <div>
                                                     <h6 class="fs-16 fw-medium mb-1 d-flex align-items-center gap-2">
                                                         {{ $reply->user->name }}
-                                                        {{-- মালিকের রিপ্লাইতে 'Owner' ব্যাজ দেখানো হচ্ছে --}}
+
+                                                        {{-- === START: ডাইনামিক ব্যাজ লজিক === --}}
                                                         @if ($reply->user_id === $property->user_id)
                                                             <span class="badge bg-primary">Owner</span>
+                                                        @elseif ($reply->user->hasRole('super_admin'))
+                                                            <span class="badge bg-danger">Admin</span>
                                                         @endif
+                                                        {{-- === END === --}}
+
                                                     </h6>
                                                     <div class="d-flex align-items-center gap-2 flex-wrap">
                                                         <p class="fs-14 mb-0 text-body">{{ $reply->created_at->diffForHumans() }}</p>
                                                     </div>
                                                 </div>
                                             </div>
+
+{{--                                            <a href="javascript:void(0);" class="btn d-inline-flex align-items-center fs-13 fw-semibold reply-btn">--}}
+{{--                                                <i class="material-icons-outlined text-dark me-1">repeat</i>--}}
+{{--                                                Reply--}}
+{{--                                            </a>--}}
+                                            {{-- শুধুমাত্র রিপ্লাইয়ের लेखक (author) এই বাটনগুলো দেখতে পাবে --}}
+                                            @if(auth()->check() && auth()->id() === $reply->user_id)
+                                                <div class="d-flex gap-2">
+                                                    <a href="javascript:void(0);" wire:click="edit({{ $reply->id }})" class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn" title="Edit">
+                                                        <i class="material-icons-outlined fs-16">edit</i>
+                                                    </a>
+
+                                                    <a href="javascript:void(0);" wire:click="delete({{ $reply->id }})"
+                                                       wire:confirm="আপনি কি নিশ্চিতভাবে এটি মুছে ফেলতে চান?"
+                                                       class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn bg-danger text-white"
+                                                       title="Delete">
+                                                        <i class="material-icons-outlined fs-16">delete</i>
+                                                    </a>
+                                                </div>
+                                            @endif
+
                                         </div>
-                                        <p class="mb-2 text-body">{{ $reply->body }}</p>
+
+                                        @if($editingReviewId === $reply->id)
+                                            <div>
+                                                <x-filament::input wire:model.defer="editingReviewBody" class="form-control mb-2"></x-filament::input>
+                                                @error('editingReviewBody') <span class="text-danger fs-14">{{ $message }}</span> @enderror
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <button wire:click="cancelEdit" class="btn btn-sm btn-secondary">বাতিল</button>
+                                                    <button wire:click="update" class="btn btn-sm btn-primary">সেভ করুন</button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <p class="mb-2 text-body">{{ $reply->body }}</p>
+                                        @endif
+
                                     </div>
                                 </div>
                             @endforeach

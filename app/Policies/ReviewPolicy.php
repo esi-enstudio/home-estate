@@ -11,6 +11,21 @@ class ReviewPolicy
     use HandlesAuthorization;
 
     /**
+     * Perform pre-authorization checks.
+     * এই মেথডটি অন্য যেকোনো মেথড কল হওয়ার আগে কাজ করে।
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        // যদি ব্যবহারকারীর 'super_admin' রোল থাকে, তাহলে তাকে সকল অনুমতি দেওয়া হবে।
+        // এটি আমাদের অন্য মেথডগুলোকে অনেক পরিষ্কার রাখে।
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        return null; // যদি সুপার-অ্যাডমিন না হয়, তাহলে সাধারণ নিয়ম প্রযোজ্য হবে।
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
@@ -39,7 +54,7 @@ class ReviewPolicy
      */
     public function update(User $user, Review $review): bool
     {
-        return $user->can('update_review');
+        return $user->can('update_review') || $user->id === $review->user_id;
     }
 
     /**
@@ -47,7 +62,7 @@ class ReviewPolicy
      */
     public function delete(User $user, Review $review): bool
     {
-        return $user->can('delete_review');
+        return $user->can('delete_review') || $user->id === $review->user_id;
     }
 
     /**

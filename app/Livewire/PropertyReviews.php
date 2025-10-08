@@ -35,6 +35,11 @@ class PropertyReviews extends Component
 
     public ?string $successMessage = null;
 
+    public string $replyBody = ''; // রিপ্লাই ফর্মের জন্য
+
+    public ?int $editingReviewId = null;
+    public string $editingReviewBody = '';
+
     // Validation rules
     protected function rules(): array
     {
@@ -216,6 +221,107 @@ class PropertyReviews extends Component
         $this->page = 1; // পেজিনেশন প্রথম পাতায় নিয়ে আসা
         $this->calculateRatingStats();
         $this->loadReviews();
+    }
+
+    /**
+     * Handles the submission of a new reply.
+     */
+    public function submitReply(int $parentId): void
+    {
+        // ধাপ ১: ব্যবহারকারী লগইন করা আছে কিনা তা পরীক্ষা করা
+        if (!Auth::check()) {
+            $this->dispatch('show-login-alert');
+            return;
+        }
+
+        // ধাপ ২: মূল রিভিউটি খুঁজে বের করা
+        $parentReview = Review::find($parentId);
+        if (!$parentReview) {
+            session()->flash('reply_error_' . $parentId, 'দুঃখিত, কোনো একটি সমস্যা হয়েছে।');
+            return;
+        }
+
+        // ধাপ ৩: ভ্যালিডেশন
+        $this->validate(['replyBody' => 'required|string|min:5|max:1000']);
+
+        // ধাপ ৪: রিপ্লাই তৈরি করা
+        $parentReview->replies()->create([
+            'property_id' => $this->property->id,
+            'user_id' => Auth::id(),
+            'body' => $this->replyBody,
+            'rating' => 0, // রিপ্লাইয়ের কোনো রেটিং থাকে না
+            // মালিক বা সুপার অ্যাডমিনের রিপ্লাই স্বয়ংক্রিয়ভাবে অনুমোদিত হবে
+            'status' => 'approved',
+        ]);
+
+        // ধাপ ৫: ফর্ম রিসেট করা এবং রিভিউ তালিকা রিফ্রেশ করা
+        $this->replyBody = '';
+        $this->loadReviews();
+
+        // আপনি চাইলে একটি সাকসেস মেসেজ দেখাতে পারেন
+        $this->dispatch('reply-submitted-successfully');
+    }
+
+    /**
+     * কোনো রিভিউ এডিট করার জন্য এই মেথডটি কল হবে।
+     */
+    public function edit(int $reviewId): void
+    {
+        $review = Review::findOrFail($reviewId);
+
+        // পলিসি বা গেট ব্যবহার করে অথোরাইজেশন চেক করা সেরা অনুশীলন
+        if (Auth::user()->cannot('update', $review)) {
+            return;
+        }
+
+        $this->editingReviewId = $review->id;
+        $this->editingReviewBody = $review->body;
+    }
+
+    /**
+     * এডিটিং বাতিল করার জন্য।
+     */
+    public function cancelEdit(): void
+    {
+        $this->reset('editingReviewId', 'editingReviewBody');
+    }
+
+    /**
+     * এডিট করা রিভিউ/রিপ্লাই আপডেট করার জন্য।
+     */
+    public function update(): void
+    {
+        if ($this->editingReviewId === null) return;
+
+        $review = Review::findOrFail($this->editingReviewId);
+
+        if (Auth::user()->cannot('update', $review)) {
+            return;
+        }
+
+        $this->validate(['editingReviewBody' => 'required|string|min:10']);
+
+        $review->update(['body' => $this->editingReviewBody]);
+
+        $this->cancelEdit(); // এডিটিং স্টেট রিসেট করুন
+        $this->loadReviews(); // তালিকা রিফ্রেশ করুন
+    }
+
+    /**
+     * কোনো রিভিউ বা রিপ্লাই ডিলিট করার জন্য।
+     */
+    public function delete(int $reviewId): void
+    {
+        $review = Review::findOrFail($reviewId);
+
+        if (Auth::user()->cannot('delete', $review)) {
+            return;
+        }
+
+        $review->delete();
+
+        $this->loadReviews(); // তালিকা রিফ্রেশ করুন
+        $this->calculateRatingStats(); // পরিসংখ্যান রিফ্রেশ করুন
     }
 
     public function render(): View|Factory

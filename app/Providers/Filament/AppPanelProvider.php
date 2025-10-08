@@ -59,6 +59,10 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->renderHook(
+                'panels::topbar.start', // অথবা 'panels::topbar.end'
+                fn () => view('components.topbar.custom-menu'),
+            )
             ->authMiddleware([
                 Authenticate::class,
             ]);
