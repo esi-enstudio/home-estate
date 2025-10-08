@@ -221,7 +221,7 @@ class PropertyReviews extends Component
     /**
      * Handles the submission of a new reply.
      */
-    public function submitReply(int $parentId): void
+    public function submitReply(int $parentId, int $replyToId): void
     {
         // ধাপ ১: ব্যবহারকারী লগইন করা আছে কিনা তা পরীক্ষা করা
         if (!Auth::check()) {
@@ -231,6 +231,7 @@ class PropertyReviews extends Component
 
         // ধাপ ২: মূল রিভিউটি খুঁজে বের করা
         $parentReview = Review::find($parentId);
+
         if (!$parentReview) {
             session()->flash('reply_error_' . $parentId, 'দুঃখিত, কোনো একটি সমস্যা হয়েছে।');
             return;
@@ -247,6 +248,7 @@ class PropertyReviews extends Component
             'rating' => 0, // রিপ্লাইয়ের কোনো রেটিং থাকে না
             // মালিক বা সুপার অ্যাডমিনের রিপ্লাই স্বয়ংক্রিয়ভাবে অনুমোদিত হবে
             'status' => 'approved',
+            'reply_to_id' => $replyToId,
         ]);
 
         // ধাপ ৫: ফর্ম রিসেট করা এবং রিভিউ তালিকা রিফ্রেশ করা

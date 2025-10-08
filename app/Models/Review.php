@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Review extends Model
 {
-    protected $fillable = ['property_id','user_id','title','body','rating','status','likes_count','dislikes_count','favorites_count','is_testimonial'];
+    protected $fillable = ['property_id','user_id', 'reply_to_id', 'title','body','rating','status','likes_count','dislikes_count','favorites_count','is_testimonial'];
 
     public function user(): BelongsTo
     { return $this->belongsTo(User::class); }
@@ -31,7 +31,16 @@ class Review extends Model
     {
         return $this->hasMany(Review::class, 'parent_id')
             ->where('status', 'approved')
-            ->with('user', 'replies', 'authUserReaction'); // <-- রিকার্সিভ Eager Loading
+            ->with('user', 'replies', 'authUserReaction', 'replyTo'); // <-- রিকার্সিভ Eager Loading
+    }
+
+    /**
+     * Get the parent review of a reply (the one being replied to).
+     */
+    public function replyTo(): BelongsTo
+    {
+        // একটি রিপ্লাই শুধুমাত্র একটি কমেন্টের উত্তরে হয়
+        return $this->belongsTo(Review::class, 'reply_to_id')->with('user');
     }
 
     public function authUserReaction(): HasOne

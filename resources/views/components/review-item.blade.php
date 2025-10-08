@@ -9,7 +9,7 @@
     এই র‍্যাপার div-টি Livewire-কে DOM ডিফ্র্যাগমেন্টেশন সঠিকভাবে পরিচালনা করতে সাহায্য করে।
     wire:key এখানে থাকা অপরিহার্য।
 --}}
-<div wire:key="item-{{ $item->id }}">
+<div wire:key="item-{{ $item->id }}" id="review-{{ $item->id }}">
     <div x-data="{ openReplyBox: false }"
          @open-reply-box.window="if (event.detail.reviewId === {{ $item->id }}) openReplyBox = !openReplyBox"
          x-on:reply-submitted-successfully.window="openReplyBox = false"
@@ -17,6 +17,21 @@
          style="padding: 1.25rem;">
 
         <div class="card-body p-0">
+            {{-- === START: Quote Reply Section === --}}
+            @if($item->replyTo)
+                <div class="mb-3 p-3 rounded" style="background-color: #dcf5f1; border-left: 3px solid #03bd9d;">
+                    <a href="#review-{{ $item->replyTo->id }}" class="d-flex align-items-center text-decoration-none text-muted mb-2">
+                        <i class="material-icons-outlined fs-16 me-1">subdirectory_arrow_right</i>
+                        <img src="{{ \Storage::url($item->replyTo->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $item->replyTo->user->name }}" class="avatar avatar-xs rounded-circle me-2">
+                        <span class="fs-14"><strong>{{ $item->replyTo->user->name }}</strong> এর উত্তরে</span>
+                    </a>
+                    <p class="mb-0 fst-italic text-dark" style="font-size: 0.9em;">
+                        "{{ Str::limit($item->replyTo->body, 120) }}"
+                    </p>
+                </div>
+            @endif
+            {{-- === END === --}}
+
             <div class="d-flex align-items-start justify-content-between gap-1 mb-2">
                 {{-- Author Info --}}
                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -105,7 +120,8 @@
 
             {{-- Reply Form --}}
             <div x-show="openReplyBox" x-transition class="border-top pt-3 mt-3">
-                <form wire:submit.prevent="submitReply({{ $item->id }})">
+{{--                <form wire:submit.prevent="submitReply({{ $item->id }})">--}}
+                <form wire:submit.prevent="submitReply({{ $item->parent_id ?? $item->id }}, {{ $item->id }})">
                     <div class="mb-2">
                         <textarea wire:model.defer="replyBody" class="form-control" rows="3" placeholder="আপনার উত্তর লিখুন..."></textarea>
                         @error('replyBody') <span class="text-danger fs-14">{{ $message }}</span> @enderror

@@ -17,6 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Property::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignId('reply_to_id')
+                ->nullable()
+                // এটি 'reviews' টেবিলের 'id'-কেই নির্দেশ করবে
+                ->constrained('reviews')
+                ->onDelete('set null'); // যদি মূল কমেন্ট ডিলিট হয়ে যায়, তাহলে এটি null হয়ে যাবে
             $table->unsignedTinyInteger('rating')->nullable(); // 1-5
             $table->string('title')->nullable();
             $table->text('body');
