@@ -23,8 +23,16 @@ class Review extends Model
 
     public function property(): BelongsTo
     { return $this->belongsTo(Property::class); }
+
+    /**
+     * Recursively loads all approved replies (children, grandchildren, etc.).
+     */
     public function replies(): HasMany
-    { return $this->hasMany(Review::class, 'parent_id')->with('user'); }
+    {
+        return $this->hasMany(Review::class, 'parent_id')
+            ->where('status', 'approved')
+            ->with('user', 'replies', 'authUserReaction'); // <-- রিকার্সিভ Eager Loading
+    }
 
     public function authUserReaction(): HasOne
     {
