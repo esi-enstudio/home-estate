@@ -79,7 +79,8 @@
                             <a href="#" class="btn btn-lg btn-primary dropdown-toggle" data-bs-toggle="dropdown">{{ Auth::user()->name }}</a>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a href="{{ route('filament.app.pages.dashboard') }}" class="dropdown-item">আমার প্রোফাইল</a>
-                                <a href="#" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">লগ আউট</a>
+                                <a href="{{ route('wishlist') }}" class="dropdown-item">পছন্দের প্রোপার্টি</a>
+                                <a href="javascript:void(0);" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">লগ আউট</a>
                                 <form id="logout-form" action="{{ route('filament.app.auth.logout') }}" method="POST" style="display: none;">
                                     @csrf
                                 </form>

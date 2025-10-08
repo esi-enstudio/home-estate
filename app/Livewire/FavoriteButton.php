@@ -37,6 +37,11 @@ class FavoriteButton extends Component
 
         Auth::user()->favoriteProperties()->toggle($this->property->id);
         $this->updateFavoritedStatus();
+
+        // যদি আইটেমটি ফেভারিট থেকে সরানো হয়, তাহলে 'wishlistUpdated' ইভেন্ট পাঠাও
+        if (!$this->isFavorited) {
+            $this->dispatch('wishlistUpdated');
+        }
     }
     public function render(): Factory|View
     {
