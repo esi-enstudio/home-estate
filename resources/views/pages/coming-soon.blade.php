@@ -34,13 +34,6 @@
                                             <div class="mb-3">
                                                 <p class="d-flex text-center justify-content-center">{{ $settings->coming_soon_subtitle ?? 'আমাদের ওয়েবসাইটটি বর্তমানে নির্মাণাধীন। খুব শীঘ্রই আমরা আসছি। আমাদের সাথেই থাকুন!' }}</p>
                                             </div>
-
-                                            {{-- নিউজলেটার সাবস্ক্রাইব Livewire কম্পোনেন্ট এখানে রেন্ডার হবে --}}
-                                            @livewire('newsletter-subscribe')
-
-                                            <div class="d-flex align-items-center justify-content-center mt-3">
-                                                <a href="{{ route('home') }}" class="btn btn-dark">হোম পেজে ফিরে যান</a>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -86,6 +79,6 @@
         });
     </script>
     {{-- === END === --}}
-@endpush```
+@endpush
 
 {{--এই পরিবর্তনের পর, আপনার "Coming Soon" পেজটি এখন সম্পূর্ণরূপে অ্যাডমিন প্যানেল থেকে পরিচালনাযোগ্য এবং একটি কার্যকরী কাউন্টডাউন টাইমারসহ প্রদর্শিত হবে।--}}

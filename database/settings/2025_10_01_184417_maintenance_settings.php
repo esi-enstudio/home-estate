@@ -12,5 +12,7 @@ return new class extends SettingsMigration
         $this->migrator->add('maintenance.coming_soon_title', 'Add title');
         $this->migrator->add('maintenance.coming_soon_subtitle', 'Add subtitle');
         $this->migrator->add('maintenance.launch_date', '');
+        $this->migrator->add('maintenance.background_image', '');
+        $this->migrator->add('maintenance.coming_soon_enabled', false);
     }
 };
