@@ -14,6 +14,7 @@ use App\Observers\PostObserver;
 use App\Observers\PropertyObserver;
 use App\Observers\PropertyTypeObserver;
 use App\Observers\ReviewObserver;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 

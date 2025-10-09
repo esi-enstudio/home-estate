@@ -17,7 +17,7 @@
         <div class="tab-pane fade active show">
             <div class="row mb-4">
                 @forelse($properties as $property)
-                    <div class="col-xl-4 col-lg-6 col-md-6 d-flex">
+                    <div class="col-xl-4 col-lg-6 col-md-6 d-flex" wire:key="property-wrapper-{{ $property->id }}">
                         {{-- পুনঃব্যবহারযোগ্য প্রপার্টি কার্ড --}}
                         @include('partials._property-card', ['property' => $property])
                     </div>

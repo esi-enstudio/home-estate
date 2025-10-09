@@ -13,6 +13,13 @@ class WishlistItems extends Component
 {
     use WithPagination;
 
+    /**
+     * Set the pagination theme to Bootstrap.
+     * এটি Livewire-কে বলে দেবে যে Bootstrap-এর জন্য সঠিক ক্লাসসহ লিঙ্ক তৈরি করতে হবে,
+     * এবং লিঙ্কগুলোতে স্বয়ংক্রিয়ভাবে wire:click যুক্ত করে দেবে।
+     */
+    protected $paginationTheme = 'bootstrap';
+
     public ?int $selectedPropertyTypeId = null;
 
     /**

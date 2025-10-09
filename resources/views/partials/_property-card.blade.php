@@ -12,7 +12,8 @@
                     <div class="badge badge-sm bg-orange d-flex align-items-center"><i class="material-icons-outlined">loyalty</i>ফিচার্ড</div>
                 @endif
             </div>
-            @livewire('favorite-button', ['property' => $property], key('fav-'.$property->id))
+
+            <livewire:favorite-button :property="$property" :key="'fav-btn-' . $property->id" />
         </div>
         <div class="d-flex align-items-center justify-content-between position-absolute bottom-0 end-0 start-0 p-3">
             <span class="badge bg-light text-dark">
