@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('phone')->unique();
             $table->text('bio')->nullable(); // Changed to text for longer biographies
+            $table->string('designation')->nullable();
+            $table->boolean('show_on_our_inspiration_page')->default(false);
             $table->json('social_links')->nullable();
             $table->unsignedInteger('reviews_count')->default(0);
             $table->decimal('average_rating', 2, 1)->default(0.0);

@@ -10,6 +10,7 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components;
 use App\Filament\Resources\UserResource\RelationManagers;
@@ -85,6 +86,13 @@ class UserResource extends Resource
                                     ->valueLabel('প্রোফাইল URL') // e.g., https://facebook.com/username
                                     ->reorderable(),
                             ]),
+
+                        Section::make('টিম মেম্বার তথ্য')
+                            ->description('এই ব্যবহারকারীকে "আমাদের অনুপ্রেরণা" পেজে দেখাতে চাইলে এই তথ্যগুলো পূরণ করুন।')
+                            ->schema([
+                                TextInput::make('designation')->label('পদবি (Designation)'),
+                                Toggle::make('show_on_our_inspiration_page')->label('টিম পেজে দেখান'),
+                            ])->columns(1),
                     ])->columnSpan(2),
 
                     // === START: ডান পাশের সাইডবার (১/৩ অংশ) ===

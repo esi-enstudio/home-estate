@@ -47,4 +47,14 @@ class PageController extends Controller
         // Dependency Injection ব্যবহার করে সেটিংস লোড করা হচ্ছে
         return view('pages.coming-soon', ['settings' => $settings]);
     }
+
+    public function ourInspiration()
+    {
+        return view('pages.our-inspiration'); // এই ভিউটি Livewire কম্পোনেন্ট লোড করবে
+    }
+
+    public function verifyPhone()
+    {
+        return view('pages.verify-phone');
+    }
 }

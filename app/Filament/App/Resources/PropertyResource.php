@@ -464,7 +464,6 @@ class PropertyResource extends Resource
         return [
             AmenitiesRelationManager::class,
             EnquiriesRelationManager::class,
-            ReviewsRelationManager::class,
         ];
     }
 

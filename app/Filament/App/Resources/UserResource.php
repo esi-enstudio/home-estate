@@ -65,6 +65,7 @@ class UserResource extends Resource
                                         $exists = \App\Models\User::where('phone', $phone)->exists();
                                         return new HtmlString($exists ? '<span style="color: red;">এই নম্বরটি ব্যবহৃত হয়েছে।</span>' : '<span style="color: green;">এই নম্বরটি ব্যবহারযোগ্য।</span>');
                                     }),
+                                TextInput::make('designation')->label('পদবি (Designation)'),
 
                                 TextInput::make('password')
                                     ->password()

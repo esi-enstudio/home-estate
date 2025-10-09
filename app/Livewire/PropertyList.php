@@ -130,7 +130,8 @@ class PropertyList extends Component
         $query->when($this->search, function ($q) {
             $q->where('title', 'like', '%' . $this->search . '%')
                 ->orWhere('description', 'like', '%' . $this->search . '%')
-                ->orWhere('address_area', 'like', '%' . $this->search . '%');
+                ->orWhere('address_area', 'like', '%' . $this->search . '%')
+                ->orWhere('property_code', 'like', '%' . $this->search . '%');
         });
 
         $query->when($this->purpose, fn($q) => $q->where('purpose', $this->purpose));

@@ -37,8 +37,13 @@ Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 
 Route::get('/testimonials', [PageController::class, 'testimonials'])->name('testimonials');
 
+Route::get('/our-inspiration', [PageController::class, 'ourInspiration'])->name('inspiration');
+
 Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 });
 
 Route::get('/coming-soon', [PageController::class, 'comingSoon'])->name('coming-soon');
+
+
+Route::middleware('auth')->get('/verify-phone', [PageController::class, 'verifyPhone'])->name('verify.phone');

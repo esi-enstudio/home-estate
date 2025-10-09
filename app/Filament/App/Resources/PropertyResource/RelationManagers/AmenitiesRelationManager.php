@@ -47,29 +47,29 @@ class AmenitiesRelationManager extends RelationManager
             ])
             ->headerActions([
                 // অ্যাকশন ১: নতুন Amenity তৈরি এবং যুক্ত করার জন্য
-                Tables\Actions\CreateAction::make()
-                    ->icon('heroicon-o-plus')
-                    ->label('Add New')
-                    ->form([
-                        // নতুন Amenity তৈরির জন্য প্রয়োজনীয় ফিল্ড
-                        TextInput::make('name')
-                            ->required()
-                            ->unique()
-                            ->maxLength(255),
-
-                        Select::make('type')
-                            ->options([
-                                'facility' => 'Facility',
-                                'utility' => 'Utility',
-                                'safety' => 'Safety',
-                                'environment' => 'Environment',
-                            ])
-                            ->required(),
-
-                        // পিভট টেবিলের অতিরিক্ত তথ্যের জন্য ফিল্ড
-                        TextInput::make('details')
-                            ->label('Details (Optional)'),
-                    ]),
+//                Tables\Actions\CreateAction::make()
+//                    ->icon('heroicon-o-plus')
+//                    ->label('Add New')
+//                    ->form([
+//                        // নতুন Amenity তৈরির জন্য প্রয়োজনীয় ফিল্ড
+//                        TextInput::make('name')
+//                            ->required()
+//                            ->unique()
+//                            ->maxLength(255),
+//
+//                        Select::make('type')
+//                            ->options([
+//                                'facility' => 'Facility',
+//                                'utility' => 'Utility',
+//                                'safety' => 'Safety',
+//                                'environment' => 'Environment',
+//                            ])
+//                            ->required(),
+//
+//                        // পিভট টেবিলের অতিরিক্ত তথ্যের জন্য ফিল্ড
+//                        TextInput::make('details')
+//                            ->label('Details (Optional)'),
+//                    ]),
 
                 // অ্যাকশন ২: বিদ্যমান Amenity যুক্ত করার জন্য
                 Tables\Actions\AttachAction::make()
