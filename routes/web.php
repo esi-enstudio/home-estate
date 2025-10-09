@@ -35,6 +35,10 @@ Route::get('/page/{page:slug}', [PageController::class, 'show'])->name('page.sho
 
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 
+Route::get('/testimonials', [PageController::class, 'testimonials'])->name('testimonials');
+
 Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 });
+
+Route::get('/coming-soon', [PageController::class, 'comingSoon'])->name('coming-soon');

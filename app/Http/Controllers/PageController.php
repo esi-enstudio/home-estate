@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Faq;
 use App\Models\Page;
+use App\Settings\MaintenanceSettings;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -33,5 +34,17 @@ class PageController extends Controller
         $faqs = Faq::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('pages.faq', compact('faqs'));
+    }
+
+    public function testimonials()
+    {
+        // এই ভিউ ফাইলটি Livewire কম্পোনেন্টটি লোড করবে
+        return view('pages.testimonials');
+    }
+
+    public function comingSoon(MaintenanceSettings $settings)
+    {
+        // Dependency Injection ব্যবহার করে সেটিংস লোড করা হচ্ছে
+        return view('pages.coming-soon', ['settings' => $settings]);
     }
 }

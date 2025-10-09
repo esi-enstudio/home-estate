@@ -18,11 +18,17 @@ class NewsletterSubscribe extends Component
 
     /**
      * কম্পোনেন্ট মাউন্ট হওয়ার সময় বাইরে থেকে পাঠানো ডেটা গ্রহণ করা হবে।
+     * প্যারামিটারগুলোকে এখন nullable এবং optional করা হয়েছে।
      */
-    public function mount(string $title, string $subtitle): void
+    public function mount(?string $title = null, ?string $subtitle = null): void
     {
-        $this->title = $title;
-        $this->subtitle = $subtitle;
+        // === START: মূল এবং চূড়ান্ত সমাধান এখানে ===
+        // যদি বাইরে থেকে কোনো title পাস করা না হয়, তাহলে একটি ডিফল্ট মান ব্যবহার করা হবে।
+        $this->title = $title ?? 'আমাদের নিউজলেটারে সাবস্ক্রাইব করুন';
+
+        // যদি বাইরে থেকে কোনো subtitle পাস করা না হয়, তাহলে একটি ডিফল্ট মান ব্যবহার করা হবে।
+        $this->subtitle = $subtitle ?? 'সাইন আপ করুন এবং আমরা আপনাকে ইমেইলের মাধ্যমে নোটিফিকেশন পাঠাব।';
+        // === END ===
     }
 
     /**

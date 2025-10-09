@@ -28,11 +28,11 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-center">
                             <a href="javascript:void(0)" class="avatar avatar-lg avatar-rounded flex-shrink-0 me-2">
-                                <img src="{{ $testimonial->user->avatar_url ?? 'https://placehold.co/100' }}" alt="{{ $testimonial->user->name }}">
+                                <img src="{{ \Storage::url($testimonial->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $testimonial->user->name }}">
                             </a>
                             <div>
                                 <h6 class="fs-16 fw-semibold mb-0"><a href="javascript:void(0)">{{ $testimonial->user->name }}</a></h6>
-                                <span class="fs-14">সম্মানিত গ্রাহক</span>
+                                <span class="fs-14">{{ $testimonial->user->designation }}</span>
                             </div>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                     <div class="avatar-list-stacked">
                         @foreach($testimonials->take(4) as $testimonial)
                             <span class="avatar avatar-md rounded-circle border-0">
-                                <img src="{{ $testimonial->user->avatar_url ?? 'https://placehold.co/100' }}" class="img-fluid rounded-circle" alt="User">
+                                <img src="{{ \Storage::url($testimonial->user->avatar_url) ?? 'https://placehold.co/100' }}" class="img-fluid rounded-circle" alt="User">
                             </span>
                         @endforeach
                     </div>

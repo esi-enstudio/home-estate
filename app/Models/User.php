@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -76,6 +77,35 @@ class User extends Authenticatable implements HasAvatar, FilamentUser
     public function favoriteProperties(): BelongsToMany
     {
         return $this->belongsToMany(Property::class, 'property_user')->withTimestamps();
+    }
+
+    /**
+     * Get the user's designation in Bengali based on their role or activity.
+     * This is an Eloquent Accessor, accessed via the `$user->designation_bn` property.
+     *
+     * @return Attribute
+     */
+    protected function designation(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // ধাপ ১: প্রথমে চেক করুন ব্যবহারকারী কি সুপার অ্যাডমিন?
+                // (hasRole মেথডটি spatie/laravel-permission প্যাকেজের)
+                if ($this->hasRole('super_admin')) {
+                    return 'সুপার অ্যাডমিন';
+                }
+
+                // ধাপ ২: যদি সুপার অ্যাডমিন না হয়, তাহলে চেক করুন তিনি কি একজন বাড়ির মালিক?
+                // 'properties' রিলেশনশিপে কোনো রেকর্ড আছে কিনা তা চেক করা হচ্ছে।
+                // 'exists()' মেথডটি 'count()' এর চেয়ে বেশি পারফরম্যান্স-ফ্রেন্ডলি।
+                if ($this->properties()->exists()) {
+                    return 'বাড়ির মালিক';
+                }
+
+                // ধাপ ৩: যদি উপরের কোনোটিই না হয়, তাহলে ডিফল্ট পদবি রিটার্ন করুন।
+                return 'সম্মানিত গ্রাহক';
+            }
+        );
     }
 
     /**
