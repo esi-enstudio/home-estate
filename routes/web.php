@@ -44,6 +44,3 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/coming-soon', [PageController::class, 'comingSoon'])->name('coming-soon');
-
-
-Route::middleware('auth')->get('/verify-phone', [PageController::class, 'verifyPhone'])->name('verify.phone');
