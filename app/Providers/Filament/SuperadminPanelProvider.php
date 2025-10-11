@@ -38,8 +38,8 @@ class SuperadminPanelProvider extends PanelProvider
             ->id('superadmin')
             ->path('superadmin')
             ->login(Login::class)
-            ->registration(Register::class)
             ->passwordReset()
+            ->emailVerification()
             ->brandLogo(fn () => view('filament.admin.auth.brand'))
             ->databaseNotifications()
             ->colors([
