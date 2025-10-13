@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+@import '../../../../vendor/filament/filament/resources/css/base.css';
+
+@config 'tailwind.config.js';
+
+
+/* === START: মূল এবং চূড়ান্ত সমাধান এখানে === */
+
+/*
+    এই কোডটি Filament-এর লগইন পেজের মূল কন্টেইনারটিকে টার্গেট করে।
+    `!important` ব্যবহার করা হচ্ছে যাতে এটি Filament-এর ডিফল্ট স্টাইলকে ওভাররাইড করতে পারে।
+*/
+body.fi-auth {
+    background-image: url('/assets/img/bg/auth-bg.png') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+/*
+    ব্যাকগ্রাউন্ড ছবির উপর একটি হালকা ডার্ক ওভারলে দেওয়া হচ্ছে,
+    যাতে ফর্মটি আরও পরিষ্কারভাবে দেখা যায়।
+*/
+body.fi-auth::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5) !important; /* 50% black overlay */
+    z-index: 1;
+}
+
+/*
+    Filament-এর মূল ফর্ম কন্টেইনারটিকে ওভারলের উপরে নিয়ে আসা হচ্ছে।
+*/
+.fi-auth-card {
+    position: relative;
+    z-index: 2;
+}
+
+/* === END === */

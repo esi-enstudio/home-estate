@@ -328,23 +328,44 @@
                         <div class="card">
                             <div class="card-header"><h5 class="mb-0">Provider Details</h5></div>
                             <div class="card-body">
-                                <div class="card bg-light border-0 rounded shadow-none custom-btn mb-4">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar avatar-lg">
-                                                <img src="{{ \Illuminate\Support\Facades\Storage::url($property->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1 fs-16 fw-semibold"><a class="d-block w-100" href="#">{{ $property->user->name }}</a></h6>
-                                                <p class="mb-0 fs-14 text-body">Property Owner</p>
+
+                                {{-- শুধুমাত্র লগইন করা ব্যবহারকারীরাই এই অংশটি দেখতে পাবে --}}
+                                @auth
+                                    <div class="card bg-light border-0 rounded shadow-none custom-btn mb-4">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="avatar avatar-lg">
+                                                    <img src="{{ \Storage::url($property->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1 fs-16 fw-semibold"><a class="d-block w-100" href="#">{{ $property->user->name }}</a></h6>
+                                                    <p class="mb-0 fs-14 text-body">প্রপার্টি মালিক</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="border p-2 rounded mb-4">
-                                    <a href="tel:{{ $property->user->phone }}" class="d-block mb-3 pb-3 border-bottom text-body d-flex align-items-center"><i class="material-icons-outlined text-body me-2 fs-16 p-1 bg-light rounded text-dark">phone</i> Call Us : {{ $property->user->phone }}</a>
-                                    <a href="mailto:{{ $property->user->email }}" class="d-block text-body d-flex align-items-center"><i class="material-icons-outlined text-body me-2 fs-16 p-1 bg-light rounded text-dark">email</i>Email : {{ $property->user->email }}</a>
-                                </div>
+                                    <div class="border p-2 rounded mb-4">
+                                        <a href="tel:{{ $property->user->phone }}" class="d-block mb-3 pb-3 border-bottom text-body d-flex align-items-center">
+                                            <i class="material-icons-outlined text-body me-2 fs-16 p-1 bg-light rounded text-dark">phone</i>
+                                            ফোন করুন : {{ $property->user->phone }}
+                                        </a>
+                                        <a href="mailto:{{ $property->user->email }}" class="d-block text-body d-flex align-items-center">
+                                            <i class="material-icons-outlined text-body me-2 fs-16 p-1 bg-light rounded text-dark">email</i>
+                                            ইমেইল : {{ $property->user->email }}
+                                        </a>
+                                    </div>
+                                @endauth
+
+                                {{-- গেস্ট (যারা লগইন করেনি) ব্যবহারকারীরা এই অংশটি দেখতে পাবে --}}
+                                @guest
+                                    <div class="text-center p-4 border rounded bg-light">
+                                        <i class="material-icons-outlined text-warning mb-2" style="font-size: 2.5rem;">lock</i>
+                                        <h6 class="fw-semibold">যোগাযোগের তথ্য দেখতে লগইন করুন</h6>
+                                        <p class="text-muted fs-14 mb-3">প্রপার্টি মালিকের সাথে সরাসরি যোগাযোগ করতে, অনুগ্রহ করে লগইন করুন অথবা একটি নতুন অ্যাকাউন্ট তৈরি করুন।</p>
+                                        <a href="{{ route('filament.app.auth.login') }}" class="btn btn-primary">লগইন / রেজিস্টার</a>
+                                    </div>
+                                @endguest
+
                             </div>
                         </div>
 

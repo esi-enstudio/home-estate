@@ -15,6 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static withCount(string $string)
  * @method static count()
  * @method static orderBy(string $string)
+ * @method static whereIn(string $string, \Illuminate\Support\Collection $favoritedTypeIds)
  * @property int|mixed $properties_count
  */
 class PropertyType extends Model implements HasMedia

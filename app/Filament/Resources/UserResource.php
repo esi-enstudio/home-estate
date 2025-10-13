@@ -106,7 +106,7 @@ class UserResource extends Resource
                                     'pending' => 'Pending',
                                 ])->default('active')->required(),
 
-                                Select::make('roles')->relationship('roles', 'name')->multiple()->preload()->searchable(),
+                                Select::make('roles')->relationship('roles', 'name')->preload(),
                             ]),
 
                         Section::make('ভেরিফিকেশন ও পরিসংখ্যান')

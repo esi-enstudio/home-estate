@@ -36,8 +36,12 @@ class AppPanelProvider extends PanelProvider
             ->passwordReset()
             ->emailVerification()
             ->databaseNotifications()
+            ->favicon(asset('assets/img/favicon.png'))
+            ->brandLogo(fn () => view('components.layouts.logo'))
+            ->brandLogoHeight('2rem')
+            ->theme(asset('css/filament/app/theme.css'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#03bd9d',
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
@@ -66,6 +70,7 @@ class AppPanelProvider extends PanelProvider
             )
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->spa();
     }
 }

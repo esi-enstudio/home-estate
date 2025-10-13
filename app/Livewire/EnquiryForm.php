@@ -25,7 +25,7 @@ class EnquiryForm extends Component
     {
         return [
             'name' => 'required|string|min:3',
-            'email' => 'required|email',
+            'email' => 'nullable|email',
             'phone' => 'required|string|min:10',
             'message' => 'required|string|min:20|max:1000',
         ];

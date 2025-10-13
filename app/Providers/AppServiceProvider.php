@@ -14,6 +14,7 @@ use App\Observers\PostObserver;
 use App\Observers\PropertyObserver;
 use App\Observers\PropertyTypeObserver;
 use App\Observers\ReviewObserver;
+use Filament\Support\Facades\FilamentView;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -39,5 +40,10 @@ class AppServiceProvider extends ServiceProvider
         Faq::observe(FaqObserver::class);
         Post::observe(PostObserver::class);
         MenuItem::observe(MenuItemObserver::class);
+
+//        FilamentView::registerRenderHook(
+//            'panels::auth.login.form.after',
+//            fn(): string => Blade::render('@vite(\'resources/css/filament/app/theme.css\')')
+//        );
     }
 }
