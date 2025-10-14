@@ -21,7 +21,6 @@ class EnquiriesRelationManager extends RelationManager
     protected static string $relationship = 'enquiries';
 
     protected static ?string $title = 'ভাড়াটিয়ার জিজ্ঞাসাসমূহ';
-    protected static ?string $modelLabel = 'জিজ্ঞাসা';
 
 
     /**

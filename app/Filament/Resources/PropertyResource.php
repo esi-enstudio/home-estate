@@ -234,6 +234,7 @@ class PropertyResource extends Resource
                                     ->visible(fn (Get $get) => self::isSectionVisible(['additional_features', 'house_rules', 'faqs'], $get))
                                     ->schema([
                                         KeyValue::make('additional_features')->label('অন্যান্য সুবিধা (Additional Features)')
+                                            ->helperText('Additional Features হলো সেইসব নির্দিষ্ট এবং পরিমাপযোগ্য বৈশিষ্ট্য যা শুধুমাত্র ওই নির্দিষ্ট ফ্ল্যাট, বাড়ি বা ইউনিটের ভেতরের গঠন এবং অবস্থা বর্ণনা করে। এগুলো সাধারণত সংখ্যা বা নির্দিষ্ট বিবরণ দিয়ে প্রকাশ করা হয়। ব্যবহারকারীকে প্রপার্টির অভ্যন্তরীণ গঠন, আকার এবং স্পেসিফিকেশন সম্পর্কে একটি পরিষ্কার এবং বিস্তারিত ধারণা দেওয়া।')
                                             ->keyLabel('ফিচারের নাম')->valueLabel('বিবরণ')->addActionLabel('নতুন সুবিধা যোগ করুন')
                                             ->visible(fn (Get $get) => self::isFieldVisible('additional_features', $get)),
 
@@ -260,7 +261,7 @@ class PropertyResource extends Resource
                         // ডান পাশের সাইডবার (১/৩ অংশ)
                         Forms\Components\Grid::make(1)
                             ->schema([
-                                Forms\Components\Section::make('মূল্য এবং প্রাপ্যতা (Pricing & Availability)')
+                                Forms\Components\Section::make('প্রাপ্যতা ও অবস্থা (Availability & Status)')
                                     ->schema([
                                         Forms\Components\Select::make('status')
                                             ->label('স্ট্যাটাস (Status)')
@@ -273,7 +274,10 @@ class PropertyResource extends Resource
                                             ])
                                             ->required()
                                             ->default('pending'),
+                                    ]),
 
+                                Forms\Components\Section::make('মূল্য এবং প্রাপ্যতা (Pricing & Availability)')
+                                    ->schema([
                                         TextInput::make('rent_price')
                                             ->label('ভাড়া/মূল্য (Price)')
                                             ->required()
@@ -506,7 +510,6 @@ class PropertyResource extends Resource
         return [
             AmenitiesRelationManager::class,
             EnquiriesRelationManager::class,
-            ReviewsRelationManager::class,
         ];
     }
 

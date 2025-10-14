@@ -179,6 +179,7 @@ class PropertyResource extends Resource
                                     ]),
 
                                 Forms\Components\Section::make('ছবি ও ভিডিও (Images & Video)')
+                                    ->collapsed()
                                     ->schema([
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('featured_image')
                                             ->label('ফিচার্ড ছবি (Featured Image)')
@@ -199,6 +200,7 @@ class PropertyResource extends Resource
                                     ]),
 
                                 Forms\Components\Section::make('প্রপার্টির স্পেসিফিকেশন (Specifications)')
+                                    ->collapsed()
                                     ->schema([
                                         Forms\Components\Grid::make(3)->schema([
                                             Select::make('property_type_id')
@@ -230,9 +232,11 @@ class PropertyResource extends Resource
 
                                 Forms\Components\Section::make('অতিরিক্ত তথ্য (Additional Information)')
                                     ->visible(fn (Get $get) => self::isSectionVisible(['additional_features', 'house_rules', 'faqs'], $get))
+                                    ->collapsed()
                                     ->schema([
                                         KeyValue::make('additional_features')->label('অন্যান্য সুবিধা (Additional Features)')
                                             ->keyLabel('ফিচারের নাম')->valueLabel('বিবরণ')->addActionLabel('নতুন সুবিধা যোগ করুন')
+                                            ->helperText('Additional Features হলো সেইসব নির্দিষ্ট এবং পরিমাপযোগ্য বৈশিষ্ট্য যা শুধুমাত্র ওই নির্দিষ্ট ফ্ল্যাট, বাড়ি বা ইউনিটের ভেতরের গঠন এবং অবস্থা বর্ণনা করে। এগুলো সাধারণত সংখ্যা বা নির্দিষ্ট বিবরণ দিয়ে প্রকাশ করা হয়। ব্যবহারকারীকে প্রপার্টির অভ্যন্তরীণ গঠন, আকার এবং স্পেসিফিকেশন সম্পর্কে একটি পরিষ্কার এবং বিস্তারিত ধারণা দেওয়া।')
                                             ->visible(fn (Get $get) => self::isFieldVisible('additional_features', $get)),
 
                                         Textarea::make('house_rules')->label('বাসার নিয়মাবলী (House Rules)')->rows(4)
@@ -247,6 +251,7 @@ class PropertyResource extends Resource
 
                                 Forms\Components\Section::make('SEO')
                                     ->description('সার্চ ইঞ্জিনের জন্য মেটা ডেটা যোগ করুন।')
+                                    ->collapsed()
                                     ->schema([
                                         Forms\Components\TextInput::make('meta_title')->label('মেটা টাইটেল'),
                                         Forms\Components\Textarea::make('meta_description')->label('মেটা বর্ণনা')->rows(2),
@@ -259,6 +264,7 @@ class PropertyResource extends Resource
                         Forms\Components\Grid::make(1)
                             ->schema([
                                 Forms\Components\Section::make('মূল্য এবং প্রাপ্যতা (Pricing & Availability)')
+                                    ->collapsed()
                                     ->schema([
                                         TextInput::make('rent_price')
                                             ->label('ভাড়া/মূল্য (Price)')
@@ -314,6 +320,7 @@ class PropertyResource extends Resource
                                     ]),
 
                                 Forms\Components\Section::make('সম্পর্কিত তথ্য (Associations)')
+                                    ->collapsed()
                                     ->schema([
                                         Forms\Components\ToggleButtons::make('purpose')
                                             ->label('উদ্দেশ্য (Purpose)')
@@ -336,6 +343,7 @@ class PropertyResource extends Resource
                                     ]),
 
                                 Forms\Components\Section::make('অবস্থান (Location)')
+                                    ->collapsed()
                                     ->schema([
                                         // Dependent Selects for Location
                                         Select::make('division_id')
@@ -383,6 +391,7 @@ class PropertyResource extends Resource
                                     ])->columns(2), // পুরো সেকশনটিকে ২ কলামে ভাগ করা হলো
 
                                 Forms\Components\Section::make('দৃশ্যমানতা ও স্ট্যাটাস (Visibility & Status)')
+                                    ->collapsed()
                                     ->schema([
                                         Forms\Components\Toggle::make('is_available')
                                             ->label('ভাড়ার জন্য উপলব্ধ (Available)')

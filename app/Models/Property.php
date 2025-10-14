@@ -24,6 +24,11 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static whereIn(string $string, string[] $array)
  * @method static count()
  * @method static trending()
+ * @property mixed $meta_title
+ * @property mixed $title
+ * @property mixed $meta_description
+ * @property mixed $description
+ * @property mixed $meta_keywords
  */
 class Property extends Model implements HasMedia
 {

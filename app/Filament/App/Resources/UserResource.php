@@ -46,8 +46,13 @@ class UserResource extends Resource
                             ->schema([
                                 FileUpload::make('avatar_url')
                                     ->label('প্রোফাইল ছবি')
-                                    ->image()->avatar()->directory('avatars')->imageEditor()
+                                    ->image()
+                                    ->avatar()
+                                    ->disk('public')
+                                    ->directory('avatars')
+                                    ->imageEditor()
                                     ->columnSpanFull(),
+
                                 TextInput::make('name')->label('পুরো নাম')->required(),
                                 Textarea::make('bio')->label('সংক্ষিপ্ত পরিচিতি')->rows(3)->columnSpanFull(),
                             ])->columns(1),

@@ -6,6 +6,7 @@ use App\Models\Property;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PropertyController extends Controller
@@ -60,8 +61,14 @@ class PropertyController extends Controller
             ->take(4) // ৪টি সিমিলার প্রপার্টি দেখানো হবে
             ->get();
 
+        // প্রপার্টি থেকে SEO ডেটা নেওয়া হচ্ছে, ফলব্যাক হিসেবে সাধারণ ডেটা ব্যবহার করা হচ্ছে
+        $title = $property->meta_title ?: $property->title . ' | ' . config('app.name');
+        $description = $property->meta_description ?: Str::limit(strip_tags($property->description), 155);
+        $keywords = $property->meta_keywords ?: [];
+        $ogImage = $property->getFirstMediaUrl('featured_image') ?: null;
+
         // ভিউ ফাইলে $property এবং $similarProperties ভ্যারিয়েবল দুটি পাঠানো হচ্ছে
-        return view('properties.show', compact('property', 'similarProperties'));
+        return view('properties.show', compact('property', 'similarProperties', 'title', 'description', 'keywords', 'ogImage'));
     }
 
     /**

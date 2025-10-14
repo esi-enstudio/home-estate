@@ -81,7 +81,7 @@ return new class extends Migration
             $table->integer('score')->default(0);
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
-            $table->string('meta_keywords')->nullable();
+            $table->text('meta_keywords')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

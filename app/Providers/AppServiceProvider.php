@@ -40,10 +40,5 @@ class AppServiceProvider extends ServiceProvider
         Faq::observe(FaqObserver::class);
         Post::observe(PostObserver::class);
         MenuItem::observe(MenuItemObserver::class);
-
-//        FilamentView::registerRenderHook(
-//            'panels::auth.login.form.after',
-//            fn(): string => Blade::render('@vite(\'resources/css/filament/app/theme.css\')')
-//        );
     }
 }

@@ -35,6 +35,7 @@ class AmenitiesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->modifyQueryUsing(fn(Builder $query) => $query->orderBy('amenity_property.created_at', 'desc'))
+            ->description('Amenities হলো সেইসব সাধারণ সুযোগ-সুবিধা বা পরিষেবা যা একটি বিল্ডিং, অ্যাপার্টমেন্ট কমপ্লেক্স বা এলাকার সকল বাসিন্দা সম্মিলিতভাবে ব্যবহার করতে পারে অথবা যা জীবনযাত্রার মান উন্নত করে। এগুলো সাধারণত "হ্যাঁ/না" বা একটি নির্দিষ্ট সুবিধার উপস্থিতি নির্দেশ করে। ব্যবহারকারীদের দ্রুত ফিল্টার করতে এবং এক নজরে একটি প্রপার্টির প্রধান আকর্ষণগুলো বুঝতে সাহায্য করা। আপনি একটি কেন্দ্রীয় তালিকা থেকে (যেমন: লিফট, জেনারেটর, পার্কিং) আপনার প্রপার্টির জন্য প্রযোজ্য সুবিধাগুলো Attach বা যুক্ত করবেন।')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('type')->badge()->formatStateUsing(fn($state): string => Str::title($state)),

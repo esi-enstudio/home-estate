@@ -7,7 +7,7 @@
                         <span class="badge bg-warning me-2">নতুন</span>
                         <p class="mb-0">{{ $bannerSettings->badge_text ?? 'দেশের নং ১ রিয়েল এস্টেট ওয়েবসাইট' }}</p>
                     </div>
-                    <h1>{!! $bannerSettings->title ?? 'আপনার স্বপ্নের বাড়ি <span>ভাড়া, ক্রয় এবং বিক্রয়ের</span> জন্য বিশ্বের বৃহত্তম প্ল্যাটফর্ম' !!}</h1>
+                    {!! $bannerSettings->title !!}
                     <p>{{ $bannerSettings->subtitle ?? 'আপনার আশেপাশেই রয়েছে ৩০০০ এর বেশি প্রপার্টি লিস্টিং।' }}</p>
                     <a href="{{ $bannerSettings->button_link ?? '#' }}" class="btn btn-primary"><i class="material-icons-outlined me-2">add_business</i>{{ $bannerSettings->button_text ?? 'আপনার প্রপার্টি যোগ করুন' }}</a>
                 </div>
@@ -30,7 +30,30 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- Trusted by clients section (can be made dynamic later) --}}
+
+                        @if($recentReviewers->isNotEmpty())
+                            <div class="banner-users d-flex align-items-center flex-wrap gap-2 mb-3">
+                                <div class="avatar-list-stacked">
+                                    @foreach($recentReviewers as $reviewer)
+                                        <span class="avatar avatar-md rounded-circle border-0" title="{{ $reviewer->name }}">
+                                            <img src="{{ \Storage::url($reviewer->avatar_url) ?? 'https://placehold.co/100' }}" class="img-fluid rounded-circle" alt="{{ $reviewer->name }}">
+                                        </span>
+                                    @endforeach
+                                </div>
+                                <div>
+                                    @if($ratingStats['count'] > 0)
+                                        <div class="d-flex align-items-center mb-1">
+                                            <h6 class="mb-0 me-2 text-white fw-semibold fs-14">গড় রেটিং {{ number_format($ratingStats['average'], 1) }}</h6>
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="material-icons-outlined text-warning" style="font-size: 1rem;">{{ $i <= round($ratingStats['average']) ? 'star' : 'star_border' }}</i>
+                                            @endfor
+                                        </div>
+                                        <p class="mb-0 text-white fs-13">{{ $ratingStats['count'] }}+ এর বেশি গ্রাহকের আস্থা</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                     </div>
                 </div>
             @endif
