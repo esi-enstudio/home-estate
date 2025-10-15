@@ -9,10 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="ENN Creation">
 
+    {{-- প্রথমে @yield কল করা হচ্ছে যাতে $title ভ্যারিয়েবলটি সেট হয় --}}
+    <title>@yield('title', config('app.name'))</title>
+
     {{-- === ডাইনামিক মেটা ট্যাগ === --}}
     @include('partials._meta_tags')
-
-    <title>@yield('title')</title>
 
     @include('includes.head')
 

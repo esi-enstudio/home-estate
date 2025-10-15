@@ -1,5 +1,4 @@
 {{-- resources/views/partials/_meta_tags.blade.php --}}
-<title>{{ $title }}</title>
 <meta name="description" content="{{ $description }}">
 <meta name="keywords" content="{{ $keywords }}">
 

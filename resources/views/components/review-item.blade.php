@@ -83,22 +83,36 @@
                 {{-- Action Buttons --}}
                 @auth
                     <div class="d-flex flex-column align-items-end flex-sm-row align-items-sm-center gap-2">
-                        {{-- শুধুমাত্র लेखक (author) এই বাটনগুলো দেখতে পাবে --}}
-                        @if(auth()->id() === $item->user_id)
-                            <a href="javascript:void(0);" wire:click="edit({{ $item->id }})"
-                               class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn"
-                               title="Edit">
+
+                        {{-- === START: মূল এবং চূড়ান্ত সমাধান এখানে === --}}
+                        @php
+                            // কন্ডিশনটিকে একটি ভ্যারিয়েবলে রাখা হয়েছে যাতে কোডটি পরিষ্কার থাকে
+                            $canModify = (auth()->id() === $item->user_id) &&
+                                         ($item->created_at->gt(now()->subMinutes(30)));
+                        @endphp
+
+                        {{-- শুধুমাত্র যদি $canModify true হয়, তবেই বাটনগুলো দেখানো হবে --}}
+                        @if($canModify)
+                            <a
+                                href="javascript:void(0);" wire:click="edit({{ $item->id }})"
+                                class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn"
+                                title="Edit">
                                 <i class="material-icons-outlined fs-16">edit</i>
                             </a>
 
-                            <a href="javascript:void(0);" wire:click="delete({{ $item->id }})"
-                               wire:confirm="আপনি কি নিশ্চিতভাবে এটি মুছে ফেলতে চান?"
-                               class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn bg-danger text-white"
-                               title="Delete">
+                            <a
+                                href="javascript:void(0);" wire:click="delete({{ $item->id }})"
+                                wire:confirm="আপনি কি নিশ্চিতভাবে এটি মুছে ফেলতে চান?"
+                                class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn bg-danger text-white"
+                                title="Delete"
+                            >
                                 <i class="material-icons-outlined fs-16">delete</i>
                             </a>
                         @endif
-                        <a href="javascript:void(0);" @click="$dispatch('open-reply-box', { reviewId: {{ $item->id }} })"
+                        {{-- === END === --}}
+
+                        <a href="javascript:void(0);"
+                           @click="$dispatch('open-reply-box', { reviewId: {{ $item->id }} })"
                            class="btn btn-sm d-inline-flex align-items-center fs-13 fw-semibold reply-btn">
                             <i class="material-icons-outlined text-dark me-1">repeat</i> Reply
                         </a>
