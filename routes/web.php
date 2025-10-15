@@ -44,3 +44,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/coming-soon', [PageController::class, 'comingSoon'])->name('coming-soon');
+
+Route::get('/properties/listing-form/download-word', [PropertyController::class, 'downloadListingFormWord'])
+    ->name('properties.download-form.word');
