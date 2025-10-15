@@ -23,6 +23,7 @@ class ReviewObserver
         // যদি রিভিউটি 'approved' হিসেবে তৈরি হয়, তবেই কেবল পরিসংখ্যান আপডেট হবে।
         if ($review->status === 'approved') {
             $this->updatePropertyReviewStats($review->property);
+            $this->clearHomepageCaches();
         }
     }
 
@@ -31,6 +32,7 @@ class ReviewObserver
         // যদি একটি 'approved' রিভিউ ডিলিট করা হয়, তবেই কেবল পরিসংখ্যান আপডেট হবে।
         if ($review->status === 'approved') {
             $this->updatePropertyReviewStats($review->property);
+            $this->clearHomepageCaches();
         }
     }
 
@@ -39,6 +41,7 @@ class ReviewObserver
         // যদি একটি 'approved' রিভিউ পুনরুদ্ধার করা হয়, তবেই কেবল পরিসংখ্যান আপডেট হবে।
         if ($review->status === 'approved') {
             $this->updatePropertyReviewStats($review->property);
+            $this->clearHomepageCaches();
         }
     }
 
@@ -49,16 +52,18 @@ class ReviewObserver
         // শুধুমাত্র যদি 'status' কলামটি পরিবর্তন হয়ে থাকে, তবেই পরিসংখ্যান আপডেট হবে।
         if ($review->wasChanged('status')) {
             $this->updatePropertyReviewStats($review->property);
+
+            // যদি স্ট্যাটাস 'approved' হয় বা 'approved' থেকে অন্য কিছু হয়,
+            // তাহলে হোমপেজের ক্যাশগুলো রিসেট করুন।
+            $this->clearHomepageCaches();
         }
 
-        // === START: নতুন এবং গুরুত্বপূর্ণ পরিবর্তন ===
         // === ধাপ ২: হোমপেজের Testimonial ক্যাশ রিসেট করা ===
         // শুধুমাত্র যদি 'is_testimonial' ফ্ল্যাগটি পরিবর্তন হয়ে থাকে,
         // তাহলে হোমপেজের প্রশংসাপত্রের ক্যাশটি মুছে ফেলুন।
         if ($review->wasChanged('is_testimonial')) {
             Cache::forget('customer_testimonials_stats');
         }
-        // === END: নতুন এবং গুরুত্বপূর্ণ পরিবর্তন ===
     }
 
     /**
@@ -78,5 +83,16 @@ class ReviewObserver
             'reviews_count' => $approvedReviewsQuery->count(),
             'average_rating' => $approvedReviewsQuery->avg('rating') ?? 0.0,
         ]);
+    }
+
+    /**
+     * Helper function to clear all homepage related caches.
+     * এই মেথডটি কোডকে পরিষ্কার এবং রক্ষণাবেক্ষণযোগ্য করে তোলে।
+     */
+    private function clearHomepageCaches(): void
+    {
+        Cache::forget('home_banner_rating_stats');
+        Cache::forget('home_banner_recent_reviewers');
+        Cache::forget('customer_testimonials_stats'); // এটিকেও এখানে রাখা ভালো
     }
 }

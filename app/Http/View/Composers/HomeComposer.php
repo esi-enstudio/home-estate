@@ -37,7 +37,7 @@ class HomeComposer
                 ->with('user')
                 ->latest()
                 ->distinct('user_id')
-                ->take(4)
+                ->take(5)
                 ->get()
                 ->map(fn($review) => $review->user);
         });
