@@ -5,12 +5,25 @@ namespace App\Filament\Auth;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use Filament\Notifications\Notification;
 use Filament\Pages\Auth\Login as BaseLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
+    public function mount(): void
+    {
+        parent::mount();
+
+        if (session()->has('error')) {
+            Notification::make()
+                ->title(session('error'))
+                ->danger()
+                ->send();
+        }
+    }
+
     public function form(Form $form): Form
     {
         return $form->schema([
@@ -52,23 +65,43 @@ class Login extends BaseLogin
             ]);
         }
 
-        // ৩. অথেন্টিকেশন সফল! এখন রোল চেক করুন
+        // ৩. অথেন্টিকেশন সফল! এখন ইউজার অবজেক্টটি নিন
         $user = Auth::guard('web')->user();
 
+        // ৪. ইউজারের রোল আছে কিনা তা চেক করুন
         if ($user->roles->isEmpty()) {
             // ক. ব্যবহারকারীকে আবার লগআউট করে দিন
             Auth::guard('web')->logout();
 
             // খ. ভ্যালিডেশন এরর থ্রো করুন
             throw ValidationException::withMessages([
-                'data.phone' => 'You do not have any roles assigned. Please contact support.',
+                'data.phone' => 'আপনার অ্যাকাউন্টের জন্য কোনো রোল নির্ধারণ করা হয়নি। অনুগ্রহ করে সাপোর্টে যোগাযোগ করুন।',
             ]);
         }
 
-        // ৪. রোল আছে! সেশন রিজেনারেট করুন
+        // ৫. ইউজারের স্ট্যাটাস 'active' কিনা তা চেক করুন
+        if ($user->status !== 'active') {
+            // স্ট্যাটাস অনুযায়ী একটি সুন্দর বার্তা তৈরি করুন
+            $statusMessage = match ($user->status) {
+                'inactive' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে। বিস্তারিত জানতে সাপোর্টে যোগাযোগ করুন।',
+                'banned'   => 'নীতিমালা লঙ্ঘনের জন্য আপনার অ্যাকাউন্টটি নিষিদ্ধ করা হয়েছে।',
+                'pending'  => 'আপনার অ্যাকাউন্টটি এখনো অনুমোদনের জন্য অপেক্ষারত আছে।',
+                default    => 'আপনার অ্যাকাউন্টটি সক্রিয় নয়।',
+            };
+
+            // ব্যবহারকারীকে আবার লগআউট করে দিন
+            Auth::guard('web')->logout();
+
+            // ভ্যালিডেশন এরর থ্রো করুন
+            throw ValidationException::withMessages([
+                'data.phone' => $statusMessage,
+            ]);
+        }
+
+        // ৬. সকল চেক সফল! সেশন রিজেনারেট করুন
         session()->regenerate();
 
-        // ৫. সফল লগইনের জন্য ফিলামেন্টের ডিফল্ট রেসপন্স রিটার্ন করুন
+        // ৭. সফল লগইনের জন্য ফিলামেন্টের ডিফল্ট রেসপন্স রিটার্ন করুন
         return app(LoginResponse::class);
     }
 }

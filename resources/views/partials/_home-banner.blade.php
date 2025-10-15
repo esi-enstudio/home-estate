@@ -7,7 +7,13 @@
                         <span class="badge bg-warning me-2">নতুন</span>
                         <p class="mb-0">{{ $bannerSettings->badge_text ?? 'দেশের নং ১ রিয়েল এস্টেট ওয়েবসাইট' }}</p>
                     </div>
-                    {!! $bannerSettings->title !!}
+                    <h1>
+                        {{ $bannerSettings->title_main ?? 'আপনার স্বপ্নের বাড়ি' }}
+                        @if(!empty($bannerSettings->title_highlighted))
+                            <span>{{ $bannerSettings->title_highlighted }}</span>
+                        @endif
+                    </h1>
+
                     <p>{{ $bannerSettings->subtitle ?? 'আপনার আশেপাশেই রয়েছে ৩০০০ এর বেশি প্রপার্টি লিস্টিং।' }}</p>
                     <a href="{{ $bannerSettings->button_link ?? '#' }}" class="btn btn-primary"><i class="material-icons-outlined me-2">add_business</i>{{ $bannerSettings->button_text ?? 'আপনার প্রপার্টি যোগ করুন' }}</a>
                 </div>

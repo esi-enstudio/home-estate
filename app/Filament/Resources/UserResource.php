@@ -233,6 +233,7 @@ class UserResource extends Resource
                     // === END ===
                 ]),
             ])
+            ->defaultPaginationPageOption(5)
             ->defaultSort('created_at', 'desc');
     }
 
