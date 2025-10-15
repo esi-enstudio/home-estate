@@ -373,14 +373,24 @@
                         @livewire('enquiry-form', ['property' => $property])
 
                         <!-- Map -->
-                        @if($property->google_maps_location_link && (str_contains($property->google_maps_location_link, 'embed') || ($property->latitude && $property->longitude)))
-                            <div class="card mb-0">
-                                <div class="custom-map position-relative">
-                                    {{-- Using latitude and longitude to build a standard embed link is more reliable --}}
-                                    <iframe src="https://maps.google.com/maps?q={{ $property->latitude }},{{ $property->longitude }}&hl=es;z=14&amp;output=embed" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        @if($property->latitude && $property->longitude)
+                            <div class="card mb-4">
+                                <div class="card-header"><h5 class="mb-0">প্রপার্টির অবস্থান</h5></div>
+                                <div class="card-body p-0">
+                                    {{-- এই div-টিই ম্যাপ কন্টেইনার হিসেবে কাজ করবে --}}
+                                    <div id="property-map" style="height: 300px;"></div>
                                 </div>
                             </div>
                         @endif
+
+{{--                        @if($property->google_maps_location_link && (str_contains($property->google_maps_location_link, 'embed') || ($property->latitude && $property->longitude)))--}}
+{{--                            <div class="card mb-0">--}}
+{{--                                <div class="custom-map position-relative">--}}
+{{--                                    --}}{{-- Using latitude and longitude to build a standard embed link is more reliable --}}
+{{--                                    <iframe src="https://maps.google.com/maps?q={{ $property->latitude }},{{ $property->longitude }}&hl=es;z=14&amp;output=embed" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        @endif--}}
                     </div>
                 </div>
 
@@ -424,3 +434,50 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    {{-- গুগল ম্যাপস API লোড করার জন্য --}}
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key') }}&callback=initMap" async defer></script>
+    <script>
+        // এই ফাংশনটি গুগল ম্যাপস API লোড হওয়ার পর স্বয়ংক্রিয়ভাবে কল হবে
+        function initMap() {
+            // ১. প্রপার্টির অক্ষাংশ এবং দ্রাঘিমাংশ
+            const propertyLocation = { lat: {{ $property->latitude }}, lng: {{ $property->longitude }} };
+
+            // ২. ম্যাপ তৈরি করা হচ্ছে এবং 'property-map' div-এর ভেতরে বসানো হচ্ছে
+            const map = new google.maps.Map(document.getElementById("property-map"), {
+                zoom: 16, // জুম লেভেল
+                center: propertyLocation, // ম্যাপটি এই লোকেশনে কেন্দ্র করে থাকবে
+
+                // https://mapstyle.withgoogle.com/ থেকে আপনার পছন্দের স্টাইল জেনারেট করুন
+                // এবং生成的 JSON টি নিচে পেস্ট করুন।
+                styles: [
+                    { "featureType": "poi.business", "stylers": [{ "visibility": "off" }] },
+                    { "featureType": "poi.park", "elementType": "labels.text", "stylers": [{ "visibility": "off" }] }
+                    // ... আরও স্টাইল ...
+                ]
+            });
+
+            // ৩. প্রপার্টির অবস্থানে একটি মার্কার তৈরি করা হচ্ছে
+            const marker = new google.maps.Marker({
+                position: propertyLocation,
+                map: map,
+                title: "{{ $property->title }}", // মার্কারের উপর হোভার করলে এই লেখাটি দেখাবে
+            });
+
+            // ৪. (ঐচ্ছিক) মার্কারের উপর ক্লিক করলে একটি ইনফো-উইন্ডো দেখানো
+            const infoWindowContent = `
+                <div class="p-2">
+                <h6 class="mb-1">{{ $property->title }}</h6>
+                <p class="mb-0 fs-14">{{ $property->address_area }}</p>
+                </div>
+                `;
+            const infoWindow = new google.maps.InfoWindow({
+                content: infoWindowContent,
+            });
+            marker.addListener("click", () => {
+                infoWindow.open(map, marker);
+            });
+        }
+    </script>
+@endpush
