@@ -47,3 +47,5 @@ Route::get('/coming-soon', [PageController::class, 'comingSoon'])->name('coming-
 
 Route::get('/properties/listing-form/download-word', [PropertyController::class, 'downloadListingFormWord'])
     ->name('properties.download-form.word');
+
+Route::get('/map-view', [PageController::class, 'mapView'])->name('map.view');

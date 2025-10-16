@@ -53,8 +53,9 @@ class PageController extends Controller
         return view('pages.our-inspiration'); // এই ভিউটি Livewire কম্পোনেন্ট লোড করবে
     }
 
-    public function verifyPhone()
+    public function mapView()
     {
-        return view('pages.verify-phone');
+        // আমরা এই ভিউ ফাইলটি একটু পরেই তৈরি করব
+        return view('pages.map-view');
     }
 }

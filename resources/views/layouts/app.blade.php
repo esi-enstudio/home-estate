@@ -17,6 +17,8 @@
 
     @include('includes.head')
 
+    @stack('styles')
+
     @livewireStyles
 </head>
 
