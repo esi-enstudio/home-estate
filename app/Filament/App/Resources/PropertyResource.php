@@ -16,6 +16,7 @@ use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -27,6 +28,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class PropertyResource extends Resource
@@ -263,6 +265,40 @@ class PropertyResource extends Resource
                         // ডান পাশের সাইডবার (১/৩ অংশ)
                         Forms\Components\Grid::make(1)
                             ->schema([
+                                Forms\Components\Section::make('প্রাপ্যতা ও অবস্থা (Availability & Status)')
+                                    ->schema([
+                                        // ১. স্ট্যাটাস দেখানোর জন্য Placeholder
+                                        Placeholder::make('current_status')
+                                            ->label('বর্তমান স্ট্যাটাস')
+                                            ->visible(fn (?Model $record): bool => $record && $record->status === 'pending')
+                                            ->content(function (?Model $record): string {
+                                                if (!$record) {
+                                                    return 'নতুন লিস্টিং';
+                                                }
+                                                // স্ট্যাটাস অনুযায়ী সুন্দর বাংলা লেবেল দেখানো হবে
+                                                return match ($record->status) {
+                                                    'pending' => 'পর্যালোচনার জন্য অপেক্ষারত',
+                                                    'active' => 'সক্রিয় (লাইভ)',
+                                                    'rented' => 'ভাড়া হয়ে গেছে',
+                                                    'sold_out' => 'বিক্রি হয়ে গেছে',
+                                                    'inactive' => 'নিষ্ক্রিয় করা হয়েছে',
+                                                    default => ucfirst($record->status),
+                                                };
+                                            }),
+
+                                        // ২. স্ট্যাটাস পরিবর্তনের জন্য Select ফিল্ড (কন্ডিশনাল)
+                                        Select::make('status')
+                                            ->label('স্ট্যাটাস পরিবর্তন করুন')
+                                            ->options([
+                                                'active' => 'সক্রিয় (Active)',
+                                                'rented' => 'ভাড়া হয়ে গেছে (Rented)',
+                                                'sold_out' => 'বিক্রি হয়ে গেছে (Sold Out)',
+                                            ])
+                                            // এই ফিল্ডটি শুধুমাত্র তখনই দেখা যাবে যখন স্ট্যাটাস 'pending' থাকবে না
+                                            ->visible(fn (?Model $record): bool => $record && $record->status !== 'pending')
+                                            ->required(),
+                                    ]),
+
                                 Forms\Components\Section::make('মূল্য এবং প্রাপ্যতা (Pricing & Availability)')
                                     ->collapsed()
                                     ->schema([

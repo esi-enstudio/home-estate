@@ -34,7 +34,7 @@
                         <span class="count-icon"><img src="{{ asset('assets/img/icons/count-01.svg') }}" alt=""></span>
                         <div>
                             <h4 class="mb-1"><span class="counter-up">{{ $rentalsCompleted }}</span>+</h4>
-                            <p class="mb-0">সম্পন্ন ভাড়া</p>
+                            <p class="mb-0">ভাড়া সম্পন্ন</p>
                         </div>
                     </div>
                 </div> <!-- end col -->

@@ -5,7 +5,7 @@
                 <img src="{{ asset('assets/img/about-us/listing.svg') }}" alt="লিস্টিং" class="img-fluid me-3">
                 <div>
                     <h4 class="mb-1">{{ number_format($listingsAdded) }}+</h4>
-                    <p class="mb-0">பதிவுভুক্ত লিস্টিং</p>
+                    <p class="mb-0">লিস্টিং</p>
                 </div>
             </div>
         </div>

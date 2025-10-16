@@ -11,6 +11,7 @@ use Exception;
 use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -94,6 +95,7 @@ class PropertyObserver
             $property->propertyType?->increment('properties_count');
         }
 
+
         $this->calculateAndSetScore($property);
     }
 
@@ -144,5 +146,7 @@ class PropertyObserver
             $property->score = $score;
             $property->saveQuietly();
         }
+
+        Cache::forget('homepage_stats');
     }
 }
