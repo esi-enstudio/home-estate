@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -51,8 +50,7 @@ class User extends Authenticatable implements HasMedia, FilamentUser, MustVerify
         'phone_verified_at',
         'password',
         'avatar_url',
-        'identity_status',
-        'identity_rejection_reason',
+        'verified',
     ];
 
 

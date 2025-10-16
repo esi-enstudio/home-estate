@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\Login;
 use App\Filament\Auth\Register;
 use App\Http\Middleware\CheckUserStatus;
+use EightyNine\Approvals\ApprovalPlugin;
 use Exception;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -69,6 +70,7 @@ class SuperadminPanelProvider extends PanelProvider
                 CheckUserStatus::class,
             ])
             ->plugins([
+                ApprovalPlugin::make(),
                 FilamentEditProfilePlugin::make()
                     ->shouldRegisterNavigation(false)
                     ->shouldShowDeleteAccountForm(false),

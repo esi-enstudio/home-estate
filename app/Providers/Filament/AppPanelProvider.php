@@ -4,7 +4,9 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Auth\Register;
+use App\Filament\Resources\UserVerificationResource;
 use App\Http\Middleware\CheckUserStatus;
+use EightyNine\Approvals\ApprovalPlugin;
 use Exception;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -65,6 +67,12 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 CheckUserStatus::class,
+            ])
+            ->plugins([
+
+            ])
+            ->resources([
+                UserVerificationResource::class,
             ])
             ->renderHook(
                 'panels::topbar.start', // অথবা 'panels::topbar.end'
