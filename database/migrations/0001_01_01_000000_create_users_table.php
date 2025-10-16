@@ -23,6 +23,9 @@ return new class extends Migration
             $table->unsignedInteger('reviews_count')->default(0);
             $table->decimal('average_rating', 2, 1)->default(0.0);
             $table->enum('status', ['active', 'inactive', 'banned', 'pending'])->default('active'); // Added 'pending' for initial state
+            $table->enum('identity_status', ['unverified', 'pending', 'approved', 'rejected'])
+                ->default('unverified');
+            $table->text('identity_rejection_reason')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('phone_verified_at')->nullable(); // For OTP verification
             $table->string('password');

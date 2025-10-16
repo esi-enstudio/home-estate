@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -22,10 +26,10 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static whereHas(string $string, \Closure $param)
  * @method static where(string $string, mixed $phone)
  */
-class User extends Authenticatable implements HasAvatar, FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements HasMedia, FilamentUser, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -47,6 +51,8 @@ class User extends Authenticatable implements HasAvatar, FilamentUser, MustVerif
         'phone_verified_at',
         'password',
         'avatar_url',
+        'identity_status',
+        'identity_rejection_reason',
     ];
 
 
@@ -124,6 +130,30 @@ class User extends Authenticatable implements HasAvatar, FilamentUser, MustVerif
     {
         $avatarColumn = config('filament-edit-profile.avatar_column', 'avatar_url');
         return $this->$avatarColumn ? Storage::url($this->$avatarColumn) : null;
+    }
+
+    /**
+     * Define a custom path for the identity_documents collection.
+     * এটিই আপনার ফাইলগুলোকে সুসংগঠিত ফোল্ডারে সেভ করবে।
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('identity_documents')
+            ->usePathGenerator(new class implements PathGenerator {
+                public function getPath(Media $media): string
+                {
+                    // ফোল্ডার পাথ: verification_documents/{user_id}/
+                    return "verification_documents/{$media->model_id}/";
+                }
+                public function getPathForConversions(Media $media): string
+                {
+                    return $this->getPath($media) . 'conversions/';
+                }
+                public function getPathForResponsiveImages(Media $media): string
+                {
+                    return $this->getPath($media) . 'responsive-images/';
+                }
+            });
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -9,6 +9,7 @@ use Filament\Forms\Components\Group;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Infolist;
@@ -122,6 +123,33 @@ class UserResource extends Resource
                                 Placeholder::make('reviews_count')->label('মোট রিভিউ দিয়েছেন')->content(fn ($record) => $record?->reviews_count ?? 0),
                                 Placeholder::make('average_rating')->label('গড় রেটিং পেয়েছেন')->content(fn ($record) => number_format($record?->average_rating ?? 0, 1) . ' / 5.0'),
                             ]),
+
+                        Section::make('পরিচয়পত্র ভেরিফিকেশন (Identity Verification)')
+                            ->schema([
+                                SpatieMediaLibraryFileUpload::make('identity_documents')
+                                    ->collection('identity_documents')
+                                    ->label('আপলোড করা ডকুমেন্টস')
+                                    ->multiple()
+                                    ->reorderable()
+                                    ->downloadable() // <-- ফাইল ডাউনলোড করার বাটন যোগ করবে
+                                    ->openable()     // <-- ফাইল নতুন ট্যাবে খোলার বাটন যোগ করবে
+                                    ->visibility('private') // <-- শুধুমাত্র অথেন্টিকেটেড ইউজাররাই দেখতে পারবে
+                                    ->disabled(),     // <-- অ্যাডমিন শুধু দেখবে, এডিট করবে না
+
+                                Select::make('identity_status')
+                                    ->options([
+                                        'unverified' => 'Unverified',
+                                        'pending' => 'Pending',
+                                        'approved' => 'Approved',
+                                        'rejected' => 'Rejected',
+                                    ])->live(),
+
+                                Textarea::make('identity_rejection_reason')
+                                    ->label('প্রত্যাখ্যানের কারণ (যদি থাকে)')
+                                    ->visible(fn (Get $get) => $get('identity_status') === 'rejected'),
+                            ])
+                            // এই সেকশনটি শুধুমাত্র তখনই দেখা যাবে যখন স্ট্যাটাস 'pending' বা তার বেশি
+                            ->visible(fn (?User $record) => $record && $record->identity_status !== 'unverified'),
                     ])->columnSpan(1),
                 ]),
             ]);
@@ -165,6 +193,16 @@ class UserResource extends Resource
                         'secondary' => 'inactive',
                         'danger' => 'banned',
                         'warning' => 'pending',
+                    ]),
+
+                Tables\Columns\TextColumn::make('identity_status')
+                    ->badge()
+                    ->label('Identity Status')
+                    ->colors([
+                        'success' => 'approved',
+                        'warning' => 'pending',
+                        'danger' => 'rejected',
+                        'secondary' => 'unverified',
                     ]),
 
                 // কলাম ৪: ভেরিফিকেশন স্ট্যাটাস
