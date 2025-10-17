@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +51,7 @@ class User extends Authenticatable implements HasMedia, FilamentUser, MustVerify
         'phone_verified_at',
         'password',
         'avatar_url',
-        'verified',
+        'identity_status', 'identity_rejection_reason',
     ];
 
 
@@ -122,36 +123,6 @@ class User extends Authenticatable implements HasMedia, FilamentUser, MustVerify
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);
-    }
-
-    public function getFilamentAvatarUrl(): ?string
-    {
-        $avatarColumn = config('filament-edit-profile.avatar_column', 'avatar_url');
-        return $this->$avatarColumn ? Storage::url($this->$avatarColumn) : null;
-    }
-
-    /**
-     * Define a custom path for the identity_documents collection.
-     * এটিই আপনার ফাইলগুলোকে সুসংগঠিত ফোল্ডারে সেভ করবে।
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('identity_documents')
-            ->usePathGenerator(new class implements PathGenerator {
-                public function getPath(Media $media): string
-                {
-                    // ফোল্ডার পাথ: verification_documents/{user_id}/
-                    return "verification_documents/{$media->model_id}/";
-                }
-                public function getPathForConversions(Media $media): string
-                {
-                    return $this->getPath($media) . 'conversions/';
-                }
-                public function getPathForResponsiveImages(Media $media): string
-                {
-                    return $this->getPath($media) . 'responsive-images/';
-                }
-            });
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -184,24 +184,6 @@ class UserResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    // === START: আকর্ষণীয় বাল্ক অ্যাকশন ===
-                    Tables\Actions\BulkAction::make('changeStatus')
-                        ->label('স্ট্যাটাস পরিবর্তন করুন')
-                        ->icon('heroicon-o-tag')
-                        ->requiresConfirmation()
-                        ->form([
-                            Forms\Components\Select::make('status')
-                                ->options([
-                                    'active' => 'Active',
-                                    'inactive' => 'Inactive',
-                                    'banned' => 'Banned',
-                                ])->required(),
-                        ])
-                        ->action(function (Collection $records, array $data): void {
-                            $records->each->update(['status' => $data['status']]);
-                        })
-                        ->deselectRecordsAfterCompletion(),
-                    // === END ===
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

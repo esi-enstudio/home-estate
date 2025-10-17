@@ -70,7 +70,6 @@ class SuperadminPanelProvider extends PanelProvider
                 CheckUserStatus::class,
             ])
             ->plugins([
-                ApprovalPlugin::make(),
                 FilamentEditProfilePlugin::make()
                     ->shouldRegisterNavigation(false)
                     ->shouldShowDeleteAccountForm(false),

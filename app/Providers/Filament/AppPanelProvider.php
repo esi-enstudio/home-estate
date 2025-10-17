@@ -71,9 +71,6 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
 
             ])
-            ->resources([
-                UserVerificationResource::class,
-            ])
             ->renderHook(
                 'panels::topbar.start', // অথবা 'panels::topbar.end'
                 fn () => view('components.topbar.custom-menu'),
