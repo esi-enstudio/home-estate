@@ -4,6 +4,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\WishlistController;
+use App\Livewire\UserVerificationForm;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 
@@ -49,3 +50,7 @@ Route::get('/properties/listing-form/download-word', [PropertyController::class,
     ->name('properties.download-form.word');
 
 Route::get('/map-view', [PageController::class, 'mapView'])->name('map.view');
+
+Route::get('/identity-verification', function () {
+    return view('pages.identity-verification'); // আমরা এই ভিউ ফাইলটি পরবর্তী ধাপে তৈরি করব
+})->middleware(['auth'])->name('identity.verification');

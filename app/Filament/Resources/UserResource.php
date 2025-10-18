@@ -219,12 +219,23 @@ class UserResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\Action::make('verify')
+                        ->label('Verify Identity')
+                        ->icon('heroicon-o-check-badge')
+                        // এই রিসোর্সের প্রথম পেন্ডিং ভেরিফিকেশনটি খুঁজবে এবং তার ভিউ পেজে নিয়ে যাবে
+                        ->url(function (User $record) {
+                            $verification = $record->identityVerifications()->where('status', 'pending')->first();
+                            if ($verification) {
+                                return IdentityVerificationResource::getUrl('view', ['record' => $verification]);
+                            }
+                            return null;
+                        })
+                        ->visible(fn (User $record) => $record->identityVerifications()->where('status', 'pending')->exists()),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    // === START: আকর্ষণীয় বাল্ক অ্যাকশন ===
                     Tables\Actions\BulkAction::make('changeStatus')
                         ->label('স্ট্যাটাস পরিবর্তন করুন')
                         ->icon('heroicon-o-tag')
@@ -241,7 +252,6 @@ class UserResource extends Resource
                             $records->each->update(['status' => $data['status']]);
                         })
                         ->deselectRecordsAfterCompletion(),
-                    // === END ===
                 ]),
             ])
             ->defaultPaginationPageOption(5)

@@ -125,6 +125,11 @@ class User extends Authenticatable implements HasMedia, FilamentUser, MustVerify
         return $this->hasMany(Property::class);
     }
 
+    public function identityVerifications(): HasMany
+    {
+        return $this->hasMany(IdentityVerification::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         // ১. 'admin' প্যানেলের জন্য:
