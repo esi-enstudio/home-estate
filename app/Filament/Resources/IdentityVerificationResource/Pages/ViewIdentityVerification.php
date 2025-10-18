@@ -7,6 +7,7 @@ use App\Models\IdentityVerification;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Storage;
 
 class ViewIdentityVerification extends ViewRecord
 {
@@ -46,24 +47,32 @@ class ViewIdentityVerification extends ViewRecord
                 ->color('danger')
                 ->icon('heroicon-o-x-circle')
                 ->requiresConfirmation()
-                // রিজেক্ট করার কারণ লেখার জন্য একটি ফর্ম দেখানো হবে
                 ->form([
                     Textarea::make('rejection_reason')
                         ->label('Reason for Rejection')
                         ->required(),
                 ])
                 ->action(function (IdentityVerification $record, array $data) {
+                    // --- ডকুমেন্ট ডিলিট করার কোড শুরু ---
+                    if ($record->front_image) {
+                        Storage::disk('public')->delete($record->front_image);
+                    }
+                    if ($record->back_image) {
+                        Storage::disk('public')->delete($record->back_image);
+                    }
+                    // --- ডকুমেন্ট ডিলিট করার কোড শেষ ---
+
                     $record->update([
                         'status' => 'rejected',
                         'rejected_at' => now(),
                         'rejection_reason' => $data['rejection_reason'],
+                        'front_image' => 'deleted', // ঐচ্ছিক: ডেটাবেজ থেকে পাথ মুছে দেওয়া
+                        'back_image' => null,     // ঐচ্ছিক: ডেটাবেজ থেকে পাথ মুছে দেওয়া
                     ]);
 
-                    $this->notify('success', 'User identity has been rejected.');
-
+                    $this->notify('success', 'User identity has been rejected and documents were deleted.');
                     return redirect(static::getResource()::getUrl('index'));
                 })
-                // শুধুমাত্র 'pending' স্ট্যাটাসের জন্য এই বাটনটি দেখা যাবে
                 ->visible(fn (IdentityVerification $record) => $record->status === 'pending'),
         ];
     }

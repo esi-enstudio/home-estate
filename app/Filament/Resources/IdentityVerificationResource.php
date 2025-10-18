@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\IdentityVerificationResource\Pages;
 use App\Filament\Resources\IdentityVerificationResource\RelationManagers;
 use App\Models\IdentityVerification;
+use Carbon\Carbon;
 use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -152,6 +153,14 @@ class IdentityVerificationResource extends Resource
                         'rejected' => 'danger',
                     })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('approved_at')
+                    ->dateTime()
+                    ->formatStateUsing(fn($state) => $state->toFormattedDayDateString())
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('rejected_at')
+                    ->dateTime()
+                    ->formatStateUsing(fn($state) => $state->toFormattedDayDateString())
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -191,10 +200,21 @@ class IdentityVerificationResource extends Resource
                             ->required(),
                     ])
                     ->action(function (IdentityVerification $record, array $data) {
+                        // --- ডকুমেন্ট ডিলিট করার কোড শুরু ---
+                        if ($record->front_image) {
+                            Storage::disk('public')->delete($record->front_image);
+                        }
+                        if ($record->back_image) {
+                            Storage::disk('public')->delete($record->back_image);
+                        }
+                        // --- ডকুমেন্ট ডিলিট করার কোড শেষ ---
+
                         $record->update([
                             'status' => 'rejected',
                             'rejected_at' => now(),
                             'rejection_reason' => $data['rejection_reason'],
+                            'front_image' => 'deleted', // ঐচ্ছিক
+                            'back_image' => null,     // ঐচ্ছিক
                         ]);
                     })
                     ->visible(fn (IdentityVerification $record) => $record->status === 'pending'),

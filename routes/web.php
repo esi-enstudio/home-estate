@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\WishlistController;
 use App\Livewire\UserVerificationForm;
@@ -54,3 +55,7 @@ Route::get('/map-view', [PageController::class, 'mapView'])->name('map.view');
 Route::get('/identity-verification', function () {
     return view('pages.identity-verification'); // আমরা এই ভিউ ফাইলটি পরবর্তী ধাপে তৈরি করব
 })->middleware(['auth'])->name('identity.verification');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', ProfileController::class)->name('profile.show');
+});
