@@ -6,6 +6,7 @@ use App\Filament\Resources\IdentityVerificationResource;
 use App\Models\IdentityVerification;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,8 +33,11 @@ class ViewIdentityVerification extends ViewRecord
                         'rejection_reason' => null,
                     ]);
 
-                    // সফল হওয়ার পর একটি নোটিফিকেশন দেখানো হবে
-                    $this->notify('success', 'User identity has been approved.');
+                    // সঠিক পদ্ধতিতে নোটিফিকেশন পাঠানোর কোড
+                    Notification::make()
+                        ->title('User identity has been approved.')
+                        ->success()
+                        ->send();
 
                     // কাজটি শেষ হলে লিস্ট পেজে রিডাইরেক্ট করা হবে
                     return redirect(static::getResource()::getUrl('index'));
@@ -53,14 +57,6 @@ class ViewIdentityVerification extends ViewRecord
                         ->required(),
                 ])
                 ->action(function (IdentityVerification $record, array $data) {
-                    // --- ডকুমেন্ট ডিলিট করার কোড শুরু ---
-                    if ($record->front_image) {
-                        Storage::disk('public')->delete($record->front_image);
-                    }
-                    if ($record->back_image) {
-                        Storage::disk('public')->delete($record->back_image);
-                    }
-                    // --- ডকুমেন্ট ডিলিট করার কোড শেষ ---
 
                     $record->update([
                         'status' => 'rejected',
@@ -70,7 +66,12 @@ class ViewIdentityVerification extends ViewRecord
                         'back_image' => null,     // ঐচ্ছিক: ডেটাবেজ থেকে পাথ মুছে দেওয়া
                     ]);
 
-                    $this->notify('success', 'User identity has been rejected and documents were deleted.');
+                    // সঠিক পদ্ধতিতে নোটিফিকেশন পাঠানোর কোড
+                    Notification::make()
+                        ->title('User identity has been rejected.')
+                        ->success() // আপনি চাইলে ->warning() ও ব্যবহার করতে পারেন
+                        ->send();
+
                     return redirect(static::getResource()::getUrl('index'));
                 })
                 ->visible(fn (IdentityVerification $record) => $record->status === 'pending'),

@@ -15,6 +15,7 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -177,47 +178,6 @@ class IdentityVerificationResource extends Resource
             ->actions([
 //                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\Action::make('approve')
-                    ->label('Approve')
-                    ->color('success')
-                    ->icon('heroicon-o-check-circle')
-                    ->requiresConfirmation()
-                    ->action(fn (IdentityVerification $record) => $record->update([
-                        'status' => 'approved',
-                        'approved_at' => now(),
-                        'rejection_reason' => null,
-                    ]))
-                    ->visible(fn (IdentityVerification $record) => $record->status === 'pending'),
-
-                Tables\Actions\Action::make('reject')
-                    ->label('Reject')
-                    ->color('danger')
-                    ->icon('heroicon-o-x-circle')
-                    ->requiresConfirmation()
-                    ->form([
-                        Forms\Components\Textarea::make('rejection_reason')
-                            ->label('Reason for Rejection')
-                            ->required(),
-                    ])
-                    ->action(function (IdentityVerification $record, array $data) {
-                        // --- ডকুমেন্ট ডিলিট করার কোড শুরু ---
-                        if ($record->front_image) {
-                            Storage::disk('public')->delete($record->front_image);
-                        }
-                        if ($record->back_image) {
-                            Storage::disk('public')->delete($record->back_image);
-                        }
-                        // --- ডকুমেন্ট ডিলিট করার কোড শেষ ---
-
-                        $record->update([
-                            'status' => 'rejected',
-                            'rejected_at' => now(),
-                            'rejection_reason' => $data['rejection_reason'],
-                            'front_image' => 'deleted', // ঐচ্ছিক
-                            'back_image' => null,     // ঐচ্ছিক
-                        ]);
-                    })
-                    ->visible(fn (IdentityVerification $record) => $record->status === 'pending'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
