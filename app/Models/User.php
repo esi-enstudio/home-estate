@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -10,14 +11,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -26,7 +24,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static whereHas(string $string, \Closure $param)
  * @method static where(string $string, mixed $phone)
  */
-class User extends Authenticatable implements HasMedia, FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements HasMedia, FilamentUser, MustVerifyEmail, HasAvatar
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, InteractsWithMedia;
@@ -147,5 +145,11 @@ class User extends Authenticatable implements HasMedia, FilamentUser, MustVerify
 
         // ৩. অন্য কোনো অজানা প্যানেলের জন্য ডিফল্টভাবে অ্যাক্সেস দেওয়া হবে না।
         return false;
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $avatarColumn = config('filament-edit-profile.avatar_column', 'avatar_url');
+        return $this->$avatarColumn ? Storage::url($this->$avatarColumn) : null;
     }
 }

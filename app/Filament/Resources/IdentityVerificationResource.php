@@ -5,8 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\IdentityVerificationResource\Pages;
 use App\Filament\Resources\IdentityVerificationResource\RelationManagers;
 use App\Models\IdentityVerification;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
@@ -17,12 +19,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 
 class IdentityVerificationResource extends Resource
 {
     protected static ?string $model = IdentityVerification::class;
-    protected static ?string $navigationIcon = 'heroicon-o-identification';
-    protected static ?string $navigationGroup = 'ইউজার ম্যানেজমেন্ট';
+    protected static ?string $navigationGroup = 'User Management';
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationBadge(): ?string
     {
@@ -36,25 +40,79 @@ class IdentityVerificationResource extends Resource
             ->schema([
                 Section::make('User Information')
                     ->schema([
+                        // ইউজার অ্যাভাটার এর জন্য
+                        ImageEntry::make('user.avatar_url')
+                            ->label('User Avatar')
+                            ->disk('public')
+                            ->extraAttributes([
+                                'class' => 'w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity',
+                                'loading' => 'lazy',
+                            ])
+                            ->visible(fn ($record) => $record->user->avatar_url)
+                            // --- ক্লিক করলে মডাল দেখানোর কোড ---
+                            ->action(
+                                Action::make('view_avatar')
+                                    ->label('') // ছবিতে কোনো লেবেল দেখাবে না
+                                    ->modalContent(fn (IdentityVerification $record): HtmlString => new HtmlString(
+                                        '<img src="' . Storage::disk('public')->url($record->user->avatar_url) . '" class="w-full h-auto rounded-lg">'
+                                    ))
+                                    ->modalHeading('User Avatar')
+                                    ->modalSubmitAction(false) // Submit বাটন লুকিয়ে ফেলবে
+                                    ->modalCancelAction(false) // Cancel বাটন লুকিয়ে ফেলবে
+                                    ->modalWidth('3xl') // মডালের আকার
+                            ),
+
                         TextEntry::make('user.name')->label('User Name'),
                         TextEntry::make('user.email')->label('User Email'),
                     ])->columns(2),
+
                 Section::make('Document Information')
                     ->schema([
                         TextEntry::make('id_type')->label('ID Type'),
                         TextEntry::make('id_number')->label('ID Number'),
+
+                        // আইডি কার্ডের সামনের ছবি
                         ImageEntry::make('front_image')
                             ->label('Front Side')
                             ->disk('public')
-                            ->width(300)
-                            ->height(200),
+                            ->extraAttributes([
+                                'class' => 'w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity',
+                                'loading' => 'lazy',
+                            ])
+                            // --- ক্লিক করলে মডাল দেখানোর কোড ---
+                            ->action(
+                                Action::make('view_front_image')
+                                    ->label('')
+                                    ->modalContent(fn (IdentityVerification $record): HtmlString => new HtmlString(
+                                        '<img src="' . Storage::disk('public')->url($record->front_image) . '" class="w-full h-auto rounded-lg">'
+                                    ))
+                                    ->modalHeading('Front Side')
+                                    ->modalSubmitAction(false)
+                                    ->modalCancelAction(false)
+                                    ->modalWidth('4xl')
+                            ),
+
+                        // আইডি কার্ডের পেছনের ছবি
                         ImageEntry::make('back_image')
                             ->label('Back Side')
                             ->disk('public')
-                            ->width(300)
-                            ->height(200)
-                            // ঐচ্ছিক: যদি পেছনের ছবি না থাকে, তাহলে এটি দেখাবে না
-                            ->visible(fn ($record) => $record->back_image),
+                            ->extraAttributes([
+                                'class' => 'w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity',
+                                'loading' => 'lazy',
+                            ])
+                            ->visible(fn ($record) => $record->back_image)
+                            // --- ক্লিক করলে মডাল দেখানোর কোড ---
+                            ->action(
+                                Action::make('view_back_image')
+                                    ->label('')
+                                    ->modalContent(fn (IdentityVerification $record): HtmlString => new HtmlString(
+                                        '<img src="' . Storage::disk('public')->url($record->back_image) . '" class="w-full h-auto rounded-lg">'
+                                    ))
+                                    ->modalHeading('Back Side')
+                                    ->modalSubmitAction(false)
+                                    ->modalCancelAction(false)
+                                    ->modalWidth('4xl')
+                            ),
                         TextEntry::make('status')
                             ->badge()
                             ->color(fn (string $state): string => match ($state) {
@@ -76,7 +134,7 @@ class IdentityVerificationResource extends Resource
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function table(Table $table): Table
     {
@@ -160,6 +218,7 @@ class IdentityVerificationResource extends Resource
         return [
             'index' => Pages\ListIdentityVerifications::route('/'),
             'create' => Pages\CreateIdentityVerification::route('/create'),
+            'view' => Pages\ViewIdentityVerification::route('/{record}')
 //            'edit' => Pages\EditIdentityVerification::route('/{record}/edit'),
         ];
     }

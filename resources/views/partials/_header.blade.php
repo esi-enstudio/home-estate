@@ -56,9 +56,7 @@
                                 <div class="dropdown-menu dropdown-menu-end w-100">
                                     <a href="{{ route('filament.app.pages.dashboard') }}" class="dropdown-item">আমার প্রোফাইল</a>
                                     <a href="{{ route('wishlist') }}" class="dropdown-item">পছন্দের প্রপার্টি</a>
-                                    <a href="{{ route('identity.verification') }}" class="dropdown-item">
-                                        Verify Your Identity
-                                    </a>
+                                    <a href="{{ route('identity.verification') }}" class="dropdown-item">পরিচয় যাচাইকরণ</a>
                                     <a href="javascript:void(0);" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">লগ আউট</a>
                                     {{-- আইডি পরিবর্তন করা হয়েছে যাতে ডেস্কটপের সাথে conflict না করে --}}
                                     <form id="mobile-logout-form" action="{{ route('filament.app.auth.logout') }}" method="POST" style="display: none;">
@@ -101,9 +99,7 @@
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a href="{{ route('filament.app.pages.dashboard') }}" class="dropdown-item">আমার প্রোফাইল</a>
                                 <a href="{{ route('wishlist') }}" class="dropdown-item">পছন্দের প্রোপার্টি</a>
-                                <a href="{{ route('identity.verification') }}" class="dropdown-item">
-                                    Verify Your Identity
-                                </a>
+                                <a href="{{ route('identity.verification') }}" class="dropdown-item">পরিচয় যাচাইকরণ</a>
                                 <a href="javascript:void(0);" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">লগ আউট</a>
                                 <form id="logout-form" action="{{ route('filament.app.auth.logout') }}" method="POST" style="display: none;">
                                     @csrf
