@@ -4,9 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Auth\Register;
-use App\Filament\Resources\UserVerificationResource;
 use App\Http\Middleware\CheckUserStatus;
-use EightyNine\Approvals\ApprovalPlugin;
 use Exception;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -15,7 +13,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -41,9 +38,10 @@ class AppPanelProvider extends PanelProvider
             ->emailVerification()
             ->databaseNotifications()
             ->favicon(asset('assets/img/favicon.png'))
-            ->brandLogo(fn () => view('components.layouts.logo'))
-            ->brandLogoHeight('2rem')
+//            ->brandLogo(fn () => view('components.layouts.logo'))
+//            ->brandLogoHeight('2rem')
             ->theme(asset('css/filament/app/theme.css'))
+            ->homeUrl(url('/'))
             ->colors([
                 'primary' => '#03bd9d',
             ])

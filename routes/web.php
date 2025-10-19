@@ -58,4 +58,5 @@ Route::get('/identity-verification', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile.show');
+    Route::get('/property/create', [PropertyController::class, 'create'])->name('property.create');
 });

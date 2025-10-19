@@ -80,6 +80,11 @@
                                                 <i class="material-icons-outlined me-2">person_outline</i>আমার প্রোফাইল
                                             </a>
 
+                                            <!-- Item-->
+                                            <a href="{{ route('property.create') }}" class="dropdown-item d-inline-flex align-items-center">
+                                                <i class="material-icons-outlined me-2">person_outline</i>নতুন লিস্টিং তৈরি
+                                            </a>
+
                                             <hr class="dropdown-divider">
 
                                             <a href="javascript:void(0);" class="dropdown-item d-inline-flex align-items-center link-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -142,6 +147,11 @@
 
                                 <a href="{{ route('wishlist') }}" class="dropdown-item d-inline-flex align-items-center">
                                     <i class="material-icons-outlined me-2">person_outline</i>পছন্দের প্রোপার্টি
+                                </a>
+
+                                <!-- Item-->
+                                <a href="{{ route('property.create') }}" class="dropdown-item d-inline-flex align-items-center">
+                                    <i class="material-icons-outlined me-2">person_outline</i>নতুন লিস্টিং তৈরি
                                 </a>
 
                                 <hr class="dropdown-divider">

@@ -24,6 +24,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static whereIn(string $string, string[] $array)
  * @method static count()
  * @method static trending()
+ * @method static create(array $array)
+ * @method static max(string $string)
  * @property mixed $meta_title
  * @property mixed $title
  * @property mixed $meta_description

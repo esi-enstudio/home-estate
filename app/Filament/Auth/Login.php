@@ -30,6 +30,7 @@ class Login extends BaseLogin
             TextInput::make('phone')
                 ->label('Phone Number')
                 ->tel()
+                ->prefixIcon('heroicon-o-phone')
                 ->required(),
 
             $this->getPasswordFormComponent(),
