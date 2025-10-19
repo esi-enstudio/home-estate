@@ -57,19 +57,18 @@ class ViewIdentityVerification extends ViewRecord
                         ->required(),
                 ])
                 ->action(function (IdentityVerification $record, array $data) {
-
+                    // নিচের update() মেথডটি দেখুন
                     $record->update([
                         'status' => 'rejected',
                         'rejected_at' => now(),
                         'rejection_reason' => $data['rejection_reason'],
-                        'front_image' => 'deleted', // ঐচ্ছিক: ডেটাবেজ থেকে পাথ মুছে দেওয়া
-                        'back_image' => null,     // ঐচ্ছিক: ডেটাবেজ থেকে পাথ মুছে দেওয়া
+                        // ছবির পাথ মুছে ফেলার লাইনগুলো সরিয়ে দেওয়া হয়েছে
                     ]);
 
                     // সঠিক পদ্ধতিতে নোটিফিকেশন পাঠানোর কোড
                     Notification::make()
                         ->title('User identity has been rejected.')
-                        ->success() // আপনি চাইলে ->warning() ও ব্যবহার করতে পারেন
+                        ->warning() // রিজেক্ট করার জন্য warning ব্যবহার করা ভালো
                         ->send();
 
                     return redirect(static::getResource()::getUrl('index'));

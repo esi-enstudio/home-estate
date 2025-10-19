@@ -32,9 +32,28 @@
                     <div class="col-md-4">
                         <div class="card">
                             <div class="card-body text-center">
-                                <img src="{{ $user->avatar_url ? Storage::url($user->avatar_url) : 'https://via.placeholder.com/150' }}" alt="User Avatar" class="img-fluid rounded-circle mb-3" width="120">
+                                {{-- প্রোফাইল ছবি --}}
+                                <img src="{{ $user->avatar_url ? Storage::url($user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=random' }}" alt="User Avatar" class="img-fluid rounded-circle mb-3" width="120" height="120">
                                 <h5 class="card-title">{{ $user->name }}</h5>
-                                <p class="text-muted">{{ $user->email }}</p>
+                                <p class="text-muted">{{ $user->phone ?? 'N/A' }}</p>
+                                <p class="text-muted">{{ $user->email ?? 'N/A' }}</p>
+                                <p class="text-muted">{{ $user->designation ?? 'N/A' }}</p>
+
+                                {{-- রেটিং এবং রিভিউ --}}
+                                @if($user->reviews_count > 0)
+                                    <div class="d-flex justify-content-center align-items-center mb-3">
+                                        <div class="rating me-2">
+                                            <i class="fas fa-star @if($user->average_rating >= 1) text-warning @endif"></i>
+                                            <i class="fas fa-star @if($user->average_rating >= 2) text-warning @endif"></i>
+                                            <i class="fas fa-star @if($user->average_rating >= 3) text-warning @endif"></i>
+                                            <i class="fas fa-star @if($user->average_rating >= 4) text-warning @endif"></i>
+                                            <i class="fas fa-star @if($user->average_rating >= 5) text-warning @endif"></i>
+                                        </div>
+                                        <span class="fw-bold">{{ number_format($user->average_rating, 1) }}</span>
+                                        <span class="text-muted ms-1">({{ $user->reviews_count }} রিভিউ)</span>
+                                    </div>
+                                @endif
+
                                 <p class="text-sm">যোগদান: {{ $user->created_at->format('d M, Y') }}</p>
                             </div>
                         </div>
@@ -46,19 +65,28 @@
                             <div class="card-header">
                                 <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane" type="button" role="tab" aria-controls="info-tab-pane" aria-selected="true">প্রোফাইল তথ্য</button>
+                                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane" type="button" role="tab">প্রোফাইল তথ্য</button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="verification-tab" data-bs-toggle="tab" data-bs-target="#verification-tab-pane" type="button" role="tab" aria-controls="verification-tab-pane" aria-selected="false">পরিচয় যাচাইকরণ</button>
+                                        <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane" type="button" role="tab">পাসওয়ার্ড পরিবর্তন</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="verification-tab" data-bs-toggle="tab" data-bs-target="#verification-tab-pane" type="button" role="tab">পরিচয় যাচাইকরণ</button>
                                     </li>
                                 </ul>
                             </div>
+
                             <div class="card-body">
                                 <div class="tab-content" id="profileTabsContent">
                                     {{-- প্রোফাইল তথ্য ট্যাব --}}
                                     <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab" tabindex="0">
                                         {{-- তথ্য এডিট করার জন্য Livewire কম্পোনেন্ট এখানে লোড হবে --}}
-                                        @livewire('profile.update-information')
+                                        @livewire('profile.update-information', ['verificationStatus' => $verification?->status])
+                                    </div>
+
+                                    {{-- পাসওয়ার্ড পরিবর্তন ট্যাব --}}
+                                    <div class="tab-pane fade" id="password-tab-pane" role="tabpanel">
+                                        @livewire('profile.change-password')
                                     </div>
 
                                     {{-- পরিচয় যাচাইকরণ ট্যাব --}}
