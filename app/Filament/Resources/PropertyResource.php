@@ -184,7 +184,7 @@ class PropertyResource extends Resource
                                     ->schema([
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('featured_image')
                                             ->label('ফিচার্ড ছবি (Featured Image)')
-                                            ->collection('featured_image')
+                                            ->collection('thumbnail')
                                             ->required()->image()->imageEditor()->maxSize(2048)
                                             ->panelLayout('compact'),
 

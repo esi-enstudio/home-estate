@@ -6,18 +6,18 @@
         </div>
         <div class="text-center">
             <a href="{{ route('home') }}" class="btn btn-primary">হোম পেজে ফিরে যান</a>
-            <a href="{{ route('properties.create') }}" class="btn btn-secondary">নতুন প্রোপার্টি যোগ করুন</a>
+            <a href="{{ route('property.create') }}" class="btn btn-secondary">নতুন প্রোপার্টি যোগ করুন</a>
         </div>
     @else
 
         {{-- স্টেপ ইন্ডিকেটর / প্রোগ্রেস বার --}}
         <div class="mb-4">
             <div class="d-flex justify-content-between mb-1">
-                <span class="fs-6 fw-semibold">ধাপ {{ $currentStep }} / 4</span>
-                <span class="fs-6 fw-semibold">{{ ($currentStep) * 25 }}% সম্পন্ন</span>
+                <span class="fs-6 fw-semibold">ধাপ {{ $currentStep }} / 6</span>
+                <span class="fs-6 fw-semibold">{{ round(($currentStep) * 16.666666666666) }}% সম্পন্ন</span>
             </div>
             <div class="progress" style="height: 10px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($currentStep) * 25 }}%;" aria-valuenow="{{ ($currentStep) * 25 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($currentStep) * 16.666666666666 }}%;" aria-valuenow="{{ ($currentStep) * 16.666666666666 }}" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
 
@@ -36,7 +36,7 @@
                             <select wire:model.live="property_type_id" class="form-select @error('property_type_id') is-invalid @enderror">
                                 <option value="">-- ধরন নির্বাচন করুন --</option>
                                 @foreach($propertyTypes as $type)
-                                    <option value="{{ $type->id }}">{{ $type->name_en }}</option>
+                                    <option value="{{ $type->id }}">{{ $type->name_bn }}</option>
                                 @endforeach
                             </select>
                             @error('property_type_id') <span class="text-danger small">{{ $message }}</span> @enderror
@@ -172,6 +172,56 @@
                         <div class="col-12 mt-3">
                             <h6>ঠিকানা</h6>
                         </div>
+
+                        {{-- Dependent Dropdowns --}}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">বিভাগ <span class="text-danger">*</span></label>
+                            <select wire:model.live="division_id" class="form-select @error('division_id') is-invalid @enderror">
+                                <option value="">-- বিভাগ নির্বাচন করুন --</option>
+                                @foreach($divisions as $division)
+                                    <option value="{{ $division->id }}">{{ $division->bn_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('division_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">জেলা <span class="text-danger">*</span></label>
+                            <div wire:loading wire:target="division_id" class="text-muted small">জেলা লোড হচ্ছে...</div>
+                            <select wire:model.live="district_id" class="form-select @error('district_id') is-invalid @enderror" @if(count($districts) == 0) disabled @endif>
+                                <option value="">-- জেলা নির্বাচন করুন --</option>
+                                @foreach($districts as $district)
+                                    <option value="{{ $district->id }}">{{ $district->bn_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('district_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">উপজেলা / থানা <span class="text-danger">*</span></label>
+                            <div wire:loading wire:target="district_id" class="text-muted small">উপজেলা লোড হচ্ছে...</div>
+                            <select wire:model.live="upazila_id" class="form-select @error('upazila_id') is-invalid @enderror" @if(count($upazilas) == 0) disabled @endif>
+                                <option value="">-- উপজেলা নির্বাচন করুন --</option>
+                                @foreach($upazilas as $upazila)
+                                    <option value="{{ $upazila->id }}">{{ $upazila->bn_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('upazila_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ইউনিয়ন (ঐচ্ছিক)</label>
+                            <div wire:loading wire:target="upazila_id" class="text-muted small">ইউনিয়ন লোড হচ্ছে...</div>
+                            <select wire:model="union_id" class="form-select @error('union_id') is-invalid @enderror" @if(count($unions) == 0) disabled @endif>
+                                <option value="">-- ইউনিয়ন নির্বাচন করুন --</option>
+                                @foreach($unions as $union)
+                                    <option value="{{ $union->id }}">{{ $union->bn_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('union_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                        </div>
+
+                        {{-- বাকি ঠিকানা ফিল্ডগুলো --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label">এলাকা <span class="text-danger">*</span></label>
                             <input type="text" wire:model="address_area" class="form-control @error('address_area') is-invalid @enderror" placeholder="যেমন: বসুন্ধরা আবাসিক এলাকা, ধানমন্ডি">
@@ -197,19 +247,37 @@
                 <div class="step-wrapper animate__animated animate__fadeIn">
                     <h5 class="mb-4 border-bottom pb-2">ছবি ও অন্যান্য তথ্য</h5>
                     <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="form-label">প্রোপার্টির ছবি <span class="text-danger">*</span></label>
-                            <input type="file" wire:model="photos" class="form-control" multiple>
-                            <div wire:loading wire:target="photos" class="text-success mt-1">ছবি আপলোড হচ্ছে...</div>
-                            @error('photos.*') <span class="text-danger small">{{ $message }}</span> @enderror
+                        {{-- থাম্বনেইল আপলোড --}}
+                        <div class="col-12 mb-4">
+                            <label class="form-label">প্রধান ছবি (থাম্বনেইল) <span class="text-danger">*</span></label>
+                            <input type="file" wire:model="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror">
+                            <div wire:loading wire:target="thumbnail" class="text-success mt-1">ছবি আপলোড হচ্ছে...</div>
+                            @error('thumbnail') <span class="text-danger small">{{ $message }}</span> @enderror
 
-                            {{-- ছবি প্রিভিউ --}}
-                            @if ($photos)
+                            @if ($thumbnail && !$errors->has('thumbnail'))
+                                <div class="mt-2">
+                                    <p>প্রিভিউ:</p>
+                                    <img src="{{ $thumbnail->temporaryUrl() }}" width="200" class="img-thumbnail">
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- গ্যালারি ছবি আপলোড --}}
+                        <div class="col-12 mb-3">
+                            <label class="form-label">গ্যালারি ছবি (কমপক্ষে ২টি) <span class="text-danger">*</span></label>
+                            <input type="file" wire:model="gallery_photos" class="form-control @error('gallery_photos.*') is-invalid @enderror" multiple>
+                            <div wire:loading wire:target="gallery_photos" class="text-success mt-1">ছবিগুলো আপলোড হচ্ছে...</div>
+                            @error('gallery_photos.*') <span class="text-danger small">{{ $message }}</span> @enderror
+                            @error('gallery_photos') <span class="text-danger small">{{ $message }}</span> @enderror
+
+                            @if ($gallery_photos)
                                 <div class="mt-3">
                                     <h6>ছবি প্রিভিউ:</h6>
                                     <div class="d-flex flex-wrap gap-2">
-                                        @foreach ($photos as $photo)
-                                            <img src="{{ $photo->temporaryUrl() }}" width="100" class="img-thumbnail">
+                                        @foreach ($gallery_photos as $photo)
+                                            @if(!$errors->has('gallery_photos.*'))
+                                                <img src="{{ $photo->temporaryUrl() }}" width="100" class="img-thumbnail">
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -229,6 +297,86 @@
                 </div>
             @endif
 
+            {{-- =================================================================== --}}
+            {{-- ধাপ ৫: গুগল ম্যাপস লিংক (Google Maps Link) --}}
+            {{-- =================================================================== --}}
+            @if ($currentStep == 5)
+                <div class="step-wrapper animate__animated animate__fadeIn">
+                    <h5 class="mb-4 border-bottom pb-2">ম্যাপস ও অক্ষাংশ, দ্রাঘিমাংশ</h5>
+                    <div class="row">
+                        {{-- গুগল ম্যাপস লিংক --}}
+                        <div class="col-12 mb-3">
+                            <label class="form-label">গুগল ম্যাপস লিংক</label>
+                            <input type="url" wire:model="google_maps_location_link" class="form-control" placeholder="https://maps.app.goo.gl/rgN3GStCFhpgz1Xs8...">
+                        </div>
+
+                        {{-- গুগল ম্যাপস লিংক --}}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">অক্ষাংশ (Latitude)</label>
+                            <input type="url" wire:model="latitude" class="form-control" placeholder="24.65498">
+                        </div>
+
+                        {{-- গুগল ম্যাপস লিংক --}}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">দ্রাঘিমাংশ (Longitude)</label>
+                            <input type="url" wire:model="longitude" class="form-control" placeholder="90.987456">
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- =================================================================== --}}
+            {{-- ধাপ ৬: সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQs) --}}
+            {{-- =================================================================== --}}
+            @if ($currentStep == 6)
+                <div class="step-wrapper animate__animated animate__fadeIn">
+                    <h5 class="mb-4 border-bottom pb-2">সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQ)</h5>
+                    <p class="text-muted">ভাড়াটিয়া বা ক্রেতাদের সাধারণ প্রশ্নগুলোর উত্তর এখানে যোগ করুন। যেমন: "গ্যাস সংযোগ আছে কি?", "গাড়ি পার্কিং এর ব্যবস্থা কি?"</p>
+
+                    @foreach ($faqs as $index => $faq)
+                        <div class="card mb-3" wire:key="faq-{{ $index }}">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <div class="mb-3">
+                                            <label class="form-label">প্রশ্ন {{ $index + 1 }}</label>
+                                            <input type="text"
+                                                   wire:model="faqs.{{ $index }}.question"
+                                                   class="form-control @error('faqs.'.$index.'.question') is-invalid @enderror"
+                                                   placeholder="প্রশ্নটি এখানে লিখুন">
+                                            @error('faqs.'.$index.'.question') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="form-label">উত্তর {{ $index + 1 }}</label>
+                                            <textarea wire:model="faqs.{{ $index }}.answer"
+                                                      class="form-control @error('faqs.'.$index.'.answer') is-invalid @enderror"
+                                                      rows="3"
+                                                      placeholder="উত্তরটি এখানে লিখুন"></textarea>
+                                            @error('faqs.'.$index.'.answer') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-center">
+                                        {{-- প্রথম আইটেমটি ছাড়া বাকিগুলো মুছে ফেলার অপশন থাকবে --}}
+                                        @if ($index > 0)
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    wire:click.prevent="removeFaq({{ $index }})"
+                                                    title="মুছে ফেলুন">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <button type="button" class="btn btn-primary mt-2" wire:click.prevent="addFaq">
+                        <i class="fas fa-plus me-2"></i> নতুন প্রশ্ন যোগ করুন
+                    </button>
+                </div>
+            @endif
+
             {{-- নেভিগেশন বাটন --}}
             <div class="d-flex justify-content-between mt-5 pt-3 border-top">
                 <div>
@@ -240,7 +388,7 @@
                 </div>
 
                 <div class="ms-auto">
-                    @if ($currentStep < 4)
+                    @if ($currentStep < 6)
                         <button type="button" class="btn btn-primary px-4" wire:click="nextStep" wire:loading.attr="disabled">
                             পরবর্তী <i class="fas fa-arrow-right ms-2"></i>
                         </button>

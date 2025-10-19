@@ -111,6 +111,19 @@ class Property extends Model implements HasMedia
         'average_rating' => 'decimal:1',
     ];
 
+    /**
+     * মিডিয়া কালেকশন এবং কনভার্সন ডিফাইন করা।
+     */
+    public function registerMediaCollections(): void
+    {
+        // প্রধান ছবির (থাম্বনেইল) জন্য কালেকশন
+        $this->addMediaCollection('thumbnail')
+            ->singleFile(); // এটি নিশ্চিত করে যে এই কালেকশনে শুধুমাত্র একটি ফাইল থাকবে
+
+        // গ্যালারির জন্য কালেকশন
+        $this->addMediaCollection('gallery');
+    }
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('thumbnail')
