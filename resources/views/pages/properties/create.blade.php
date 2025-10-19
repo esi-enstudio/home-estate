@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Add New Property | '. config('app.name'))
+@section('title', (isset($property) ? 'Edit Property' : 'Add New Property') . ' | '. config('app.name'))
 
 @section('content')
     <div class="page-wrapper">
@@ -29,11 +29,11 @@
                     <div class="col-lg-10 mx-auto">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">আপনার প্রোপার্টির তথ্য দিন</h4>
+                                <h4 class="card-title">{{ isset($property) ? 'প্রোপার্টির তথ্য এডিট করুন' : 'আপনার প্রোপার্টির তথ্য দিন' }}</h4>
                             </div>
                             <div class="card-body">
                                 {{-- এখানে আমাদের মূল Livewire কম্পোনেন্ট লোড হবে --}}
-                                @livewire('property.create-form')
+                                @livewire('property.create-form', ['property' => $property ?? null])
                             </div>
                         </div>
                     </div>

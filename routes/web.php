@@ -59,4 +59,7 @@ Route::get('/identity-verification', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile.show');
     Route::get('/property/create', [PropertyController::class, 'create'])->name('property.create');
+    Route::get('/my-properties', [PropertyController::class, 'myList'])->name('properties.my-list');
+    Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])->name('property.edit');
+    Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
 });

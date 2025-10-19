@@ -46,21 +46,111 @@ class CreateForm extends Component
 
     public array $faqs = []; // FAQ রাখার জন্য
 
+    public ?Property $property = null;
+    public bool $isEditMode = false;
+
     // হেল্পার প্রোপার্টি
     public $propertyTypes;
     public bool $isResidential = false;
 
-    public function mount(): void
-    {
-        // এখানে আপনার ডেটাবেজ থেকে ডেটা লোড করুন
-        $this->propertyTypes = PropertyType::orderBy('name_en')->get();
-        $this->available_from = now()->format('Y-m-d');
+    public $existingThumbnailUrl;
+    public $existingGalleryPhotos = [];
 
-        // সব বিভাগ লোড করা হলো
+    public function mount(Property $property = null): void
+    {
+        $this->propertyTypes = PropertyType::orderBy('name_bn')->get();
         $this->divisions = Division::all();
 
-        // ডিফল্টভাবে একটি খালি FAQ যোগ করা হলো
-        $this->faqs = [['question' => '', 'answer' => '']];
+        if ($property->exists) {
+            $this->property = $property;
+            $this->isEditMode = true;
+            $this->fillFormWithPropertyData();
+        } else {
+            // Create মোডের জন্য ডিফল্ট মান
+            $this->purpose = 'rent';
+            $this->rent_type = 'month';
+            $this->is_negotiable = 'fixed';
+            $this->available_from = now()->format('Y-m-d');
+            $this->faqs = [['question' => '', 'answer' => '']];
+        }
+    }
+
+    protected function fillFormWithPropertyData(): void
+    {
+        // --- ধাপ ১: মৌলিক তথ্য ---
+        $this->property_type_id = $this->property->property_type_id;
+        $this->purpose = $this->property->purpose;
+        $this->title = $this->property->title;
+        $this->description = $this->property->description;
+        // Carbon অবজেক্টকে HTML date input এর জন্য 'Y-m-d' ফরম্যাটে রূপান্তর করা
+        $this->available_from = $this->property->available_from->format('Y-m-d');
+
+        // --- ধাপ ২: বিস্তারিত বিবরণ ---
+        $this->size_sqft = $this->property->size_sqft;
+        $this->floor_level = $this->property->floor_level;
+        $this->total_floors = $this->property->total_floors;
+        // আবাসিক ফিল্ড
+        $this->bedrooms = $this->property->bedrooms;
+        $this->bathrooms = $this->property->bathrooms;
+        $this->balconies = $this->property->balconies;
+        $this->facing_direction = $this->property->facing_direction;
+        $this->year_built = $this->property->year_built;
+
+        // --- ধাপ ৩: মূল্য ও ঠিকানা ---
+        $this->rent_price = $this->property->rent_price;
+        $this->rent_type = $this->property->rent_type;
+        $this->service_charge = $this->property->service_charge;
+        $this->security_deposit = $this->property->security_deposit;
+        $this->is_negotiable = $this->property->is_negotiable;
+
+        // Dependent Dropdown এর জন্য লোকেশন ডেটা লোড এবং সেট করা
+        $this->division_id = $this->property->division_id;
+        if ($this->division_id) {
+            $this->districts = District::where('division_id', $this->division_id)->get();
+        }
+
+        $this->district_id = $this->property->district_id;
+        if ($this->district_id) {
+            $this->upazilas = Upazila::where('district_id', $this->district_id)->get();
+        }
+
+        $this->upazila_id = $this->property->upazila_id;
+        if ($this->upazila_id) {
+            $this->unions = Union::where('upazila_id', $this->upazila_id)->get();
+        }
+
+        $this->union_id = $this->property->union_id;
+
+        // বাকি ঠিকানা ফিল্ড
+        $this->address_area = $this->property->address_area;
+        $this->address_street = $this->property->address_street;
+        $this->address_zipcode = $this->property->address_zipcode;
+
+        // --- ধাপ ৪: ছবি ও অন্যান্য তথ্য ---
+        // দ্রষ্টব্য: ফাইল ইনপুট ফিল্ড সরাসরি পপুলেট করা যায় না।
+        // এর পরিবর্তে, আমরা বিদ্যমান ছবিগুলো প্রিভিউ হিসেবে দেখাব।
+        // এর জন্য আপনাকে mount() মেথডে existing media লোড করতে হবে।
+
+        $this->video_url = $this->property->video_url;
+        $this->house_rules = $this->property->house_rules;
+
+        // --- ধাপ ৫: ম্যাপ ---
+        // $this->latitude = $this->property->latitude;
+        // $this->longitude = $this->property->longitude;
+
+        // --- ধাপ ৬: FAQ ---
+        // যদি ডেটাবেজে FAQ null থাকে, তাহলে একটি খালি সারি দিয়ে শুরু হবে
+        $this->faqs = $this->property->faqs ?? [['question' => '', 'answer' => '']];
+
+        // --- সবশেষে, isResidential ফ্ল্যাগটি সেট করার জন্য এই মেথডটি কল করা হচ্ছে ---
+        // এটি নিশ্চিত করবে যে এডিট ফর্মে আবাসিক/বাণিজ্যিক ফিল্ডগুলো সঠিকভাবে দেখাচ্ছে।
+        $this->updatedPropertyTypeId($this->property_type_id);
+
+        // --- বিদ্যমান ছবিগুলো লোড করা ---
+        $this->existingThumbnailUrl = $this->property->getFirstMediaUrl('thumbnail', 'thumb');
+
+        // গ্যালারির সব মিডিয়া অবজেক্ট আনা হচ্ছে
+        $this->existingGalleryPhotos = $this->property->getMedia('gallery');
     }
 
     /**
@@ -141,9 +231,12 @@ class CreateForm extends Component
             'union_id' => 'nullable|exists:unions,id',
 
             // ধাপ ৪
-            'thumbnail' => 'required|image|max:2048', // থাম্বনেইল বাধ্যতামূলক
-            'gallery_photos' => 'required|array|min:2|max:10', // গ্যালারিতে কমপক্ষে ২টি ছবি
-            'gallery_photos.*' => 'image|max:2048', // প্রতিটি ছবির জন্য
+            // --- ছবির জন্য শর্তসাপেক্ষ ভ্যালিডেশন ---
+            // তৈরি মোডে থাম্বনেইল বাধ্যতামূলক, এডিট মোডে নয়
+            'thumbnail' => ($this->isEditMode ? 'nullable' : 'required') . '|image|max:2048',
+            // তৈরি মোডে গ্যালারি ছবি বাধ্যতামূলক, এডিট মোডে নয়
+            'gallery_photos' => ($this->isEditMode ? 'nullable' : 'required') . '|array|min:2|max:10',
+            'gallery_photos.*' => 'image|max:2048',
             'video_url' => 'nullable|url',
             'house_rules' => 'nullable|string|max:2000',
 
@@ -279,59 +372,85 @@ class CreateForm extends Component
     /**
      * ফাইনাল সাবমিশন।
      */
-    public function submitForm(): void
+    public function save(): void
     {
-        // সাবমিটের আগে সম্পূর্ণ ফর্ম ভ্যালিডেট করা
+        // ১. ফর্মের ডেটা ভ্যালিডেট করা
         $validatedData = $this->validate();
-        $user = Auth::user();
 
-        // Property টেবিলে সেভ করার জন্য একটি ডেটা অ্যারে তৈরি করা হচ্ছে
-        // এখানে ছবির অ্যারে বাদ দিয়ে बाकी সব ভ্যালিডেটেড ডেটা নেওয়া হলো
+        // ২. ছবি ছাড়া বাকি সব ভ্যালিডেটেড ডেটা সংগ্রহ করা
         $propertyData = collect($validatedData)->except(['thumbnail', 'gallery_photos'])->toArray();
 
-        // ম্যানুয়ালি বাকি ডেটাগুলো যোগ করা হচ্ছে
-        $propertyData['user_id'] = $user->id;
-        $propertyData['slug'] = Str::slug($this->title) . '-' . uniqid(); // ইউনিক স্লাগ তৈরি
-        $propertyData['property_code'] = 'BHA-' . (Property::max('id') + 101); // ইউনিক কোড তৈরি
-
-        // $validatedData থেকে এই ফিল্ডগুলো স্বয়ংক্রিয়ভাবে $propertyData তে চলে এসেছে,
-        // কারণ এগুলো rules() মেথডে ডিফাইন করা ছিল।
-        // স্বচ্ছতার জন্য নিচে আবার দেখানো হলো:
-        $propertyData['division_id'] = $this->division_id;
-        $propertyData['district_id'] = $this->district_id;
-        $propertyData['upazila_id'] = $this->upazila_id;
-        $propertyData['union_id'] = $this->union_id;
-        // ----------------------------------------------------------------
-
-        // শুধুমাত্র আবাসিক প্রোপার্টির জন্য প্রযোজ্য ফিল্ডগুলো সেট করা
+        // ৩. শর্তসাপেক্ষ ফিল্ডগুলো সঠিকভাবে সেট করা (Create এবং Update উভয় ক্ষেত্রেই প্রযোজ্য)
         $propertyData['bedrooms'] = $this->isResidential ? $this->bedrooms : null;
         $propertyData['bathrooms'] = $this->isResidential ? $this->bathrooms : null;
         $propertyData['balconies'] = $this->isResidential ? $this->balconies : null;
         $propertyData['facing_direction'] = $this->isResidential ? $this->facing_direction : null;
         $propertyData['year_built'] = $this->isResidential ? $this->year_built : null;
 
-        $propertyData['faqs'] = $this->faqs;
+        // FAQ ডেটা যদি খালি না থাকে, তাহলেই শুধু সেভ করা হবে
+        // এটি নিশ্চিত করে যে যদি ইউজার সব FAQ মুছে ফেলে, তাহলে ডেটাবেজে null সেভ হবে
+        $propertyData['faqs'] = !empty($this->faqs[0]['question']) ? $this->faqs : null;
 
-        // ১. প্রথমে ছবি ছাড়া প্রোপার্টি তৈরি করুন
-        $property = Property::create($propertyData);
+        // ৪. এডিট মোড নাকি তৈরি মোড, তা নির্ধারণ করে কাজ করা
+        if ($this->isEditMode) {
+            // ----- আপডেট লজিক -----
 
-        // ২. এখন প্রোপার্টির সাথে মিডিয়া ফাইলগুলো যুক্ত করুন
+            // a. মূল প্রোপার্টির তথ্য আপডেট করা
+            $this->property->update($propertyData);
+
+            // b. মিডিয়া (ছবি) আপডেট করা
+            $this->handleMediaUpdate($this->property);
+
+            session()->flash('success', 'আপনার প্রোপার্টি সফলভাবে আপডেট হয়েছে।');
+
+        } else {
+            // ----- তৈরি করার লজিক -----
+
+            // a. নতুন প্রোপার্টির জন্য অতিরিক্ত ডেটা যোগ করা
+            $propertyData['user_id'] = Auth::id();
+            $propertyData['slug'] = Str::slug($this->title) . '-' . uniqid();
+            $propertyData['property_code'] = 'BHA-' . (Property::max('id') + 101);
+
+            // b. ডেটাবেজে নতুন প্রোপার্টি তৈরি করা
+            $property = Property::create($propertyData);
+
+            // c. নতুন প্রোপার্টির সাথে মিডিয়া যোগ করা
+            $this->handleMediaUpdate($property);
+
+            session()->flash('success', 'আপনার প্রোপার্টি সফলভাবে জমা হয়েছে এবং পর্যালোচনার অধীনে আছে।');
+        }
+
+        // ৫. সফলভাবে কাজ শেষ হওয়ার পর লিস্ট পেজে রিডাইরেক্ট করা
+        $this->redirect(route('properties.my-list'));
+    }
+
+    /**
+     * মিডিয়া ফাইল (থাম্বনেইল ও গ্যালারি) ম্যানেজ করার জন্য একটি হেল্পার মেথড।
+     * এটি নতুন ছবি যোগ করে এবং পুরোনো ছবি মুছে ফেলে।
+     */
+    protected function handleMediaUpdate(Property $property): void
+    {
+        // ক. থাম্বনেইল আপডেট
         if ($this->thumbnail) {
+            // ->toMediaCollection() মেথডটি পুরোনো ছবিটি স্বয়ংক্রিয়ভাবে মুছে ফেলে নতুনটি যোগ করে,
+            // কারণ আমরা মডেলে এটিকে ->singleFile() হিসেবে ডিফাইন করেছি।
             $property->addMedia($this->thumbnail->getRealPath())
-                ->usingName(Str::slug($property->title) . '-thumbnail') // SEO-friendly নাম
+                ->usingName(Str::slug($property->title) . '-thumbnail')
                 ->toMediaCollection('thumbnail');
         }
 
+        // খ. গ্যালারি ছবি আপডেট
         if (!empty($this->gallery_photos)) {
+            // প্রথমে পুরোনো সব গ্যালারি ছবি মুছে ফেলা (ঐচ্ছিক, কিন্তু সেরা অনুশীলন)
+            // আপনি যদি পুরোনো ছবি রেখে নতুনগুলো যোগ করতে চান, তাহলে এই লাইনটি কমেন্ট করে দিন।
+            $property->clearMediaCollection('gallery');
+
+            // নতুন ছবিগুলো যোগ করা
             foreach ($this->gallery_photos as $photo) {
                 $property->addMedia($photo->getRealPath())
                     ->toMediaCollection('gallery');
             }
         }
-
-        session()->flash('success', 'আপনার প্রোপার্টি সফলভাবে জমা হয়েছে এবং পর্যালোচনার অধীনে আছে।');
-
-        $this->reset(); // ফর্ম রিসেট করা
     }
 
     public function render()

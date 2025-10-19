@@ -22,7 +22,7 @@
         </div>
 
 
-        <form wire:submit.prevent="submitForm">
+        <form wire:submit.prevent="save">
 
             {{-- =================================================================== --}}
             {{-- ধাপ ১: মৌলিক তথ্য (Basic Information) --}}
@@ -249,14 +249,28 @@
                     <div class="row">
                         {{-- থাম্বনেইল আপলোড --}}
                         <div class="col-12 mb-4">
-                            <label class="form-label">প্রধান ছবি (থাম্বনেইল) <span class="text-danger">*</span></label>
+                            <label class="form-label">প্রধান ছবি (থাম্বনেইল)
+                                @if(!$isEditMode)<span class="text-danger">*</span>@endif
+                            </label>
+
+                            {{-- বিদ্যমান থাম্বনেইল প্রিভিউ --}}
+                            @if ($isEditMode && $existingThumbnailUrl && !$thumbnail)
+                                <div class="mb-2">
+                                    <p class="mb-1 small text-muted">বর্তমান ছবি:</p>
+                                    <img src="{{ $existingThumbnailUrl }}" width="200" class="img-thumbnail">
+                                </div>
+                            @endif
+
                             <input type="file" wire:model="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror">
+                            @if($isEditMode) <small class="form-text text-muted">নতুন ছবি আপলোড করলে পুরোনো ছবিটি প্রতিস্থাপিত হয়ে যাবে।</small> @endif
+
                             <div wire:loading wire:target="thumbnail" class="text-success mt-1">ছবি আপলোড হচ্ছে...</div>
                             @error('thumbnail') <span class="text-danger small">{{ $message }}</span> @enderror
 
+                            {{-- নতুন আপলোড করা ছবির প্রিভিউ --}}
                             @if ($thumbnail && !$errors->has('thumbnail'))
                                 <div class="mt-2">
-                                    <p>প্রিভিউ:</p>
+                                    <p class="mb-1 small text-muted">নতুন ছবির প্রিভিউ:</p>
                                     <img src="{{ $thumbnail->temporaryUrl() }}" width="200" class="img-thumbnail">
                                 </div>
                             @endif
@@ -264,15 +278,33 @@
 
                         {{-- গ্যালারি ছবি আপলোড --}}
                         <div class="col-12 mb-3">
-                            <label class="form-label">গ্যালারি ছবি (কমপক্ষে ২টি) <span class="text-danger">*</span></label>
+                            <label class="form-label">গ্যালারি ছবি (কমপক্ষে ২টি)
+                                @if(!$isEditMode)<span class="text-danger">*</span>@endif
+                            </label>
+
+                            {{-- বিদ্যমান গ্যালারি ছবি প্রিভিউ --}}
+                            @if ($isEditMode && count($existingGalleryPhotos) > 0 && empty($gallery_photos))
+                                <div class="mb-2">
+                                    <p class="mb-1 small text-muted">বর্তমান গ্যালারি:</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach ($existingGalleryPhotos as $photo)
+                                            <img src="{{ $photo->getUrl('preview') }}" width="100" class="img-thumbnail">
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <input type="file" wire:model="gallery_photos" class="form-control @error('gallery_photos.*') is-invalid @enderror" multiple>
+                            @if($isEditMode) <small class="form-text text-muted">নতুন ছবি আপলোড করলে পুরোনো গ্যালারির সব ছবি প্রতিস্থাপিত হয়ে যাবে।</small> @endif
+
                             <div wire:loading wire:target="gallery_photos" class="text-success mt-1">ছবিগুলো আপলোড হচ্ছে...</div>
                             @error('gallery_photos.*') <span class="text-danger small">{{ $message }}</span> @enderror
                             @error('gallery_photos') <span class="text-danger small">{{ $message }}</span> @enderror
 
-                            @if ($gallery_photos)
+                            {{-- নতুন আপলোড করা ছবির প্রিভিউ --}}
+                            @if (!empty($gallery_photos))
                                 <div class="mt-3">
-                                    <h6>ছবি প্রিভিউ:</h6>
+                                    <h6>নতুন ছবির প্রিভিউ:</h6>
                                     <div class="d-flex flex-wrap gap-2">
                                         @foreach ($gallery_photos as $photo)
                                             @if(!$errors->has('gallery_photos.*'))
@@ -284,11 +316,11 @@
                             @endif
                         </div>
 
+                        {{-- অন্যান্য ফিল্ড --}}
                         <div class="col-12 mb-3">
                             <label class="form-label">ইউটিউব বা ভিডিও লিংক</label>
                             <input type="url" wire:model="video_url" class="form-control" placeholder="https://youtube.com/watch?v=...">
                         </div>
-
                         <div class="col-12 mb-3">
                             <label class="form-label">বাড়ির নিয়মকানুন (House Rules)</label>
                             <textarea wire:model="house_rules" class="form-control" rows="4" placeholder="যেমন: ব্যাচেলরদের জন্য নিয়ম, পোষা প্রাণী রাখা যাবে কি না, ইত্যাদি।"></textarea>

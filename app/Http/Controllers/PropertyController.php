@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use JetBrains\PhpStorm\NoReturn;
@@ -108,8 +109,47 @@ class PropertyController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function myList(): Factory|\Illuminate\Contracts\View\View
+    {
+        // শুধুমাত্র বর্তমান ইউজারের প্রোপার্টিগুলো আনা হচ্ছে
+        // with('propertyType', 'media') রিলেশনশিপগুলো লোড করে N+1 সমস্যা সমাধান করে
+        $properties = Auth::user()->properties()
+            ->with('propertyType', 'media')
+            ->latest() // সর্বশেষ তৈরি করা প্রোপার্টি আগে দেখাবে
+            ->paginate(10); // প্রতি পেজে ১০টি করে দেখাবে
+
+        return view('pages.properties.my-list', compact('properties'));
+    }
+
+    public function edit(Property $property): Factory|\Illuminate\Contracts\View\View
+    {
+        // অথোরাইজেশন: শুধুমাত্র প্রোপার্টির মালিকই এটি এডিট করতে পারবে
+        if (Auth::id() !== $property->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // আমরা create.blade.php ভিউটিকেই পুনঃব্যবহার করব
+        return view('pages.properties.create', compact('property'));
+    }
+
     /**
-     * Generate and download the property listing form as a Word (.docx) file.
-     * @throws Exception
+     * একটি নির্দিষ্ট প্রোপার্টি ডেটাবেজ থেকে মুছে ফেলার জন্য।
      */
+    public function destroy(Property $property): \Illuminate\Http\RedirectResponse
+    {
+        // ১. অথোরাইজেশন: শুধুমাত্র প্রোপার্টির মালিকই এটি ডিলিট করতে পারবে
+        if (Auth::id() !== $property->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // ২. প্রোপার্টি ডিলিট করা
+        $property->delete();
+
+        // Spatie Media Library ব্যবহার করলে, এটি স্বয়ংক্রিয়ভাবে সম্পর্কিত সব ছবিও মুছে ফেলবে
+        // যদি আপনি SoftDeletes ব্যবহার করেন, তাহলে এটি ট্র্যাশে যাবে।
+
+        // ৩. ডিলিট করার পর ইউজারকে লিস্ট পেজে ফেরত পাঠানো
+        return redirect()->route('properties.my-list')
+            ->with('success', 'প্রোপার্টি সফলভাবে মুছে ফেলা হয়েছে।');
+    }
 }
