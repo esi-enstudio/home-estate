@@ -109,17 +109,7 @@ class PropertyController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    public function myList(): Factory|\Illuminate\Contracts\View\View
-    {
-        // শুধুমাত্র বর্তমান ইউজারের প্রোপার্টিগুলো আনা হচ্ছে
-        // with('propertyType', 'media') রিলেশনশিপগুলো লোড করে N+1 সমস্যা সমাধান করে
-        $properties = Auth::user()->properties()
-            ->with('propertyType', 'media')
-            ->latest() // সর্বশেষ তৈরি করা প্রোপার্টি আগে দেখাবে
-            ->paginate(10); // প্রতি পেজে ১০টি করে দেখাবে
 
-        return view('pages.properties.my-list', compact('properties'));
-    }
 
     public function edit(Property $property): Factory|\Illuminate\Contracts\View\View
     {

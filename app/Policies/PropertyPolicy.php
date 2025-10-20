@@ -39,7 +39,8 @@ class PropertyPolicy
      */
     public function update(User $user, Property $property): bool
     {
-        return $user->can('update_property');
+        // ইউজার কি 'update_property' পারমিশন রাখে এবং সে কি এই প্রোপার্টির মালিক?
+        return $user->can('update_property') && $user->id === $property->user_id;
     }
 
     /**
@@ -47,7 +48,8 @@ class PropertyPolicy
      */
     public function delete(User $user, Property $property): bool
     {
-        return $user->can('delete_property');
+        // ইউজার কি 'delete_property' পারমিশন রাখে এবং সে কি এই প্রোপার্টির মালিক?
+        return $user->can('delete_property') && $user->id === $property->user_id;
     }
 
     /**

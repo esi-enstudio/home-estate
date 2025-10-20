@@ -81,9 +81,9 @@
                                             </a>
 
                                             <!-- Item-->
-                                            <a href="{{ route('properties.my-list') }}" class="dropdown-item d-inline-flex align-items-center">
-                                                <i class="material-icons-outlined me-2">person_outline</i>আমার প্রোপার্টিসমূহ
-                                            </a>
+{{--                                            <a href="{{ route('my-listing.index') }}" class="dropdown-item d-inline-flex align-items-center">--}}
+{{--                                                <i class="material-icons-outlined me-2">person_outline</i>আমার প্রোপার্টিসমূহ--}}
+{{--                                            </a>--}}
 
                                             <hr class="dropdown-divider">
 
@@ -150,9 +150,9 @@
                                 </a>
 
                                 <!-- Item-->
-                                <a href="{{ route('properties.my-list') }}" class="dropdown-item d-inline-flex align-items-center">
-                                    <i class="material-icons-outlined me-2">person_outline</i>আমার প্রোপার্টিসমূহ
-                                </a>
+{{--                                <a href="{{ route('my-listing.index') }}" class="dropdown-item d-inline-flex align-items-center">--}}
+{{--                                    <i class="material-icons-outlined me-2">person_outline</i>আমার প্রোপার্টিসমূহ--}}
+{{--                                </a>--}}
 
                                 <hr class="dropdown-divider">
 

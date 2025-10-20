@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MyListingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -47,9 +48,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/coming-soon', [PageController::class, 'comingSoon'])->name('coming-soon');
 
-Route::get('/properties/listing-form/download-word', [PropertyController::class, 'downloadListingFormWord'])
-    ->name('properties.download-form.word');
-
 Route::get('/map-view', [PageController::class, 'mapView'])->name('map.view');
 
 Route::get('/identity-verification', function () {
@@ -58,8 +56,6 @@ Route::get('/identity-verification', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile.show');
-    Route::get('/property/create', [PropertyController::class, 'create'])->name('property.create');
-    Route::get('/my-properties', [PropertyController::class, 'myList'])->name('properties.my-list');
-    Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])->name('property.edit');
-    Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
+
+    Route::resource('my-listing', MyListingController::class);
 });
