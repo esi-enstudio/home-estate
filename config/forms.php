@@ -27,8 +27,8 @@ return [
         'field_groups' => [
             'core_info'         => ['title', 'description', 'purpose'],
             'pricing'           => ['rent_price', 'rent_type', 'service_charge', 'security_deposit', 'is_negotiable', 'available_from'],
-            'apartment_specs'   => ['bedrooms', 'bathrooms', 'balconies', 'size_sqft', 'floor_level', 'total_floors', 'facing_direction', 'year_built', 'additional_features'],
-            'commercial_specs'  => ['size_sqft', 'floor_level', 'total_floors', 'year_built', 'additional_features'],
+            'apartment_specs'   => ['bedrooms', 'bathrooms', 'balconies', 'size_sqft', 'floor_level', 'total_floors', 'facing_direction', 'year_built', 'additional_features', 'amenities'],
+            'commercial_specs'  => ['size_sqft', 'floor_level', 'total_floors', 'year_built', 'additional_features', 'amenities'],
             'land_specs'        => ['size_sqft'],
             'location'          => ['division_id', 'district_id', 'upazila_id', 'union_id', 'address_area', 'address_street', 'address_zipcode', 'google_maps_location_link', 'latitude', 'longitude'],
             'media'             => ['video_url', 'photos'], // 'photos' একটি উদাহরণ, আপনি ছবি আপলোডের জন্য এটি ব্যবহার করতে পারেন

@@ -31,15 +31,15 @@ return new class extends Migration
             $table->enum('purpose', ['rent', 'sell'])->default('rent')->comment('Purpose of the listing');
 
             // --- Pricing Details ---
-            $table->unsignedInteger('rent_price')->comment('Monthly rent amount');
+            $table->unsignedInteger('rent_price')->nullable()->comment('Monthly rent amount');
             $table->enum('rent_type', ['day', 'week', 'month', 'year'])->default('month');
             $table->unsignedInteger('service_charge')->nullable()->default(0);
             $table->unsignedInteger('security_deposit')->nullable()->default(0);
             $table->enum('is_negotiable', ['negotiable', 'fixed'])->default('fixed');
 
             // --- Property Specifications ---
-            $table->unsignedSmallInteger('bedrooms');
-            $table->unsignedSmallInteger('bathrooms');
+            $table->unsignedSmallInteger('bedrooms')->nullable();
+            $table->unsignedSmallInteger('bathrooms')->nullable();
             $table->unsignedSmallInteger('balconies')->default(0);
             $table->unsignedInteger('size_sqft')->comment('Area in square feet');
             $table->string('floor_level')->nullable()->comment('e.g., 5th floor of 12');

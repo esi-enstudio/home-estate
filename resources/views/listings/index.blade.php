@@ -83,7 +83,7 @@
                                     </table>
                                 </div>
                                 <div class="mt-4">
-                                    {{ $properties->links() }}
+                                    {{ $properties->links('pagination::bootstrap-5') }}
                                 </div>
                             @endif
                         </div>

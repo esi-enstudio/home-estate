@@ -171,21 +171,6 @@ class Property extends Model implements HasMedia
         return 'title'; // Use slug instead of id in routes
     }
 
-    // --- Accessors & Mutators ---
-
-    // --- নতুন সংযোজন: সম্পূর্ণ ঠিকানা ---
-    protected function fullAddress(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => implode(', ', array_filter([
-                $this->address_street,
-                $this->address_area,
-                $this->district?->name, // Optional chaining for safety
-                $this->division?->name,
-            ]))
-        );
-    }
-
     // ... Route Model Binding এবং Media Library মেথড অপরিবর্তিত ...
 
     // ====================================================================

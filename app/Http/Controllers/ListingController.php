@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,7 +14,7 @@ class ListingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Factory|View
     {
         // পলিসি চেক: ইউজার কি কোনো প্রোপার্টি দেখতে পারবে?
 //        $this->authorize('viewAny', Property::class);
@@ -27,7 +30,7 @@ class ListingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Factory|View
     {
         // পলিসি চেক: ইউজার কি নতুন প্রোপার্টি তৈরি করতে পারবে?
 //        $this->authorize('create', Property::class);
@@ -53,7 +56,7 @@ class ListingController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Property $listing)
+    public function edit(Property $listing): Factory|View
     {
         // পলিসি চেক: এই নির্দিষ্ট প্রোপার্টিটি কি ইউজার এডিট করতে পারবে?
 //        $this->authorize('update', $listing);
@@ -71,7 +74,7 @@ class ListingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Property $listing)
+    public function destroy(Property $listing): RedirectResponse
     {
         // পলিসি চেক: এই নির্দিষ্ট প্রোপার্টিটি কি ইউজার ডিলিট করতে পারবে?
 //        $this->authorize('delete', $listing);

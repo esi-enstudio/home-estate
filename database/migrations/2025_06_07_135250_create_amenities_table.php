@@ -32,7 +32,6 @@ return new class extends Migration
 
             // প্রতিটি সুবিধার জন্য অতিরিক্ত তথ্য রাখার কলাম
             $table->string('details')->nullable(); // যেমন: Parking এর জন্য: "1 car", Gas এর জন্য: "Cylinder"
-            $table->boolean('is_key_feature')->nullable()->default(false);
 
             // ডুপ্লিকেট ডেটা এড়ানোর জন্য দুটি কলামকে একসাথে Primary Key বানানো হলো
             $table->primary(['amenity_id', 'property_id']);

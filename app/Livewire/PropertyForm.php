@@ -2,12 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Models\Amenity;
 use App\Models\Property;
 use App\Models\PropertyType;
 use App\Models\Division;
 use App\Models\District;
 use App\Models\Union;
 use App\Models\Upazila;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -42,6 +44,7 @@ class PropertyForm extends Component
     public ?string $facing_direction = null;
     public ?int $year_built = null;
     public array $additional_features = [];
+    public array $selectedAmenities = [];
 
     // --- Step 3: Location ---
     public $division_id = '';
@@ -91,6 +94,9 @@ class PropertyForm extends Component
 
             // মডেল থেকে ডেটা দিয়ে ফর্ম ফিল করা (ম্যানুয়াল পদ্ধতিতে)
             $this->hydrateFormFromModel();
+
+            // বিদ্যমান প্রোপার্টির সাথে যুক্ত থাকা amenity-গুলোর ID লোড করা হচ্ছে
+            $this->selectedAmenities = $this->listing->amenities()->pluck('amenities.id')->toArray();
 
             // এডিট মোডের জন্য নির্ভরশীল লোকেশন ড্রপডাউনগুলো লোড করা
             if ($this->division_id) {
@@ -468,7 +474,10 @@ class PropertyForm extends Component
         $this->validate($rules);
     }
 
-    public function save(): RedirectResponse
+    /**
+     * @throws AuthorizationException
+     */
+    public function save()
     {
         // সর্বশেষ সাবমিটের আগে সম্পূর্ণ ফর্ম ভ্যালিডেট করা
         $validatedData = $this->validate($this->rules());
@@ -540,6 +549,7 @@ class PropertyForm extends Component
             }
 
             $this->listing->update($data);
+            $property = $this->listing;
             session()->flash('success', 'লিস্টিং সফলভাবে আপডেট হয়েছে।');
         } else {
             // নতুন লিস্টিং এর জন্য slug এবং property_code যোগ করা
@@ -548,7 +558,13 @@ class PropertyForm extends Component
             $data['status'] = 'pending'; // নতুন লিস্টিং এর ডিফল্ট স্ট্যাটাস
 
             Auth::user()->properties()->create($data);
+            $property = Auth::user()->properties()->create($data);
             session()->flash('success', 'নতুন লিস্টিং সফলভাবে তৈরি হয়েছে।');
+        }
+
+        // amenity_property পিভট টেবিলে ডেটা সিঙ্ক করা হচ্ছে
+        if (in_array('amenities', $this->visibleFields)) {
+            $property->amenities()->sync($this->selectedAmenities);
         }
 
         return redirect()->route('listings.index');
@@ -557,6 +573,10 @@ class PropertyForm extends Component
     public function render()
     {
         $propertyTypes = PropertyType::all();
-        return view('livewire.property-form', compact('propertyTypes'));
+
+        // সব amenity লোড করে তাদের 'type' অনুযায়ী গ্রুপ করা হচ্ছে
+        $amenities = Amenity::all()->groupBy('type');
+
+        return view('livewire.property-form', compact('propertyTypes', 'amenities'));
     }
 }

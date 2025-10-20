@@ -29,6 +29,7 @@
     <form wire:submit.prevent="save" class="mt-5 pt-3">
         <div class="card">
             <div class="card-body">
+
                 {{-- Step 1: Core Information --}}
                 <div class="{{ $currentStep == 1 ? 'd-block' : 'd-none' }}">
                     <h5 class="card-title mb-4">মৌলিক তথ্য (ধাপ ১/{{ $totalSteps }})</h5>
@@ -151,11 +152,47 @@
                                 </div>
                             @endif
 
-                            {{-- Additional Features --}}
-                            <hr class="my-3">
+                            {{-- Amenities --}}
+                            @if(in_array('amenities', $visibleFields))
+                                <hr class="my-3 col-12">
+                                <div class="col-12">
+                                    <h5 class="mb-3">সুবিধা সমূহ (Amenities)</h5>
+                                    <div class="row">
+                                        @if(isset($amenities) && $amenities->count() > 0)
+                                            @foreach($amenities as $type => $group)
+                                                <div class="col-12 mt-2">
+                                                    <strong class="text-capitalize d-block border-bottom pb-1 mb-2">{{ $type }}</strong>
+                                                </div>
+                                                @foreach($group as $amenity)
+                                                    <div class="col-md-4 col-sm-6">
+                                                        <div class="form-check">
+                                                            <input
+                                                                class="form-check-input"
+                                                                type="checkbox"
+                                                                value="{{ $amenity->id }}"
+                                                                id="amenity-{{ $amenity->id }}"
+                                                                wire:model="selectedAmenities"
+                                                            >
+                                                            <label class="form-check-label" for="amenity-{{ $amenity->id }}">
+                                                                @if($amenity->icon_class)
+                                                                    <i class="{{ $amenity->icon_class }} me-1"></i>
+                                                                @endif
+                                                                {{ $amenity->name }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endforeach
+                                        @else
+                                            <p class="text-muted">কোনো সুবিধা যোগ করা হয়নি।</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
 
                             {{-- Additional Features Repeater --}}
                             @if(in_array('additional_features', $visibleFields))
+                                <hr class="my-3">
                                 <div class="col-12">
                                     <h5 class="mb-3">অন্যান্য সুবিধা (Additional Features)</h5>
                                     <div class="table-responsive">
