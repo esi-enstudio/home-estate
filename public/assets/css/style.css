@@ -9935,3 +9935,80 @@ span.select2-container.select2-container--default.select2-container--open {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+/* Multi-Step Form Progress Bar */
+.stepper-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4rem; /* Added more margin for the labels */
+}
+
+.stepper-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1; /* Each item takes equal space */
+}
+
+/* This is the connecting line */
+.stepper-item::before {
+    position: absolute;
+    content: "";
+    border-bottom: 2px solid #ccc;
+    width: 100%;
+    top: 20px;
+    left: -50%;
+    z-index: 2;
+    transition: border-color 0.4s ease;
+}
+
+/* This removes the line before the first step */
+.stepper-item:first-child::before {
+    content: none;
+}
+
+.stepper-icon {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    background: #ccc;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+    font-size: 1.2rem;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.stepper-label {
+    position: absolute;
+    top: 130%;
+    font-size: 14px;
+    color: #888;
+    white-space: nowrap;
+}
+
+/* --- States --- */
+/* For Completed Steps */
+.stepper-item.completed .stepper-icon {
+    background-color: #4CAF50; /* Green for completed */
+    color: white;
+    cursor: pointer; /* Indicates it's clickable */
+}
+
+.stepper-item.completed::before {
+    border-color: #4CAF50; /* Green line for completed steps */
+}
+
+/* For Active Step */
+.stepper-item.active .stepper-icon {
+    background-color: #3498db; /* Blue for active */
+    color: white;
+}
+
+.stepper-item.active .stepper-label {
+    color: #3498db;
+    font-weight: bold;
+}

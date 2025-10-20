@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\MyListingController;
+use App\Http\Controllers\ListingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -57,5 +57,5 @@ Route::get('/identity-verification', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile.show');
 
-    Route::resource('my-listing', MyListingController::class);
+    Route::resource('listings', ListingController::class);
 });
