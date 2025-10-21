@@ -45,6 +45,7 @@ class PropertyForm extends Component
     public ?int $year_built = null;
     public array $additional_features = [];
     public array $selectedAmenities = [];
+    public array $amenityDetails = [];
 
     // --- Step 3: Location ---
     public $division_id = '';
@@ -68,6 +69,11 @@ class PropertyForm extends Component
     public ?string $available_from = null;
 
     // --- Step 5: Media & Rules ---
+    public $thumbnail; // নতুন থাম্বনেইল আপলোডের জন্য
+    public $gallery = []; // নতুন গ্যালারি ছবি আপলোডের জন্য
+
+    public $existingThumbnailUrl = null; // এডিট মোডে বিদ্যমান থাম্বনেইল দেখানোর জন্য
+    public $existingGallery = []; // এডিট মোডে বিদ্যমান গ্যালারি দেখানোর জন্য
     public ?string $video_url = null;
     public ?string $house_rules = null;
     public array $faqs = [];
@@ -98,6 +104,11 @@ class PropertyForm extends Component
             // বিদ্যমান প্রোপার্টির সাথে যুক্ত থাকা amenity-গুলোর ID লোড করা হচ্ছে
             $this->selectedAmenities = $this->listing->amenities()->pluck('amenities.id')->toArray();
 
+            // amenityDetails অ্যারেটি পূরণ করা হচ্ছে
+            foreach ($this->listing->amenities as $amenity) {
+                $this->amenityDetails[$amenity->id] = $amenity->pivot->details;
+            }
+
             // এডিট মোডের জন্য নির্ভরশীল লোকেশন ড্রপডাউনগুলো লোড করা
             if ($this->division_id) {
                 $this->districts = District::where('division_id', $this->division_id)->get();
@@ -120,11 +131,24 @@ class PropertyForm extends Component
         if ($this->property_type_id) {
             $this->updateVisibleFields($this->property_type_id);
         }
+
+        if ($this->isEditing) {
+            // বিদ্যমান থাম্বনেইলের URL লোড করা
+            $this->existingThumbnailUrl = $this->listing->getFirstMediaUrl('thumbnail', 'preview');
+
+            // বিদ্যমান গ্যালারির ছবিগুলো লোড করা
+            $this->existingGallery = $this->listing->getMedia('gallery')->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'url' => $media->getUrl('thumbnail')
+                ];
+            })->toArray();
+        }
     }
 
     /**
      * Helper method to manually fill form properties from the model.
-     * This provides better control, especially for casted attributes like JSON fields.
+     * This provides better control, especially for cast attributes like JSON fields.
      */
     private function hydrateFormFromModel(): void
     {
@@ -313,7 +337,7 @@ class PropertyForm extends Component
             }
         }
 
-        return [
+        $rules = [
             // --- ধাপ ১: মৌলিক তথ্য ---
             'property_type_id'      => ['required', 'integer', 'exists:property_types,id'],
             'title'                 => ['required', 'string', 'min:10', 'max:255'],
@@ -371,6 +395,18 @@ class PropertyForm extends Component
             'house_rules'           => ['nullable', 'string'],
             'faqs'                  => ['nullable', 'array'],
         ];
+
+        // ছবি আপলোডের জন্য ভ্যালিডেশন
+        // এডিট মোডে ছবি বাধ্যতামূলক নয়, কিন্তু create মোডে থাম্বনেইল বাধ্যতামূলক করা যেতে পারে
+        $rules['thumbnail'] = [
+            $this->isEditing ? 'nullable' : 'required',
+            'image',
+            'max:2048' // 2MB
+        ];
+
+        $rules['gallery.*'] = ['image', 'max:2048']; // প্রতিটি গ্যালারি ছবির জন্য
+
+        return $rules;
     }
 
     // --- স্টেপ ম্যানেজমেন্ট ---
@@ -475,8 +511,27 @@ class PropertyForm extends Component
     }
 
     /**
-     * @throws AuthorizationException
+     * faqs অ্যারেতে একটি নতুন খালি প্রশ্ন-উত্তর আইটেম যোগ করে।
      */
+    public function addFaq(): void
+    {
+        $this->faqs[] = ['question' => '', 'answer' => ''];
+    }
+
+    /**
+     * faqs অ্যারে থেকে নির্দিষ্ট ইনডেক্সের আইটেমটি মুছে ফেলে।
+     *
+     * @param int $index
+     */
+    public function removeFaq(int $index): void
+    {
+        if (isset($this->faqs[$index])) {
+            unset($this->faqs[$index]);
+            // অ্যারের ইনডেক্সগুলো ঠিক করার জন্য (যেমন: 0, 1, 2...)
+            $this->faqs = array_values($this->faqs);
+        }
+    }
+
     public function save()
     {
         // সর্বশেষ সাবমিটের আগে সম্পূর্ণ ফর্ম ভ্যালিডেট করা
@@ -549,7 +604,7 @@ class PropertyForm extends Component
             }
 
             $this->listing->update($data);
-            $property = $this->listing;
+            $property = $this->listing->fresh(); // ডেটাবেজ থেকে সর্বশেষ ডেটা রিফ্রেশ করে নেওয়া
             session()->flash('success', 'লিস্টিং সফলভাবে আপডেট হয়েছে।');
         } else {
             // নতুন লিস্টিং এর জন্য slug এবং property_code যোগ করা
@@ -557,14 +612,41 @@ class PropertyForm extends Component
             $data['property_code'] = 'BHARA-' . (Property::max('id') + 101);
             $data['status'] = 'pending'; // নতুন লিস্টিং এর ডিফল্ট স্ট্যাটাস
 
-            Auth::user()->properties()->create($data);
             $property = Auth::user()->properties()->create($data);
             session()->flash('success', 'নতুন লিস্টিং সফলভাবে তৈরি হয়েছে।');
         }
 
+        // ******************************************************
+        // --- মিডিয়া সেভ করার নতুন এবং আপডেট করা লজিক ---
+        // ******************************************************
+
+        // ১. নতুন থাম্বনেইল আপলোড করা হলে
+        if ($this->thumbnail) {
+            // যদি আগে কোনো থাম্বনেইল থাকে, সেটি মুছে ফেলা হবে (singleFile collection)
+            $property->addMedia($this->thumbnail->getRealPath())
+                ->toMediaCollection('thumbnail');
+        }
+
+        // ২. নতুন গ্যালারি ছবি আপলোড করা হলে
+        if (!empty($this->gallery)) {
+            foreach ($this->gallery as $image) {
+                $property->addMedia($image->getRealPath())
+                    ->toMediaCollection('gallery');
+            }
+        }
+        // --- মিডিয়া সেভ করার লজিক শেষ ---
+
         // amenity_property পিভট টেবিলে ডেটা সিঙ্ক করা হচ্ছে
         if (in_array('amenities', $this->visibleFields)) {
-            $property->amenities()->sync($this->selectedAmenities);
+            $amenitiesToSync = [];
+            foreach ($this->selectedAmenities as $amenityId) {
+                $amenitiesToSync[$amenityId] = [
+                    'details' => $this->amenityDetails[$amenityId] ?? null
+                ];
+            }
+
+            // পিভট টেবিলে অতিরিক্ত ডেটা সহ সিঙ্ক করা হচ্ছে
+            $property->amenities()->sync($amenitiesToSync);
         }
 
         return redirect()->route('listings.index');

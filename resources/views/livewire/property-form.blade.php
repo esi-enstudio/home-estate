@@ -156,7 +156,7 @@
                             @if(in_array('amenities', $visibleFields))
                                 <hr class="my-3 col-12">
                                 <div class="col-12">
-                                    <h5 class="mb-3">সুবিধা সমূহ (Amenities)</h5>
+                                    <h6 class="mb-3">সুবিধা সমূহ (Amenities)</h6>
                                     <div class="row">
                                         @if(isset($amenities) && $amenities->count() > 0)
                                             @foreach($amenities as $type => $group)
@@ -164,21 +164,36 @@
                                                     <strong class="text-capitalize d-block border-bottom pb-1 mb-2">{{ $type }}</strong>
                                                 </div>
                                                 @foreach($group as $amenity)
-                                                    <div class="col-md-4 col-sm-6">
-                                                        <div class="form-check">
-                                                            <input
-                                                                class="form-check-input"
-                                                                type="checkbox"
-                                                                value="{{ $amenity->id }}"
-                                                                id="amenity-{{ $amenity->id }}"
-                                                                wire:model="selectedAmenities"
-                                                            >
-                                                            <label class="form-check-label" for="amenity-{{ $amenity->id }}">
-                                                                @if($amenity->icon_class)
-                                                                    <i class="{{ $amenity->icon_class }} me-1"></i>
-                                                                @endif
-                                                                {{ $amenity->name }}
-                                                            </label>
+                                                    <div class="col-lg-6 mb-3">
+                                                        <div class="d-flex align-items-center">
+                                                            {{-- Amenity Checkbox --}}
+                                                            <div class="form-check flex-grow-1">
+                                                                <input
+                                                                    class="form-check-input"
+                                                                    type="checkbox"
+                                                                    value="{{ $amenity->id }}"
+                                                                    id="amenity-{{ $amenity->id }}"
+                                                                    wire:model.live="selectedAmenities"
+                                                                >
+                                                                <label class="form-check-label" for="amenity-{{ $amenity->id }}">
+                                                                    @if($amenity->icon_class)
+                                                                        <i class="{{ $amenity->icon_class }} me-1"></i>
+                                                                    @endif
+                                                                    {{ $amenity->name }}
+                                                                </label>
+                                                            </div>
+
+                                                            {{-- Details Input Field (Conditional) --}}
+                                                            @if(in_array($amenity->id, $selectedAmenities))
+                                                                <div class="ms-2" style="width: 50%;">
+                                                                    <input
+                                                                        type="text"
+                                                                        class="form-control form-control-sm"
+                                                                        wire:model="amenityDetails.{{ $amenity->id }}"
+                                                                        placeholder="বিস্তারিত (যেমন: ১টি গাড়ি)"
+                                                                    >
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -186,67 +201,6 @@
                                         @else
                                             <p class="text-muted">কোনো সুবিধা যোগ করা হয়নি।</p>
                                         @endif
-                                    </div>
-                                </div>
-                            @endif
-
-                            {{-- Additional Features Repeater --}}
-                            @if(in_array('additional_features', $visibleFields))
-                                <hr class="my-3">
-                                <div class="col-12">
-                                    <h5 class="mb-3">অন্যান্য সুবিধা (Additional Features)</h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead class="table-light">
-                                            <tr>
-                                                <th style="width: 40%;">ফিচারের নাম</th>
-                                                <th style="width: 50%;">বিবরণ (ঐচ্ছিক)</th>
-                                                <th style="width: 10%;" class="text-center">মুছুন</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @if(count($additional_features) > 0)
-                                                @foreach($additional_features as $index => $feature)
-                                                    <tr wire:key="feature-{{ $index }}">
-                                                        <td>
-                                                            <input type="text"
-                                                                   wire:model="additional_features.{{ $index }}.name"
-                                                                   class="form-control"
-                                                                   placeholder="যেমন: জেনারেটর">
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                   wire:model="additional_features.{{ $index }}.description"
-                                                                   class="form-control"
-                                                                   placeholder="যেমন: ২৪ ঘন্টা ব্যাকআপ">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <button type="button"
-                                                                    class="btn btn-danger btn-sm"
-                                                                    wire:click="removeFeature({{ $index }})">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            @else
-                                                <tr>
-                                                    <td colspan="3" class="text-center text-muted py-3">
-                                                        কোনো অতিরিক্ত সুবিধা যোগ করা হয়নি।
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                            </tbody>
-                                            <tfoot>
-                                            <tr>
-                                                <td colspan="3">
-                                                    <button type="button" class="btn btn-outline-primary w-100" wire:click="addFeature">
-                                                        <i class="fas fa-plus me-2"></i> নতুন সুবিধা যোগ করুন
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tfoot>
-                                        </table>
                                     </div>
                                 </div>
                             @endif
@@ -430,8 +384,69 @@
                 {{-- Step 5: Media & Others --}}
                 <div class="{{ $currentStep == 5 ? 'd-block' : 'd-none' }}">
                     <h5 class="card-title mb-4">ছবি ও অন্যান্য তথ্য (ধাপ ৫/{{ $totalSteps }})</h5>
-                    <div class="row g-3">
-                        {{-- এখানে ছবি আপলোডের ফিল্ড যোগ করতে হবে (WithFileUploads trait ব্যবহার করে) --}}
+                    <div class="row g-4">
+                        <!-- Thumbnail Upload -->
+                        <div class="col-12">
+                            <label for="thumbnail" class="form-label fw-bold">থাম্বনেইল ছবি (প্রচ্ছদ)</label>
+                            <p class="text-muted small">এটি আপনার লিস্টিংয়ের প্রধান ছবি হিসেবে দেখানো হবে।</p>
+
+                            <input type="file" wire:model="thumbnail" id="thumbnail" class="form-control">
+                            <div wire:loading wire:target="thumbnail" class="text-primary mt-1">আপলোড হচ্ছে...</div>
+                            @error('thumbnail') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+
+                            <!-- Preview -->
+                            <div class="mt-3">
+                                @if ($thumbnail)
+                                    <p>নতুন প্রিভিউ:</p>
+                                    <img src="{{ $thumbnail->temporaryUrl() }}" class="img-thumbnail" width="200">
+                                @elseif($existingThumbnailUrl)
+                                    <p>বর্তমান ছবি:</p>
+                                    <img src="{{ $existingThumbnailUrl }}" class="img-thumbnail" width="200">
+                                @endif
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Gallery Upload -->
+                        <div class="col-12">
+                            <label for="gallery" class="form-label fw-bold">গ্যালারির ছবি</label>
+                            <p class="text-muted small">একাধিক ছবি সিলেক্ট করতে পারেন।</p>
+
+                            <input type="file" wire:model="gallery" id="gallery" class="form-control" multiple>
+                            <div wire:loading wire:target="gallery" class="text-primary mt-1">আপলোড হচ্ছে...</div>
+                            @error('gallery.*') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+
+                            <!-- Previews -->
+                            <div class="mt-3">
+                                <!-- Existing Gallery Images -->
+                                @if(!empty($existingGallery))
+                                    <p>বিদ্যমান ছবি:</p>
+                                    <div class="row g-2">
+                                        @foreach($existingGallery as $image)
+                                            <div class="col-3 position-relative">
+                                                <img src="{{ $image['url'] }}" class="img-thumbnail w-100">
+                                                <button type="button" wire:click="removeImage({{ $image['id'] }})" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" title="মুছে ফেলুন">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                <!-- New Gallery Previews -->
+                                @if (!empty($gallery))
+                                    <p class="mt-3">নতুন প্রিভিউ:</p>
+                                    <div class="row g-2">
+                                        @foreach ($gallery as $image)
+                                            <div class="col-3">
+                                                <img src="{{ $image->temporaryUrl() }}" class="img-thumbnail w-100">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
 
                         @if(in_array('video_url', $visibleFields))
                             <div class="col-12"><label class="form-label">ভিডিও লিংক (ইউটিউব)</label><input type="url" wire:model="video_url" class="form-control"></div>
@@ -439,10 +454,134 @@
                         @if(in_array('house_rules', $visibleFields))
                             <div class="col-12"><label class="form-label">বাড়ির নিয়মাবলী</label><textarea wire:model="house_rules" class="form-control"></textarea></div>
                         @endif
-                        {{-- FAQ এবং Additional Features এর জন্য ডায়নামিক ইনপুট (repeater) যোগ করা যেতে পারে --}}
+
+                        {{-- Additional Features Repeater --}}
+                        @if(in_array('additional_features', $visibleFields))
+                            <hr class="my-3">
+                            <div class="col-12">
+                                <h5 class="mb-3">অন্যান্য সুবিধা (Additional Features)</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 40%;">ফিচারের নাম</th>
+                                            <th style="width: 50%;">বিবরণ (ঐচ্ছিক)</th>
+                                            <th style="width: 10%;" class="text-center">মুছুন</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @if(count($additional_features) > 0)
+                                            @foreach($additional_features as $index => $feature)
+                                                <tr wire:key="feature-{{ $index }}">
+                                                    <td>
+                                                        <input type="text"
+                                                               wire:model="additional_features.{{ $index }}.name"
+                                                               class="form-control"
+                                                               placeholder="যেমন: জেনারেটর">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text"
+                                                               wire:model="additional_features.{{ $index }}.description"
+                                                               class="form-control"
+                                                               placeholder="যেমন: ২৪ ঘন্টা ব্যাকআপ">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button"
+                                                                class="btn btn-danger btn-sm"
+                                                                wire:click="removeFeature({{ $index }})">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted py-3">
+                                                    কোনো অতিরিক্ত সুবিধা যোগ করা হয়নি।
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        </tbody>
+                                        <tfoot>
+                                        <tr>
+                                            <td colspan="3">
+                                                <button type="button" class="btn btn-outline-primary w-100" wire:click="addFeature">
+                                                    <i class="fas fa-plus me-2"></i> নতুন সুবিধা যোগ করুন
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- FAQ Repeater --}}
+                        @if(in_array('faqs', $visibleFields))
+                            <hr class="my-4">
+                            <div class="col-12">
+                                <h5 class="mb-3">সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQ)</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 40%;">প্রশ্ন</th>
+                                            <th style="width: 50%;">উত্তর</th>
+                                            <th style="width: 10%;" class="text-center">মুছুন</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @if(count($faqs) > 0)
+                                            @foreach($faqs as $index => $faq)
+                                                <tr wire:key="faq-{{ $index }}">
+                                                    <td>
+                                                        <input type="text"
+                                                               wire:model="faqs.{{ $index }}.question"
+                                                               class="form-control"
+                                                               placeholder="প্রশ্ন এখানে লিখুন...">
+                                                        @error('faqs.'.$index.'.question') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </td>
+                                                    <td>
+                                                        <textarea
+                                                            wire:model="faqs.{{ $index }}.answer"
+                                                            class="form-control"
+                                                            rows="2"
+                                                            placeholder="উত্তর এখানে লিখুন..."></textarea>
+                                                        @error('faqs.'.$index.'.answer') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </td>
+                                                    <td class="text-center align-middle">
+                                                        <button type="button"
+                                                                class="btn btn-danger btn-sm"
+                                                                wire:click="removeFaq({{ $index }})">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted py-3">
+                                                    কোনো প্রশ্ন ও উত্তর যোগ করা হয়নি।
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        </tbody>
+                                        <tfoot>
+                                        <tr>
+                                            <td colspan="3">
+                                                <button type="button" class="btn btn-outline-primary w-100" wire:click="addFaq">
+                                                    <i class="fas fa-plus me-2"></i> নতুন প্রশ্ন যোগ করুন
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+
                     </div>
                 </div>
-
             </div>
 
             {{-- Navigation Buttons --}}
