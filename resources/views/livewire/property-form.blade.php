@@ -6,8 +6,8 @@
                 1 => 'মৌলিক তথ্য',
                 2 => 'বিস্তারিত',
                 3 => 'অবস্থান',
-                4 => 'মূল্য ও প্রাপ্যতা',
-                5 => 'ছবি ও অন্যান্য',
+                4 => 'মূল্য',
+                5 => 'ছবি',
             ];
         @endphp
 
@@ -93,7 +93,10 @@
                             @if(in_array('bedrooms', $visibleFields))
                                 <div class="col-md-4">
                                     <label class="form-label">বেডরুম <span class="text-danger">*</span></label>
-                                    <input type="number" wire:model="bedrooms" class="form-control @error('bedrooms') is-invalid @enderror" placeholder="যেমন: ৩">
+                                    <select wire:model="bedrooms" class="form-select @error('bedrooms') is-invalid @enderror">
+                                        <option value="">Select Bedrooms</option>
+                                        @for($i = 1; $i <= 10; $i++) <option value="{{ $i }}">{{ $i }}</option> @endfor
+                                    </select>
                                     @error('bedrooms') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             @endif
@@ -102,7 +105,10 @@
                             @if(in_array('bathrooms', $visibleFields))
                                 <div class="col-md-4">
                                     <label class="form-label">বাথরুম <span class="text-danger">*</span></label>
-                                    <input type="number" wire:model="bathrooms" class="form-control @error('bathrooms') is-invalid @enderror" placeholder="যেমন: ২">
+                                    <select wire:model="bathrooms" class="form-select @error('bathrooms') is-invalid @enderror">
+                                        <option value="">Select Bedrooms</option>
+                                        @for($i = 1; $i <= 10; $i++) <option value="{{ $i }}">{{ $i }}</option> @endfor
+                                    </select>
                                     @error('bathrooms') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             @endif
@@ -111,7 +117,10 @@
                             @if(in_array('balconies', $visibleFields))
                                 <div class="col-md-4">
                                     <label class="form-label">বারান্দা</label>
-                                    <input type="number" wire:model="balconies" class="form-control @error('balconies') is-invalid @enderror" placeholder="যেমন: ১">
+                                    <select wire:model="balconies" class="form-select @error('balconies') is-invalid @enderror">
+                                        <option value="">Select Bedrooms</option>
+                                        @for($i = 1; $i <= 10; $i++) <option value="{{ $i }}">{{ $i }}</option> @endfor
+                                    </select>
                                     @error('balconies') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             @endif
@@ -137,8 +146,16 @@
                             {{-- Facing Direction --}}
                             @if(in_array('facing_direction', $visibleFields))
                                 <div class="col-md-4">
-                                    <label class="form-label">কোন দিকে মুখ করা</label>
-                                    <input type="text" wire:model="facing_direction" class="form-control @error('facing_direction') is-invalid @enderror" placeholder="যেমন: দক্ষিণ">
+                                    <label class="form-label">কোনমুখী</label>
+                                    <select wire:model="facing_direction" class="form-select @error('facing_direction') is-invalid @enderror">
+                                        <option value="">-- নির্বাচন করুন --</option>
+                                        <option value="south">দক্ষিণ</option>
+                                        <option value="north">উত্তর</option>
+                                        <option value="east">পূর্ব</option>
+                                        <option value="west">পশ্চিম</option>
+                                        <option value="south-east">দক্ষিণ-পূর্ব</option>
+                                        <option value="north-east">উত্তর-পূর্ব</option>
+                                    </select>
                                     @error('facing_direction') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             @endif
@@ -157,6 +174,9 @@
                                 <hr class="my-3 col-12">
                                 <div class="col-12">
                                     <h6 class="mb-3">সুবিধা সমূহ (Amenities)</h6>
+                                    <p class="text-muted small">এখানে প্রপার্টিতে আগে থেকেই থাকা সাধারণ সুবিধাগুলো নির্বাচন করুন — যেমন লিফট, জেনারেটর, গাড়ি পার্কিং, ইন্টারনেট, ২৪ ঘণ্টা নিরাপত্তা, পানির সংযোগ ইত্যাদি।
+                                        এগুলো হলো বিল্ডিং বা ফ্ল্যাটে প্রচলিত সুবিধা, যা প্রায় সব জায়গাতেই একরকম থাকে।
+                                        আপনি শুধু প্রযোজ্য সুবিধাগুলো নির্বাচন করুন।</p>
                                     <div class="row">
                                         @if(isset($amenities) && $amenities->count() > 0)
                                             @foreach($amenities as $type => $group)
@@ -190,7 +210,7 @@
                                                                         type="text"
                                                                         class="form-control form-control-sm"
                                                                         wire:model="amenityDetails.{{ $amenity->id }}"
-                                                                        placeholder="বিস্তারিত (যেমন: ১টি গাড়ি)"
+                                                                        placeholder="বিস্তারিত লিখুন"
                                                                     >
                                                                 </div>
                                                             @endif
@@ -356,27 +376,36 @@
                             <div class="col-md-6"><label class="form-label">ভাড়া/মূল্য <span class="text-danger">*</span></label><input type="number" wire:model="rent_price" class="form-control"></div>
                         @endif
                         @if(in_array('rent_type', $visibleFields))
-                            <div class="col-md-6"><label class="form-label">ভাড়ার ধরন</label><select wire:model="rent_type" class="form-select">
+                            <div class="col-md-6"><label class="form-label">ভাড়ার ধরন</label>
+                                <select wire:model="rent_type" class="form-select">
                                     <option value="day">দৈনিক</option>
                                     <option value="week">সাপ্তাহিক</option>
                                     <option value="month">মাসিক</option>
                                     <option value="year">বাৎসরিক</option>
-                                </select></div>
+                                </select>
+                            </div>
                         @endif
+
                         @if(in_array('service_charge', $visibleFields))
                             <div class="col-md-6"><label class="form-label">সার্ভিস চার্জ (মাসিক)</label><input type="number" wire:model="service_charge" class="form-control"></div>
                         @endif
+
                         @if(in_array('security_deposit', $visibleFields))
                             <div class="col-md-6"><label class="form-label">সিকিউরিটি ডিপোজিট</label><input type="number" wire:model="security_deposit" class="form-control"></div>
                         @endif
+
                         @if(in_array('is_negotiable', $visibleFields))
                             <div class="col-md-6"><label class="form-label">আলোচনা সাপেক্ষ</label><select wire:model="is_negotiable" class="form-select">
                                     <option value="fixed">নির্দিষ্ট</option>
                                     <option value="negotiable">আলোচনা সাপেক্ষ</option>
                                 </select></div>
                         @endif
+
                         @if(in_array('available_from', $visibleFields))
-                            <div class="col-md-6"><label class="form-label">কবে থেকে পাওয়া যাবে <span class="text-danger">*</span></label><input type="date" wire:model="available_from" class="form-control"></div>
+                            <div class="col-md-6">
+                                <label class="form-label">কবে থেকে পাওয়া যাবে <span class="text-danger">*</span></label>
+                                <input type="date" wire:model="available_from" class="form-control">
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -451,8 +480,21 @@
                         @if(in_array('video_url', $visibleFields))
                             <div class="col-12"><label class="form-label">ভিডিও লিংক (ইউটিউব)</label><input type="url" wire:model="video_url" class="form-control"></div>
                         @endif
+
                         @if(in_array('house_rules', $visibleFields))
-                            <div class="col-12"><label class="form-label">বাড়ির নিয়মাবলী</label><textarea wire:model="house_rules" class="form-control"></textarea></div>
+                            <div class="col-12">
+                                <label class="form-label">বাড়ির নিয়মাবলী</label>
+                                <p class="text-muted small">
+                                    এখানে বাড়ির জন্য প্রযোজ্য নিয়ম ও শর্তগুলো লিখুন, যাতে ভাড়াটে বা অতিথিরা আগে থেকেই সেগুলো জানতে পারে।
+                                    যেমন —
+                                    • বাড়ির ভেতরে ধূমপান নিষিদ্ধ
+                                    • রাত ১০টার পর উচ্চ শব্দে কথা বলা বা গান বাজানো যাবে না
+                                    • পোষা প্রাণী রাখা যাবে না
+                                    • অতিথি আসলে পূর্বে জানাতে হবে
+                                    • ছাদ বা বারান্দায় কাপড় শুকানো নিষিদ্ধ ইত্যাদি।
+                                </p>
+                                <textarea wire:model="house_rules" class="form-control" rows="5"></textarea>
+                            </div>
                         @endif
 
                         {{-- Additional Features Repeater --}}
@@ -460,6 +502,11 @@
                             <hr class="my-3">
                             <div class="col-12">
                                 <h5 class="mb-3">অন্যান্য সুবিধা (Additional Features)</h5>
+                                <p class="text-muted small">
+                                    এখানে আপনার প্রপার্টির বিশেষ বা অতিরিক্ত সুবিধাগুলো লিখুন, যেগুলো সাধারণ তালিকায় নেই — যেমন “ছাদে ছোট বাগান”, “প্রতি তলায় আলাদা মোটর”, “ইনভার্টার ব্যাকআপ”, বা “নির্দিষ্ট ফ্ল্যাটে প্রাইভেট বারান্দা”।
+                                    প্রয়োজনে প্রতিটি সুবিধার সংক্ষিপ্ত বিবরণও দিতে পারেন।
+                                    আপনি চাইলে একাধিক বিশেষ সুবিধা যোগ করতে পারবেন।
+                                </p>
                                 <div class="table-responsive">
                                     <table class="table table-bordered">
                                         <thead class="table-light">
@@ -477,13 +524,13 @@
                                                         <input type="text"
                                                                wire:model="additional_features.{{ $index }}.name"
                                                                class="form-control"
-                                                               placeholder="যেমন: জেনারেটর">
+                                                               placeholder="যেমন: মেঝে">
                                                     </td>
                                                     <td>
                                                         <input type="text"
                                                                wire:model="additional_features.{{ $index }}.description"
                                                                class="form-control"
-                                                               placeholder="যেমন: ২৪ ঘন্টা ব্যাকআপ">
+                                                               placeholder="যেমন: টাইলস/সিমেন্ট/মোজাইক">
                                                     </td>
                                                     <td class="text-center">
                                                         <button type="button"
@@ -521,6 +568,7 @@
                             <hr class="my-4">
                             <div class="col-12">
                                 <h5 class="mb-3">সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQ)</h5>
+                                <p class="text-muted small">এখানে প্রপার্টি ভাড়া বা ব্যবহারের বিষয়ে সাধারণত করা প্রশ্নগুলোর উত্তর দেওয়া হয়েছে। নতুন ভাড়াটে বা আগ্রহীরা সহজে তাদের প্রয়োজনীয় তথ্য এখান থেকে জানতে পারবেন।</p>
                                 <div class="table-responsive">
                                     <table class="table table-bordered">
                                         <thead class="table-light">

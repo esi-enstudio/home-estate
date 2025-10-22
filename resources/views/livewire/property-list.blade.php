@@ -1,6 +1,6 @@
 <div class="page-wrapper">
 
-    <!-- Start Breadscrumb -->
+    <!-- Start Breadcrumb -->
     <div class="breadcrumb-bar">
         <img src="{{ asset('assets/img/bg/breadcrumb-bg-01.png') }}" alt="" class="breadcrumb-bg-01 d-none d-lg-block">
         <img src="{{ asset('assets/img/bg/breadcrumb-bg-02.png') }}" alt="" class="breadcrumb-bg-02 d-none d-lg-block">
@@ -17,7 +17,7 @@
             </div>
         </div>
     </div>
-    <!-- End Breadscrumb -->
+    <!-- End Breadcrumb -->
 
     <!-- Start Content -->
     <div class="content">

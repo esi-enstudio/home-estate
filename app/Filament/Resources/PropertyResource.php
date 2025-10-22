@@ -27,6 +27,7 @@ use Filament\Panel;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class PropertyResource extends Resource
@@ -233,10 +234,35 @@ class PropertyResource extends Resource
                                 Forms\Components\Section::make('অতিরিক্ত তথ্য (Additional Information)')
                                     ->visible(fn (Get $get) => self::isSectionVisible(['additional_features', 'house_rules', 'faqs'], $get))
                                     ->schema([
-                                        KeyValue::make('additional_features')->label('অন্যান্য সুবিধা (Additional Features)')
+                                        KeyValue::make('additional_features')
+                                            ->label('অন্যান্য সুবিধা (Additional Features)')
                                             ->helperText('Additional Features হলো সেইসব নির্দিষ্ট এবং পরিমাপযোগ্য বৈশিষ্ট্য যা শুধুমাত্র ওই নির্দিষ্ট ফ্ল্যাট, বাড়ি বা ইউনিটের ভেতরের গঠন এবং অবস্থা বর্ণনা করে। এগুলো সাধারণত সংখ্যা বা নির্দিষ্ট বিবরণ দিয়ে প্রকাশ করা হয়। ব্যবহারকারীকে প্রপার্টির অভ্যন্তরীণ গঠন, আকার এবং স্পেসিফিকেশন সম্পর্কে একটি পরিষ্কার এবং বিস্তারিত ধারণা দেওয়া।')
-                                            ->keyLabel('ফিচারের নাম')->valueLabel('বিবরণ')->addActionLabel('নতুন সুবিধা যোগ করুন')
-                                            ->visible(fn (Get $get) => self::isFieldVisible('additional_features', $get)),
+                                            ->keyLabel('ফিচারের নাম')
+                                            ->valueLabel('বিবরণ')
+                                            ->addActionLabel('নতুন সুবিধা যোগ করুন')
+                                            ->reorderable()
+                                            ->dehydrated(fn ($state) => !empty($state)) // খালি হলে null সেভ করবে
+                                            ->visible(fn (Get $get) => self::isFieldVisible('additional_features', $get))
+                                            // --- ডেটাবেজ থেকে পড়ার সময় রূপান্তর (সঠিক মেথড) ---
+                                            ->formatStateUsing(function (?array $state): array {
+                                                if (!$state) {
+                                                    return [];
+                                                }
+
+                                                // যদি ডেটা Repeater ফরম্যাটে থাকে ([{"name":...}]), তবে রূপান্তর করো
+                                                if (Arr::isList($state)) {
+                                                    $newState = [];
+                                                    foreach ($state as $item) {
+                                                        if (isset($item['name']) && !empty($item['name'])) {
+                                                            $newState[$item['name']] = $item['description'] ?? '';
+                                                        }
+                                                    }
+                                                    return $newState;
+                                                }
+
+                                                // অন্যথায় (KeyValue ফরম্যাটে থাকলে) যেমন আছে তেমনই রিটার্ন করো
+                                                return $state;
+                                            }),
 
                                         Textarea::make('house_rules')->label('বাসার নিয়মাবলী (House Rules)')->rows(4)
                                             ->visible(fn (Get $get) => self::isFieldVisible('house_rules', $get)),
@@ -449,7 +475,7 @@ class PropertyResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('featured_image')
-                    ->collection('featured_image')
+                    ->collection('thumbnail')
                     ->label('Image'),
 
                 Tables\Columns\TextColumn::make('title')

@@ -143,6 +143,31 @@ class PropertyForm extends Component
                     'url' => $media->getUrl('thumbnail')
                 ];
             })->toArray();
+
+            $this->listing = $listing;
+            $this->isEditing = true;
+
+            // --- additional_features ডেটা রূপান্তরের লজিক ---
+            $featuresData = $listing->additional_features ?? [];
+            $formattedFeatures = [];
+
+            // চেক করা হচ্ছে ডেটা KeyValue ফরম্যাটে আছে নাকি Repeater ফরম্যাটে
+            if (!empty($featuresData) && array_is_list($featuresData)) {
+                // Repeater format: [{"name": "...", "description": "..."}]
+                // এটি ইতিমধ্যেই সঠিক ফরম্যাটে আছে, তাই সরাসরি ব্যবহার করা হবে
+                $formattedFeatures = $featuresData;
+            } else {
+                // KeyValue format: {"key": "value"}
+                // এটিকে Repeater ফরম্যাটে রূপান্তর করা হচ্ছে
+                foreach ($featuresData as $key => $value) {
+                    $formattedFeatures[] = ['name' => $key, 'description' => $value];
+                }
+            }
+            $this->additional_features = $formattedFeatures;
+            // --- রূপান্তর শেষ ---
+
+            // fill() মেথডটি রূপান্তরের *পরে* কল করা ভালো, যাতে এটি অন্য ডেটা ওভাররাইট না করে
+            $this->fill($listing->except('additional_features'));
         }
     }
 
@@ -188,7 +213,7 @@ class PropertyForm extends Component
         $this->security_deposit = $this->listing->security_deposit;
         $this->is_negotiable = $this->listing->is_negotiable;
         $this->is_available = $this->listing->is_available;
-        $this->available_from = $this->listing->available_from;
+        $this->available_from = optional($this->listing->available_from)->format('Y-m-d');
 
         // Media & Rules
         $this->video_url = $this->listing->video_url;
@@ -532,6 +557,37 @@ class PropertyForm extends Component
         }
     }
 
+    /**
+     * এডিট মোডে থাকা অবস্থায় বিদ্যমান গ্যালারি ছবি মুছে ফেলার জন্য এই মেথডটি ব্যবহার করা হয়।
+     *
+     * @param int $mediaId
+     * @return void
+     */
+    public function removeImage(int $mediaId): void
+    {
+        // শুধুমাত্র এডিট মোডেই এই কাজটি করা সম্ভব
+        if (!$this->isEditing) {
+            return;
+        }
+
+        // পলিসি দিয়ে অথোরাইজেশন (ঐচ্ছিক কিন্তু প্রস্তাবিত)
+        $this->authorize('update', $this->listing);
+
+        // নির্দিষ্ট ID দিয়ে মিডিয়া ফাইলটি খুঁজে বের করা
+        $media = $this->listing->getMedia('gallery')->find($mediaId);
+
+        // যদি মিডিয়া ফাইল পাওয়া যায়, তবেই সেটি মুছে ফেলা হবে
+        if ($media) {
+            $media->delete();
+        }
+
+        // রিয়েল-টাইমে প্রিভিউ থেকে ছবিটি সরিয়ে ফেলার জন্য existingGallery অ্যারেটি রিফ্রেশ করা
+        $this->existingGallery = array_filter($this->existingGallery, fn($image) => $image['id'] != $mediaId);
+
+        // একটি ফিডব্যাক মেসেজ দেখানো (ঐচ্ছিক)
+        $this->dispatch('image-removed', 'ছবি সফলভাবে মুছে ফেলা হয়েছে।');
+    }
+
     public function save()
     {
         // সর্বশেষ সাবমিটের আগে সম্পূর্ণ ফর্ম ভ্যালিডেট করা
@@ -542,6 +598,14 @@ class PropertyForm extends Component
             $this->authorize('update', $this->listing);
         } else {
             $this->authorize('create', Property::class);
+        }
+
+        // --- additional_features ডেটা প্রস্তুত করা (KeyValue ফরম্যাটে রূপান্তর) ---
+        $featuresToSave = [];
+        foreach ($this->additional_features as $feature) {
+            if (!empty($feature['name'])) { // খালি নাম সেভ করা হবে না
+                $featuresToSave[$feature['name']] = $feature['description'] ?? '';
+            }
         }
 
         // --- সম্পূর্ণ স্কিমা অনুযায়ী ডেটা প্রস্তুত করা ---
@@ -584,7 +648,7 @@ class PropertyForm extends Component
             // Rules, Features & Media
             'house_rules'           => $this->house_rules,
             'faqs'                  => $this->faqs,
-            'additional_features'   => $this->additional_features,
+            'additional_features'   => $featuresToSave,
             'video_url'             => $this->video_url,
 
             // Status & Visibility

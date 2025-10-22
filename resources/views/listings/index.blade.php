@@ -44,7 +44,7 @@
                                     <p>আপনি এখনো কোনো লিস্টিং যোগ করেননি।</p>
                                 </div>
                             @else
-                                <div class="table-responsive">
+                                <div class="table-responsive" style="white-space: nowrap;">
                                     <table class="table table-hover">
                                         <thead class="table-light">
                                         <tr>
@@ -62,8 +62,14 @@
                                                     <div class="fw-bold">{{ Str::limit($property->title, 40) }}</div>
                                                     <small class="text-muted">{{ $property->property_code }}</small>
                                                 </td>
-                                                <td>{{ $property->propertyType->name }}</td>
-                                                <td><span class="badge bg-primary text-capitalize">{{ $property->status }}</span></td>
+                                                <td>{{ $property->propertyType->name_bn }}</td>
+                                                <td>
+                                                    @if($property->status === 'active')
+                                                        <span class="badge bg-primary text-capitalize">{{ $property->status }}</span>
+                                                    @elseif($property->status === 'pending')
+                                                        <span class="badge bg-warning text-capitalize">{{ $property->status }}</span>
+                                                    @endif
+                                                </td>
                                                 <td>৳{{ number_format($property->rent_price) }}</td>
                                                 <td class="text-end">
                                                     <a href="{{ route('listings.edit', $property) }}" class="btn btn-sm btn-outline-secondary">
