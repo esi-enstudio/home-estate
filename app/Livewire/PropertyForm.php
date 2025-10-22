@@ -637,7 +637,7 @@ class PropertyForm extends Component
             'division_id'           => $this->division_id,
             'district_id'           => $this->district_id,
             'upazila_id'            => $this->upazila_id,
-            'union_id'              => $this->union_id,
+            'union_id'              => $this->union_id ?: null,
             'address_street'        => $this->address_street,
             'address_area'          => $this->address_area,
             'address_zipcode'       => $this->address_zipcode,

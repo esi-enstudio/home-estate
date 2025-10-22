@@ -129,7 +129,7 @@
                             @if(in_array('floor_level', $visibleFields))
                                 <div class="col-md-4">
                                     <label class="form-label">ফ্লোর লেভেল</label>
-                                    <input type="text" wire:model="floor_level" class="form-control @error('floor_level') is-invalid @enderror" placeholder="যেমন: ৫ তলা">
+                                    <input type="number" wire:model="floor_level" class="form-control @error('floor_level') is-invalid @enderror" placeholder="যেমন: ৫ তলা">
                                     @error('floor_level') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             @endif
@@ -319,7 +319,7 @@
                             @if(in_array('address_zipcode', $visibleFields))
                                 <div class="col-md-6">
                                     <label for="address_zipcode" class="form-label">পোস্ট কোড (ঐচ্ছিক)</label>
-                                    <input type="text" id="address_zipcode" wire:model="address_zipcode" class="form-control @error('address_zipcode') is-invalid @enderror">
+                                    <input type="number" id="address_zipcode" wire:model="address_zipcode" class="form-control @error('address_zipcode') is-invalid @enderror">
                                     @error('address_zipcode') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             @endif

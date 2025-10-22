@@ -59,8 +59,16 @@
                                         @foreach($properties as $property)
                                             <tr>
                                                 <td>
-                                                    <div class="fw-bold">{{ Str::limit($property->title, 40) }}</div>
-                                                    <small class="text-muted">{{ $property->property_code }}</small>
+                                                    <div class="fw-bold">
+                                                        <a href="{{ route('listings.edit', $property) }}">
+                                                            {{ Str::limit($property->title, 40) }}
+                                                        </a>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <a href="{{ route('listings.edit', $property) }}">
+                                                            {{ $property->property_code }}
+                                                        </a>
+                                                    </small>
                                                 </td>
                                                 <td>{{ $property->propertyType->name_bn }}</td>
                                                 <td>
