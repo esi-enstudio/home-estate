@@ -19,25 +19,31 @@ class CheckUserStatus
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // ১. ব্যবহারকারী লগইন করা আছে এবং Filament প্যানেল অ্যাক্সেস করছে কিনা তা পরীক্ষা করা
-        if (Auth::check() && Filament::isServing()) {
-            $user = Auth::user();
+        // ১. ফিলামেন্ট প্যানেল কি অ্যাক্টিভ এবং ইউজার কি লগইন করা আছে তা পরীক্ষা করা
+        // Filament::auth()->check() সঠিক গার্ডটি নিজে থেকেই ব্যবহার করে
+        if (Filament::isServing() && Filament::auth()->check()) {
 
-            if ($user->status !== 'active') {
-                // ২. স্ট্যাটাস 'active' না হলে, Filament থেকে লগআউট করুন
+            // ২. সঠিক গার্ড থেকে ইউজার অবজেক্টটি নিন
+            $user = Filament::auth()->user();
+
+            // ৩. ইউজারের স্ট্যাটাস 'active' না হলে লগআউট করুন
+            // আপনার User মডেলে অবশ্যই 'status' কলাম থাকতে হবে
+            if ($user && $user->status !== 'active') {
+
+                // ৪. ফিলামেন্টের নিজস্ব মেথড ব্যবহার করে লগআউট করুন
                 Filament::auth()->logout();
 
-                // ৩. সেশন ইনভ্যালিডেট করুন
+                // ৫. সেশন ইনভ্যালিডেট করুন
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                // ৪. একটি এরর মেসেজসহ লগইন পেজে রিডাইরেক্ট করুন
-                return redirect(Filament::getLoginUrl())
+                // ৬. একটি এরর মেসেজসহ ফিলামেন্টের সঠিক লগইন পেজে রিডাইরেক্ট করুন
+                return redirect()->to(Filament::getLoginUrl())
                     ->with('error', 'আপনার অ্যাকাউন্টের স্ট্যাটাস পরিবর্তন হওয়ায় আপনাকে লগআউট করা হয়েছে।');
             }
         }
 
-        // ৫. সবকিছু ঠিক থাকলে, রিকোয়েস্টটি চালিয়ে যেতে দিন
+        // ৭. সবকিছু ঠিক থাকলে, রিকোয়েস্টটি চালিয়ে যেতে দিন
         return $next($request);
     }
 }

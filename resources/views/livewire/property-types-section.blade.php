@@ -38,7 +38,7 @@
             <!-- end row -->
 
             <div class="text-center pt-3">
-                <a href="{{ route('properties.index') }}" class="btn btn-dark d-inline-flex align-items-center">
+                <a href="{{ route('property-types.index') }}" class="btn btn-dark d-inline-flex align-items-center">
                     সব ক্যাটাগরি দেখুন<i class="material-icons-outlined ms-1">north_east</i>
                 </a>
             </div>

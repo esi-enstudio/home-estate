@@ -28,12 +28,24 @@ class ManageSite extends SettingsPage
     {
         return $form
             ->schema([
-                Tabs\Tab::make('গ্লোবাল SEO')
-                    ->schema([
-                        TextInput::make('meta_title')->label('সাইটের ডিফল্ট মেটা টাইটেল'),
-                        Textarea::make('meta_description')->label('সাইটের ডিফল্ট মেটা বর্ণনা'),
-                        TagsInput::make('meta_keywords')->label('সাইটের ডিফল্ট মেটা কিওয়ার্ড'),
-                        FileUpload::make('og_image')->label('ডিফল্ট শেয়ারিং ইমেজ (OG Image)')->image(),
+                // প্রথমে একটি Tabs কন্টেইনার তৈরি করা হয়েছে
+                Tabs::make('Site Settings Tabs')
+                    ->columnSpanFull()
+                    ->tabs([
+                        // এরপর Tab গুলোকে ->tabs() অ্যারের ভেতরে রাখা হয়েছে
+                        Tabs\Tab::make('গ্লোবাল SEO')
+                            ->schema([
+                                TextInput::make('meta_title')->label('সাইটের ডিফল্ট মেটা টাইটেল'),
+                                Textarea::make('meta_description')->label('সাইটের ডিফল্ট মেটা বর্ণনা')->rows(3),
+                                TagsInput::make('meta_keywords')->label('সাইটের ডিফল্ট মেটা কিওয়ার্ড'),
+                                FileUpload::make('og_image')->label('ডিফল্ট শেয়ারিং ইমেজ (OG Image)')->image()->directory('seo'),
+                            ]),
+
+                        // আপনি ভবিষ্যতে এখানে আরও ট্যাব যোগ করতে পারেন
+                        // Tabs\Tab::make('অন্যান্য সেটিংস')
+                        //     ->schema([
+                        //         // ...
+                        //     ]),
                     ]),
             ]);
     }

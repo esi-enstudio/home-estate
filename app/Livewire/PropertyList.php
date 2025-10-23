@@ -6,10 +6,14 @@ use App\Models\Property;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class PropertyList extends Component
 {
+    #[Url(as: 'type', except: '')]
+    public string $type = '';
+
     public $properties;
     public $perPage = 6; // প্রতিবার কতগুলো প্রপার্টি লোড হবে
     public $page = 1;
@@ -115,8 +119,14 @@ class PropertyList extends Component
      */
     public function resetFilters(): void
     {
-        $this->reset(['search', 'purpose', 'rent_type', 'is_negotiable', 'bedrooms', 'bathrooms', 'min_sqft', 'sortBy', 'sortPrice']);
-        $this->applyFilter();
+        $this->reset(['search', 'purpose', 'rent_type', 'is_negotiable', 'bedrooms', 'bathrooms', 'min_sqft', 'sortBy', 'sortPrice', 'type']);
+//        $this->applyFilter();
+
+        // applyFilter() মেথডটি কল করার প্রয়োজন নেই, কারণ Livewire
+        // প্রোপার্টি রিসেট হওয়ার পর স্বয়ংক্রিয়ভাবে কম্পোনেন্ট রি-রেন্ডার করবে।
+        // তবে পেজিনেশন রিসেট করা ভালো অভ্যাস।
+        $this->page = 1;
+        $this->loadProperties();
     }
 
     /**
@@ -125,6 +135,14 @@ class PropertyList extends Component
     public function loadProperties(): void
     {
         $query = Property::with(['user', 'propertyType', 'media'])->active();
+
+        // --- নতুন ফিল্টারটি এখানে যোগ করা হয়েছে ---
+        $query->when($this->type, function ($q) {
+            $q->whereHas('propertyType', function ($subQuery) {
+                $subQuery->where('slug', $this->type);
+            });
+        });
+        // ------------------------------------
 
         // Conditional Filters using when() for cleaner code
         $query->when($this->search, function ($q) {
