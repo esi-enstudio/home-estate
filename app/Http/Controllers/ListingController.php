@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ListingController extends Controller
 {
+    use AuthorizesRequests; // <-- এই লাইনটি যোগ করুন
+
     /**
      * Display a listing of the resource.
      */
@@ -29,11 +33,13 @@ class ListingController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     * @throws AuthorizationException
      */
     public function create(): Factory|View
     {
         // পলিসি চেক: ইউজার কি নতুন প্রোপার্টি তৈরি করতে পারবে?
-//        $this->authorize('create', Property::class);
+        $this->authorize('create', Property::class);
+
         return view('listings.create');
     }
 
@@ -55,11 +61,13 @@ class ListingController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     * @throws AuthorizationException
      */
     public function edit(Property $listing): Factory|View
     {
         // পলিসি চেক: এই নির্দিষ্ট প্রোপার্টিটি কি ইউজার এডিট করতে পারবে?
-//        $this->authorize('update', $listing);
+        $this->authorize('update', $listing);
+
         return view('listings.edit', ['listing' => $listing]);
     }
 
@@ -73,11 +81,12 @@ class ListingController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @throws AuthorizationException
      */
     public function destroy(Property $listing): RedirectResponse
     {
         // পলিসি চেক: এই নির্দিষ্ট প্রোপার্টিটি কি ইউজার ডিলিট করতে পারবে?
-//        $this->authorize('delete', $listing);
+        $this->authorize('delete', $listing);
 
         $listing->delete();
 

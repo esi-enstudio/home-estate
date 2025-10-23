@@ -24,6 +24,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static whereHas(string $string, \Closure $param)
  * @method static where(string $string, mixed $phone)
  * @method static withCount(string $string)
+ * @property mixed $id
  */
 class User extends Authenticatable implements HasMedia, FilamentUser, MustVerifyEmail, HasAvatar
 {

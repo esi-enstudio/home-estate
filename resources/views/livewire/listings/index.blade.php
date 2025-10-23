@@ -85,16 +85,23 @@
                     </td>
                     <td>৳{{ number_format($property->rent_price) }}</td>
                     <td class="text-end">
-                        <a href="{{ route('listings.edit', $property) }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-edit me-1"></i> এডিট
-                        </a>
-                        <form action="{{ route('listings.destroy', $property) }}" method="POST" class="d-inline" onsubmit="return confirm('আপনি কি এই লিস্টিংটি মুছে ফেলতে নিশ্চিত?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                <i class="fas fa-trash me-1"></i> ডিলিট
-                            </button>
-                        </form>
+                        {{-- 'update' পারমিশন চেক করা হচ্ছে --}}
+                        @can('update', $property)
+                            <a href="{{ route('listings.edit', $property) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit me-1"></i> এডিট
+                            </a>
+                        @endcan
+
+                        {{-- 'delete' পারমিশন চেক করা হচ্ছে --}}
+                        @can('delete', $property)
+                            <form action="{{ route('listings.destroy', $property) }}" method="POST" class="d-inline" onsubmit="return confirm('আপনি কি এই লিস্টিংটি মুছে ফেলতে নিশ্চিত?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash me-1"></i> ডিলিট
+                                </button>
+                            </form>
+                        @endcan
                     </td>
                 </tr>
             @empty

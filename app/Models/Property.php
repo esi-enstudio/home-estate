@@ -34,6 +34,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property mixed $description
  * @property mixed $meta_keywords
  * @property mixed $amenities
+ * @property mixed $user_id
  */
 class Property extends Model implements HasMedia
 {
