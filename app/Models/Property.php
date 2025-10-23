@@ -26,6 +26,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static trending()
  * @method static create(array $array)
  * @method static max(string $string)
+ * @method static findOrFail($propertyId)
+ * @method static find(int $propertyId)
  * @property mixed $meta_title
  * @property mixed $title
  * @property mixed $meta_description
@@ -35,7 +37,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  */
 class Property extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, SoftDeletes, HasCustomSlug;
+    use HasFactory, InteractsWithMedia, HasCustomSlug;
 
     protected $fillable = [
         'user_id',
@@ -160,6 +162,13 @@ class Property extends Model implements HasMedia
 
             $property->property_code = $code;
         });
+
+        // যখন কোনো Property মডেল ডিলিট হবে, তখন এই ফাংশনটি কাজ করবে
+        static::deleting(function (Property $property) {
+            // মিডিয়া কালেকশনের সব আইটেম এবং সংশ্লিষ্ট ফোল্ডার ডিলিট করা হবে
+            $property->clearMediaCollection('thumbnail');
+            $property->clearMediaCollection('gallery');
+        });
     }
 
     public function getRouteKeyName(): string
@@ -185,7 +194,12 @@ class Property extends Model implements HasMedia
     public function union(): BelongsTo { return $this->belongsTo(Union::class); }
 
     public function tenantTypes(): BelongsToMany { return $this->belongsToMany(TenantType::class, 'property_tenant_type'); }
-    public function amenities(): BelongsToMany { return $this->belongsToMany(Amenity::class)->withPivot('details', 'is_key_feature')->withTimestamps(); }
+    public function amenities(): BelongsToMany
+    {
+        return $this->belongsToMany(Amenity::class)
+            ->withPivot('details')
+            ->withTimestamps();
+    }
 
     public function enquiries(): HasMany
     {

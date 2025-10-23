@@ -14,17 +14,17 @@
             {{-- ========== START: Livewire Form ========== --}}
             <form wire:submit.prevent="saveEnquiry">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Name</label>
+                    <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
                     <input type="text" wire:model.lazy="name" class="form-control @error('name') is-invalid @enderror" placeholder="Your Name">
                     @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Email</label>
+                    <label class="form-label fw-semibold">Email <small class="text-muted">(Optional)</small></label>
                     <input type="email" wire:model.lazy="email" class="form-control @error('email') is-invalid @enderror" placeholder="Your Email">
                     @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Phone</label>
+                    <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
                     <input type="text" wire:model.lazy="phone" class="form-control @error('phone') is-invalid @enderror" placeholder="Your Phone Number">
                     @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>

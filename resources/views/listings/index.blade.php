@@ -29,77 +29,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 mx-auto">
-                        {{-- নতুন লিস্টিং তৈরির বাটন --}}
-                        <div class="d-flex justify-content-end mb-4">
-                            <a href="{{ route('listings.create') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>নতুন লিস্টিং যোগ করুন</a>
-                        </div>
-
-                        @if(session('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
-
                         <div class="cart-item-wrap">
-                            @if($properties->isEmpty())
-                                <div class="text-center py-5">
-                                    <p>আপনি এখনো কোনো লিস্টিং যোগ করেননি।</p>
-                                </div>
-                            @else
-                                <div class="table-responsive" style="white-space: nowrap;">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                        <tr>
-                                            <th>শিরোনাম</th>
-                                            <th>ধরন</th>
-                                            <th>স্ট্যাটাস</th>
-                                            <th>মাসিক ভাড়া</th>
-                                            <th class="text-end">অ্যাকশন</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($properties as $property)
-                                            <tr>
-                                                <td>
-                                                    <div class="fw-bold">
-                                                        <a href="{{ route('listings.edit', $property) }}">
-                                                            {{ Str::limit($property->title, 40) }}
-                                                        </a>
-                                                    </div>
-                                                    <small class="text-muted">
-                                                        <a href="{{ route('listings.edit', $property) }}">
-                                                            {{ $property->property_code }}
-                                                        </a>
-                                                    </small>
-                                                </td>
-                                                <td>{{ $property->propertyType->name_bn }}</td>
-                                                <td>
-                                                    @if($property->status === 'active')
-                                                        <span class="badge bg-primary text-capitalize">{{ $property->status }}</span>
-                                                    @elseif($property->status === 'pending')
-                                                        <span class="badge bg-warning text-capitalize">{{ $property->status }}</span>
-                                                    @endif
-                                                </td>
-                                                <td>৳{{ number_format($property->rent_price) }}</td>
-                                                <td class="text-end">
-                                                    <a href="{{ route('listings.edit', $property) }}" class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fas fa-edit me-1"></i> এডিট
-                                                    </a>
-                                                    <form action="{{ route('listings.destroy', $property) }}" method="POST" class="d-inline" onsubmit="return confirm('আপনি কি এই লিস্টিংটি মুছে ফেলতে নিশ্চিত?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                            <i class="fas fa-trash me-1"></i> ডিলিট
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="mt-4">
-                                    {{ $properties->links('pagination::bootstrap-5') }}
-                                </div>
-                            @endif
+                            <livewire:listings.index/>
                         </div>
                     </div>
                 </div>

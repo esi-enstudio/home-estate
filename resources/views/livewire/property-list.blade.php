@@ -187,7 +187,7 @@
                             {{-- ====================================================== --}}
                             @php
                                 // প্রথমে মিডিয়া অবজেক্টটি একটি ভ্যারিয়েবলে নিন
-                                $featuredImage = $property->getFirstMedia('featured_image');
+                                $featuredImage = $property->getFirstMedia('thumbnail');
                             @endphp
 
                             @if ($viewMode === 'grid')

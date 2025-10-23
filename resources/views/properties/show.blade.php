@@ -210,15 +210,17 @@
                                         <div class="accordion-body">
                                             <div class="row row-gap-4">
                                                 @foreach($property->amenities as $amenity)
-                                                    <div class="col-lg-3 col-md-6">
+                                                    <div class="col-md-6">
                                                         <div class="buy-property-items">
-                                                            <p>
-                                                                {{--
-                                                                    এখানে আমরা নতুন Accessor ব্যবহার করছি।
-                                                                    {!! !!} ব্যবহার করা হয়েছে কারণ আমাদের মেথডটি raw HTML রিটার্ন করছে।
-                                                                --}}
+                                                            <p class="d-flex align-items-center">
                                                                 {!! $amenity->icon_html !!}
-                                                                {{ $amenity->name }}
+
+                                                                <span class="ms-2">{{ $amenity->name }}</span>
+
+                                                                {{-- যদি details কলামে কোনো ডেটা থাকে, তবেই এটি দেখানো হবে --}}
+                                                                @if($amenity->pivot->details)
+                                                                    <small class="text-muted ms-1">({{ $amenity->pivot->details }})</small>
+                                                                @endif
                                                             </p>
                                                         </div>
                                                     </div>

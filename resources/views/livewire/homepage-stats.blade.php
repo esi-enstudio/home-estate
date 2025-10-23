@@ -9,7 +9,7 @@
                     <h2 class="mb-2">আপনার স্বপ্নের বাড়ি খোঁজার পথকে আমরা করি সহজ, স্বচ্ছ এবং নিশ্চিন্ত।</h2>
                     <p>আমাদের সেবা আপনার হাতের নাগালে। উন্নতমানের প্রপার্টি, দ্রুততম সাড়া এবং গ্রাহক সন্তুষ্টির নিশ্চয়তা দিয়ে আমরা তৈরি করেছি এক নির্ভরযোগ্য প্ল্যাটফর্ম। আপনার স্বপ্নের ঠিকানা খুঁজে পেতে আজই শুরু করুন।</p>
                     <div class="d-flex align-items-center">
-                        <a href="{{ route('filament.app.resources.properties.create') }}" class="btn btn-dark btn-lg me-3">বিনামূল্যে প্রপার্টি বিজ্ঞাপন দিন</a>
+                        <a href="#" class="btn btn-dark btn-lg me-3">ফর্ম ডাউনলোড</a>
                         <a href="{{ route('contact') }}" class="btn btn-primary btn-lg">যোগাযোগ করুন</a>
                     </div>
                 </div>

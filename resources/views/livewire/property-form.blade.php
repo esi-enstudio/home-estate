@@ -579,7 +579,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @if(count($faqs) > 0)
+                                        @if(!empty($faqs))
                                             @foreach($faqs as $index => $faq)
                                                 <tr wire:key="faq-{{ $index }}">
                                                     <td>

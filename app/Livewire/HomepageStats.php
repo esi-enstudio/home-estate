@@ -26,7 +26,10 @@ class HomepageStats extends Component
         $stats = Cache::remember('homepage_stats', now()->addHours(6), function () {
             return [
                 'rentalsCompleted' => Property::whereIn('status', ['rented', 'sold_out'])->count(),
-                'trustedOwners' => User::has('properties')->count(), // শুধুমাত্র যে ইউজারদের প্রপার্টি আছে
+                'trustedOwners' => User::has('properties') // শর্ত ১: কমপক্ষে একটি প্রোপার্টি আছে
+                ->whereHas('identityVerifications', function ($query) { // শর্ত ২: আইডেন্টি ভেরিফিকেশন আছে এবং...
+                    $query->where('status', 'approved'); // ...সেটির স্ট্যাটাস 'approved'
+                })->count(),
                 'happyClients' => Review::distinct('user_id')->count(), // স্বতন্ত্র রিভিউ প্রদানকারী
                 'activeProperties' => Property::where('status', 'active')->count(),
             ];

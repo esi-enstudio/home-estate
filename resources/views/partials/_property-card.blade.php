@@ -1,7 +1,7 @@
 <div class="property-listing-item">
     <div class="buy-grid-img">
         <a href="{{ route('properties.show', $property) }}">
-            <img class="img-fluid rounded" src="{{ $property->getFirstMediaUrl('featured_image', 'preview') ?: 'https://placehold.co/400x250' }}" alt="{{ $property->title }}">
+            <img class="img-fluid rounded" src="{{ $property->getFirstMediaUrl('thumbnail', 'preview') ?: 'https://placehold.co/400x250' }}" alt="{{ $property->title }}">
         </a>
         <div class="d-flex align-items-center justify-content-between position-absolute top-0 start-0 end-0 p-3">
             <div class="d-flex align-items-center gap-2">
@@ -20,7 +20,7 @@
                 @if($property->purpose === 'rent') ভাড়ার জন্য @else বিক্রির জন্য @endif
             </span>
             <div class="user-avatar avatar avatar-md">
-                <img src="{{ $property->user->avatar_url ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
+                <img src="{{ \Storage::url($property->user->avatar_url) ?? 'https://placehold.co/100' }}" alt="{{ $property->user->name }}" class="rounded-circle">
             </div>
         </div>
     </div>

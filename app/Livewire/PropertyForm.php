@@ -76,7 +76,7 @@ class PropertyForm extends Component
     public $existingGallery = []; // এডিট মোডে বিদ্যমান গ্যালারি দেখানোর জন্য
     public ?string $video_url = null;
     public ?string $house_rules = null;
-    public array $faqs = [];
+    public $faqs = [];
 
 
     // --- SEO (সাধারণত অ্যাডমিন প্যানেল থেকে ম্যানেজ করা হয়, তবে এখানেও রাখা যেতে পারে) ---
