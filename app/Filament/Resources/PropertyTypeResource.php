@@ -7,6 +7,7 @@ use App\Filament\Resources\PropertyTypeResource\RelationManagers;
 use App\Models\PropertyType;
 use Exception;
 use Filament\Forms;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -42,25 +43,20 @@ class PropertyTypeResource extends Resource
                             ->label('Name (Bengali)')
                             ->required()
                             ->maxLength(255),
-
-                        Forms\Components\TextInput::make('slug')
-                            ->required()
-                            ->maxLength(255)
-                            ->disabled()
-                            ->dehydrated() // নিশ্চিত করে যে এটি disabled থাকা সত্ত্বেও সেভ হবে
-                            ->unique(PropertyType::class, 'slug', ignoreRecord: true),
                     ]),
 
                 Forms\Components\Section::make('Icon & Status')
                     ->schema([
-                        Forms\Components\SpatieMediaLibraryFileUpload::make('image')
-                            ->collection('image')
+                        SpatieMediaLibraryFileUpload::make('image')
+                            ->collection('property_type_image')
+                            ->label('Type Image (221x165 px)')
                             ->image()
                             ->columnSpanFull(),
 
                         Forms\Components\TextInput::make('properties_count')
                             ->label('Total Properties')
                             ->disabled()
+                            ->visibleOn('edit')
                             ->helperText('This count is updated automatically.'),
                     ])
             ]);
@@ -73,8 +69,8 @@ class PropertyTypeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
-                    ->collection('image') // <-- ফর্মের কালেকশনের নামের সাথে মিলতে হবে
+                Tables\Columns\SpatieMediaLibraryImageColumn::make('property_type_image')
+                    ->collection('property_type_image') // <-- ফর্মের কালেকশনের নামের সাথে মিলতে হবে
                     ->label('ছবি')
                     ->circular() // ছবিটি বৃত্তাকার দেখাবে
                     ->width(80)

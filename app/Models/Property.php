@@ -260,7 +260,6 @@ class Property extends Model implements HasMedia
             }
         }
 
-        // === START: নতুন এবং ডাইনামিক অংশ ===
         // --- ধাপ ২: 'additional_features' JSON কলাম থেকে ডেটা যোগ করা ---
         // প্রথমে নিশ্চিত করুন যে additional_features খালি নয় এবং এটি একটি অ্যারে
         if (!empty($this->additional_features) && is_array($this->additional_features)) {
@@ -275,7 +274,6 @@ class Property extends Model implements HasMedia
                 }
             }
         }
-        // === END: নতুন এবং ডাইনামিক অংশ ===
 
         return $features;
     }

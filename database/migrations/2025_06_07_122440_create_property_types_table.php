@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('name_en')->unique();
             $table->string('name_bn')->unique();
-            $table->string('icon_path')->nullable();
             $table->unsignedInteger('properties_count')->default(0);
             $table->timestamps();
         });

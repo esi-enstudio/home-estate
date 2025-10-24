@@ -32,7 +32,5 @@ class DatabaseSeeder extends Seeder
            UnionSeeder::class,
            PropertySeeder::class,
         ]);
-
-        // User::factory(10)->create();
     }
 }
