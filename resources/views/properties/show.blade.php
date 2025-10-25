@@ -116,7 +116,7 @@
                                                 এখানে আমরা বিশেষভাবে 'thumbnail' নামের WebP কনভার্সনটি ব্যবহার করছি।
                                                 এটি ছোট, অপটিমাইজড এবং দ্রুত লোড হবে।
                                             --}}
-                                            <img src="{{ $media->getUrl('thumbnail') }}" class="img-fluid" alt="{{ $property->title }} - Thumbnail {{ $loop->iteration }}" loading="lazy">
+                                            <img src="{{ $media->getUrl('listing_thumbnail') }}" class="img-fluid" alt="{{ $property->title }} - Thumbnail {{ $loop->iteration }}" loading="lazy">
                                         </div>
                                     @endforeach
                                 </div>
@@ -213,9 +213,10 @@
                                                     <div class="col-md-6">
                                                         <div class="buy-property-items">
                                                             <p class="d-flex align-items-center">
+                                                                {{ dump($amenity) }}
                                                                 {!! $amenity->icon_html !!}
 
-                                                                <span class="ms-2">{{ $amenity->name }}</span>
+                                                                <span class="ms-2">{{ $amenity->name_bn }}</span>
 
                                                                 {{-- যদি details কলামে কোনো ডেটা থাকে, তবেই এটি দেখানো হবে --}}
                                                                 @if($amenity->pivot->details)
@@ -233,7 +234,7 @@
 
                             @php
                                 // গ্যালারির জন্য আপলোড করা সকল মিডিয়া ফাইল একটি ভ্যারিয়েবলে নিয়ে আসা হলো
-                                $galleryImages = $property->getMedia('gallery');
+                                $galleryImages = $property->getMedia('listing_gallery');
                             @endphp
 
                             {{-- যদি 'gallery' কালেকশনে একটির বেশি ছবি থাকে, তবেই এই সেকশনটি দেখানো হবে --}}

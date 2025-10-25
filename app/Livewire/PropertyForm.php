@@ -90,7 +90,7 @@ class PropertyForm extends Component
 
     public function mount(Property $listing = null): void
     {
-        // প্রাথমিক ভাবে সব ডিভিশন লোড করা
+        // প্রাথমিক ভাবে সব ডিভিশন লোড করা (এটি Create এবং Edit উভয় মোডের জন্যই দরকার)
         $this->divisions = Division::all();
 
         if ($listing && $listing->exists) {
@@ -98,18 +98,16 @@ class PropertyForm extends Component
             $this->listing = $listing;
             $this->isEditing = true;
 
-            // মডেল থেকে ডেটা দিয়ে ফর্ম ফিল করা (ম্যানুয়াল পদ্ধতিতে)
+            // ১. মডেল থেকে সব ডেটা দিয়ে ফর্ম ফিল করা
             $this->hydrateFormFromModel();
 
-            // বিদ্যমান প্রোপার্টির সাথে যুক্ত থাকা amenity-গুলোর ID লোড করা হচ্ছে
+            // ২. বিদ্যমান প্রোপার্টির সাথে যুক্ত থাকা amenity-গুলোর ID এবং details লোড করা
             $this->selectedAmenities = $this->listing->amenities()->pluck('amenities.id')->toArray();
-
-            // amenityDetails অ্যারেটি পূরণ করা হচ্ছে
             foreach ($this->listing->amenities as $amenity) {
                 $this->amenityDetails[$amenity->id] = $amenity->pivot->details;
             }
 
-            // এডিট মোডের জন্য নির্ভরশীল লোকেশন ড্রপডাউনগুলো লোড করা
+            // ৩. এডিট মোডের জন্য নির্ভরশীল লোকেশন ড্রপডাউনগুলো লোড করা
             if ($this->division_id) {
                 $this->districts = District::where('division_id', $this->division_id)->get();
             }
@@ -117,14 +115,22 @@ class PropertyForm extends Component
                 $this->upazilas = Upazila::where('district_id', $this->district_id)->get();
             }
             if ($this->upazila_id) {
-                // ইউনিয়ন লোড করার কোড এখানে যোগ করা হয়েছে
                 $this->unions = Union::where('upazila_id', $this->upazila_id)->get();
             }
+
+            // ৪. বিদ্যমান মিডিয়া (থাম্বনেইল ও গ্যালারি) লোড করা
+            $this->existingThumbnailUrl = $this->listing->getFirstMediaUrl('thumbnail'); // সঠিক কালেকশন নাম
+            $this->existingGallery = $this->listing->getMedia('gallery')->map(function ($media) { // সঠিক কালেকশন নাম
+                return [
+                    'id' => $media->id,
+                    'url' => $media->getUrl() // কোনো কনভার্সন ছাড়া মূল ছবি
+                ];
+            })->toArray();
 
         } else {
             // --- নতুন এন্ট্রি মোড ---
             $this->listing = new Property();
-            $this->available_from = now()->format('Y-m-d');
+            $this->available_from = now()->format('Y-m-d'); // ডিফল্ট তারিখ সেট করা
         }
 
         // শুরুতে বা এডিট মোডে Property Type অনুযায়ী ফিল্ডগুলো দেখানো
@@ -132,42 +138,9 @@ class PropertyForm extends Component
             $this->updateVisibleFields($this->property_type_id);
         }
 
-        if ($this->isEditing) {
-            // বিদ্যমান থাম্বনেইলের URL লোড করা
-            $this->existingThumbnailUrl = $this->listing->getFirstMediaUrl('thumbnail', 'preview');
-
-            // বিদ্যমান গ্যালারির ছবিগুলো লোড করা
-            $this->existingGallery = $this->listing->getMedia('gallery')->map(function ($media) {
-                return [
-                    'id' => $media->id,
-                    'url' => $media->getUrl('thumbnail')
-                ];
-            })->toArray();
-
-            $this->listing = $listing;
-            $this->isEditing = true;
-
-            // --- additional_features ডেটা রূপান্তরের লজিক ---
-            $featuresData = $listing->additional_features ?? [];
-            $formattedFeatures = [];
-
-            // চেক করা হচ্ছে ডেটা KeyValue ফরম্যাটে আছে নাকি Repeater ফরম্যাটে
-            if (!empty($featuresData) && array_is_list($featuresData)) {
-                // Repeater format: [{"name": "...", "description": "..."}]
-                // এটি ইতিমধ্যেই সঠিক ফরম্যাটে আছে, তাই সরাসরি ব্যবহার করা হবে
-                $formattedFeatures = $featuresData;
-            } else {
-                // KeyValue format: {"key": "value"}
-                // এটিকে Repeater ফরম্যাটে রূপান্তর করা হচ্ছে
-                foreach ($featuresData as $key => $value) {
-                    $formattedFeatures[] = ['name' => $key, 'description' => $value];
-                }
-            }
-            $this->additional_features = $formattedFeatures;
-            // --- রূপান্তর শেষ ---
-
-            // fill() মেথডটি রূপান্তরের *পরে* কল করা ভালো, যাতে এটি অন্য ডেটা ওভাররাইট না করে
-            $this->fill($listing->except('additional_features'));
+        // শুরুতে বা এডিট মোডে Property Type অনুযায়ী ফিল্ডগুলো দেখানো
+        if ($this->property_type_id) {
+            $this->updateVisibleFields($this->property_type_id);
         }
     }
 
@@ -192,7 +165,21 @@ class PropertyForm extends Component
         $this->total_floors = $this->listing->total_floors;
         $this->facing_direction = $this->listing->facing_direction;
         $this->year_built = $this->listing->year_built;
-        $this->additional_features = $this->listing->additional_features ?? []; // JSON field
+
+        // --- additional_features ডেটা রূপান্তরের লজিক ---
+        $featuresData = $this->listing->additional_features ?? [];
+        $formattedFeatures = [];
+        if (!empty($featuresData) && !array_is_list($featuresData)) {
+            // যদি KeyValue format ({"key": "value"}) হয়, তবে Repeater ফরম্যাটে রূপান্তর করো
+            foreach ($featuresData as $key => $value) {
+                $formattedFeatures[] = ['name' => $key, 'description' => $value];
+            }
+        } else {
+            // অন্যথায় (Repeater format বা খালি), যেমন আছে তেমনই রাখো
+            $formattedFeatures = $featuresData;
+        }
+        $this->additional_features = $formattedFeatures;
+        // --- রূপান্তর শেষ ---
 
         // Location
         $this->division_id = $this->listing->division_id;
@@ -213,7 +200,11 @@ class PropertyForm extends Component
         $this->security_deposit = $this->listing->security_deposit;
         $this->is_negotiable = $this->listing->is_negotiable;
         $this->is_available = $this->listing->is_available;
-        $this->available_from = optional($this->listing->available_from)->format('Y-m-d');
+
+        // available_from এর জন্য কার্বন ব্যবহার করে ফরম্যাট করা
+        if ($this->listing->available_from) {
+            $this->available_from = $this->listing->available_from->format('Y-m-d');
+        }
 
         // Media & Rules
         $this->video_url = $this->listing->video_url;
@@ -317,9 +308,6 @@ class PropertyForm extends Component
         }
 
         $this->visibleFields = array_unique($fields);
-
-        // ডিবাগিং এর জন্য (প্রয়োজনে আনকমেন্ট করুন)
-        // dump($this->visibleFields);
     }
     // --- স্মার্ট ফিল্ড ম্যানেজমেন্ট শেষ ---
 
@@ -426,10 +414,10 @@ class PropertyForm extends Component
         $rules['thumbnail'] = [
             $this->isEditing ? 'nullable' : 'required',
             'image',
-            'max:2048' // 2MB
+            'max:1024' // 1MB
         ];
 
-        $rules['gallery.*'] = ['image', 'max:2048']; // প্রতিটি গ্যালারি ছবির জন্য
+        $rules['gallery.*'] = ['image', 'max:1024']; // প্রতিটি গ্যালারি ছবির জন্য
 
         return $rules;
     }
@@ -521,18 +509,40 @@ class PropertyForm extends Component
                 'available_from' => ['required', 'date'],
             ],
 
-            // ধাপ ৫: ছবি ও অন্যান্য (এখানে ছবি আপলোডের ভ্যালিডেশন যোগ করতে হবে)
-            5 => [
-                'video_url' => ['nullable', 'url'],
-                'house_rules' => ['nullable', 'string'],
-                // এখানে আপনি ছবি আপলোডের জন্য ভ্যালিডেশন যোগ করবেন
-                // 'photos.*' => ['required', 'image', 'max:2048'],
-            ],
+            // ধাপ ৫: ছবি ও অন্যান্য (এখানে ভ্যালিডেশন যোগ করা হয়েছে)
+            5 => $this->getStepFiveRules(),
 
             default => [],
         };
 
         $this->validate($rules);
+    }
+
+    /**
+     * Helper function to get validation rules for step 5.
+     * এটি কোডকে পরিচ্ছন্ন রাখে।
+     */
+    private function getStepFiveRules(): array
+    {
+        $rules = [
+            'video_url' => ['nullable', 'url'],
+            'house_rules' => ['nullable', 'string', 'max:5000'],
+
+            // গ্যালারি ছবির ভ্যালিডেশন
+            'gallery' => ['nullable', 'array', 'max:10'], // সর্বোচ্চ ১০টি ছবি
+            'gallery.*' => ['image', 'max:1024'], // প্রতিটি ছবি সর্বোচ্চ 1MB এবং অবশ্যই ইমেজ টাইপ হতে হবে
+        ];
+
+        // থাম্বনেইলের জন্য শর্তসাপেক্ষ ভ্যালিডেশন
+        // যদি এটি Edit মোড হয়, তাহলে থাম্বনেইল আবশ্যক নয় (কারণ এটি আগে থেকেই থাকতে পারে)
+        if ($this->isEditing) {
+            $rules['thumbnail'] = ['nullable', 'image', 'max:1024']; // 1MB max
+        } else {
+            // যদি এটি Create মোড হয়, তাহলে থাম্বনেইল আবশ্যক
+            $rules['thumbnail'] = ['required', 'image', 'max:1024'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -574,7 +584,7 @@ class PropertyForm extends Component
         $this->authorize('update', $this->listing);
 
         // নির্দিষ্ট ID দিয়ে মিডিয়া ফাইলটি খুঁজে বের করা
-        $media = $this->listing->getMedia('gallery')->find($mediaId);
+        $media = $this->listing->getMedia('listing_gallery')->find($mediaId);
 
         // যদি মিডিয়া ফাইল পাওয়া যায়, তবেই সেটি মুছে ফেলা হবে
         if ($media) {

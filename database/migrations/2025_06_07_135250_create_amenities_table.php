@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('amenities', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // e.g., "Lift", "Generator", "Gas Connection", "Parking"
             $table->string('slug')->unique();
+            $table->string('name_en')->unique(); // e.g., "Lift", "Generator", "Gas Connection", "Parking"
+            $table->string('name_bn')->unique(); // e.g., "Lift", "Generator", "Gas Connection", "Parking"
             $table->string('icon_class')->nullable(); // For FontAwesome or other icon libraries
             $table->enum('type', ['facility', 'utility', 'safety', 'environment']); // Amenities গ্রুপ করার জন্য
             $table->boolean('show_on_homepage')->default(false); // হোমপেজে দেখানোর জন্য ফ্ল্যাগ

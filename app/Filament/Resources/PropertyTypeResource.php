@@ -94,6 +94,7 @@ class PropertyTypeResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultPaginationPageOption(5)
             ->filters([
                 Tables\Filters\Filter::make('created_at')
                     ->form([
@@ -131,5 +132,10 @@ class PropertyTypeResource extends Resource
             'create' => Pages\CreatePropertyType::route('/create'),
             'edit' => Pages\EditPropertyType::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

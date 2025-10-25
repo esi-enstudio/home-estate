@@ -44,7 +44,7 @@
                             {{-- getFirstMediaUrl('thumbnail', 'thumb') ব্যবহার করা হচ্ছে --}}
                             @if($property->hasMedia('thumbnail'))
                                 <img
-                                    src="{{ $property->getFirstMediaUrl('thumbnail', 'preview') }}"
+                                    src="{{ $property->getFirstMediaUrl('thumbnail') }}"
                                     alt="{{ $property->title }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
                             @else
                                 {{-- যদি কোনো ছবি না থাকে, তাহলে একটি প্লেসহোল্ডার দেখানো হবে --}}

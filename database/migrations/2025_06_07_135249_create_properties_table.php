@@ -3,7 +3,7 @@
 use App\Models\District;
 use App\Models\Division;
 use App\Models\PropertyType;
-use App\Models\Tenant;
+use App\Models\TenantType;
 use App\Models\Union;
 use App\Models\Upazila;
 use App\Models\User;

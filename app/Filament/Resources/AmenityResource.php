@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AmenityResource\Pages;
 use App\Filament\Resources\AmenityResource\RelationManagers;
 use App\Models\Amenity;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Select;
@@ -34,7 +35,11 @@ class AmenityResource extends Resource
             ->schema([
                 Forms\Components\Section::make()
                     ->schema([
-                        Forms\Components\TextInput::make('name')
+                        Forms\Components\TextInput::make('name_en')
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('name_bn')
                             ->required()
                             ->maxLength(255),
 
@@ -74,13 +79,17 @@ class AmenityResource extends Resource
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('name_en')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('name_bn')
                     ->searchable()
                     ->sortable(),
 
@@ -114,6 +123,7 @@ class AmenityResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultPaginationPageOption(5)
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
@@ -154,5 +164,10 @@ class AmenityResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->latest();
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

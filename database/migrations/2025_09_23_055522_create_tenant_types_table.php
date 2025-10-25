@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('tenant_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // যেমন: Family, Bachelor, Office
+            $table->string('name_en'); // শুধু name এর পরিবর্তে name_en
+            $table->string('name_bn'); // বাংলা নামের জন্য
             $table->string('slug')->unique();
+            $table->string('icon_class')->nullable(); // আইকনের জন্য (e.g., Font Awesome class)
+            $table->text('description')->nullable(); // সংক্ষিপ্ত বর্ণনার জন্য
             $table->timestamps();
         });
 

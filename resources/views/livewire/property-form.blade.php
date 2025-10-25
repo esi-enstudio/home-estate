@@ -199,7 +199,7 @@
                                                                     @if($amenity->icon_class)
                                                                         <i class="{{ $amenity->icon_class }} me-1"></i>
                                                                     @endif
-                                                                    {{ $amenity->name }}
+                                                                    {{ $amenity->name_bn }}
                                                                 </label>
                                                             </div>
 
@@ -416,7 +416,7 @@
                     <div class="row g-4">
                         <!-- Thumbnail Upload -->
                         <div class="col-12">
-                            <label for="thumbnail" class="form-label fw-bold">থাম্বনেইল ছবি (প্রচ্ছদ)</label>
+                            <label for="thumbnail" class="form-label fw-bold">থাম্বনেইল ছবি (প্রচ্ছদ 376x213 px)</label>
                             <p class="text-muted small">এটি আপনার লিস্টিংয়ের প্রধান ছবি হিসেবে দেখানো হবে।</p>
 
                             <input type="file" wire:model="thumbnail" id="thumbnail" class="form-control">
@@ -439,7 +439,7 @@
 
                         <!-- Gallery Upload -->
                         <div class="col-12">
-                            <label for="gallery" class="form-label fw-bold">গ্যালারির ছবি</label>
+                            <label for="gallery" class="form-label fw-bold">গ্যালারির ছবি (856x500 px)</label>
                             <p class="text-muted small">একাধিক ছবি সিলেক্ট করতে পারেন।</p>
 
                             <input type="file" wire:model="gallery" id="gallery" class="form-control" multiple>
@@ -483,7 +483,7 @@
 
                         @if(in_array('house_rules', $visibleFields))
                             <div class="col-12">
-                                <label class="form-label">বাড়ির নিয়মাবলী</label>
+                                <label class="form-label fw-bold">বাড়ির নিয়মাবলী</label>
                                 <p class="text-muted small">
                                     এখানে বাড়ির জন্য প্রযোজ্য নিয়ম ও শর্তগুলো লিখুন, যাতে ভাড়াটে বা অতিথিরা আগে থেকেই সেগুলো জানতে পারে।
                                     যেমন —

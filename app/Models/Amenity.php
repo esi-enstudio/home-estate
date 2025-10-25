@@ -9,16 +9,19 @@ use Illuminate\Support\HtmlString;
 
 /**
  * @method static withCount(string $string)
+ * @method static create(array $array)
+ * @method static truncate()
  */
 class Amenity extends Model
 {
     use HasCustomSlug;
 
-    protected $fillable = ['name','slug','icon_class','type','is_key_feature'];
+    protected $fillable = ['slug','name_en','name_bn','icon_class','type','show_on_homepage','properties_count'];
+
 
     public function getSluggableField(): string
     {
-        return 'name';
+        return 'name_en';
     }
 
     public function getRouteKeyName(): string
@@ -33,7 +36,6 @@ class Amenity extends Model
     {
         // একটি সুবিধার অনেকগুলো প্রপার্টি থাকতে পারে
         return $this->belongsToMany(Property::class)
-            ->withPivot('details','is_key_feature')
             ->withTimestamps();
     }
 

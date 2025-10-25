@@ -128,23 +128,6 @@ class Property extends Model implements HasMedia
         $this->addMediaCollection('gallery');
     }
 
-    public function registerMediaConversions(Media $media = null): void
-    {
-        $this->addMediaConversion('thumbnail')
-            ->width(414)
-            ->height(267)
-            ->format('webp')
-            ->quality(85)
-            ->nonQueued();
-
-        $this->addMediaConversion('preview')
-            ->width(832)
-            ->height(472)
-            ->format('webp')
-            ->quality(85)
-            ->nonQueued();
-    }
-
     /**
      * The "booted" method of the model.
      *

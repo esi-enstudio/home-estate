@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Property;
 use App\Models\Amenity;
 use App\Models\SpaceOverview;
-use App\Models\Tenant;
+use App\Models\TenantType;
 use Illuminate\Database\Seeder;
 
 class PropertySeeder extends Seeder

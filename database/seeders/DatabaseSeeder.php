@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
            UserSeeder::class,
            PropertyTypeSeeder::class,
            AmenitySeeder::class,
-           TenantTypeSeeder::class,
+           TenantSeeder::class,
            DivisionSeeder::class,
            DistrictSeeder::class,
            UpazilaSeeder::class,

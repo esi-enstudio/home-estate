@@ -201,7 +201,7 @@
                                             <a href="{{ route('properties.show', $property) }}">
                                                 @if ($featuredImage)
                                                     {{-- যদি ছবি থাকে, তাহলে WebP থাম্বনেইলটি দেখাও --}}
-                                                    <img class="img-fluid" src="{{ $property->getFirstMediaUrl('thumbnail', 'preview') }}" alt="{{ $property->title }}">
+                                                    <img class="img-fluid" src="{{ $property->getFirstMediaUrl('listing_thumbnail', 'preview') }}" alt="{{ $property->title }}">
                                                 @else
                                                     {{-- যদি কোনো ছবি না থাকে, তাহলে placeholder দেখাও --}}
                                                     <img class="img-fluid" src="https://placehold.co/832x472" alt="{{ $property->title }}">

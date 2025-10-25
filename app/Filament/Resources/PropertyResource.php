@@ -13,6 +13,7 @@ use App\Models\Union;
 use App\Models\Upazila;
 use Exception;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
@@ -186,13 +187,17 @@ class PropertyResource extends Resource
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('featured_image')
                                             ->label('ফিচার্ড ছবি (Featured Image)')
                                             ->collection('thumbnail')
-                                            ->required()->image()->imageEditor()->maxSize(2048)
+                                            ->required()
+                                            ->image()
+                                            ->maxSize(1024)
                                             ->panelLayout('compact'),
 
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('gallery_images')
                                             ->label('গ্যালারির ছবি (Gallery Images)')
-                                            ->collection('gallery')
-                                            ->multiple()->reorderable()->image()->maxSize(2048)->maxFiles(10)
+                                            ->collection('gallery') // <-- 'listing_gallery' থেকে 'gallery' করা হয়েছে
+                                            ->multiple()
+                                            ->image()
+                                            ->maxSize(1024)
                                             ->panelLayout('compact'),
 
                                         Forms\Components\TextInput::make('video_url')
@@ -355,6 +360,13 @@ class PropertyResource extends Resource
                                         DatePicker::make('available_from')
                                             ->label('কবে থেকে পাওয়া যাবে (Available From)')
                                             ->required(),
+
+                                        CheckboxList::make('tenant_types')
+                                            ->label('কাদের জন্য উপযুক্ত (Suitable For)')
+                                            ->relationship('tenantTypes', 'name_bn') // 'tenantTypes' নামে একটি রিলেশনশিপ Property মডেলে থাকতে হবে
+                                            ->columns(2) // দুটি কলামে দেখাবে
+                                            ->gridDirection('row') // পাশাপাশি দেখাবে
+                                            ->helperText('এই প্রোপার্টিটি কোন ধরনের ভাড়াটিয়ার জন্য উপযুক্ত তা নির্বাচন করুন।'),
                                     ]),
 
                                 Forms\Components\Section::make('সম্পর্কিত তথ্য (Associations)')
@@ -511,6 +523,7 @@ class PropertyResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
+            ->defaultPaginationPageOption(5)
             ->filters([
                 Tables\Filters\SelectFilter::make('property_type_id')
                     ->label('Property Type')
