@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
         "phpoffice/phpword": "^1.4",
+        "silviolleite/laravelpwa": "^2.0",
         "spatie/image": "^3.8",
         "spatie/laravel-image-optimizer": "^1.8"
     },

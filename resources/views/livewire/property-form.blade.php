@@ -30,6 +30,18 @@
         <div class="card">
             <div class="card-body">
 
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+
+
                 {{-- Step 1: Core Information --}}
                 <div class="{{ $currentStep == 1 ? 'd-block' : 'd-none' }}">
                     <h5 class="card-title mb-4">মৌলিক তথ্য (ধাপ ১/{{ $totalSteps }})</h5>

@@ -18,7 +18,7 @@
     @include('includes.head')
 
     @stack('styles')
-
+    @laravelPWA
     @livewireStyles
 </head>
 
