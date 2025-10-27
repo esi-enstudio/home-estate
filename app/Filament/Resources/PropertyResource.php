@@ -42,90 +42,6 @@ class PropertyResource extends Resource
     protected static ?int $navigationSort = 1;
 
 
-    /**
-     * কোন প্রপার্টি টাইপের জন্য কোন ফিল্ডগুলো দেখানো হবে, তার একটি কেন্দ্রীয় ম্যাপ।
-     * এটি রক্ষণাবেক্ষণ করা খুবই সহজ।
-     */
-    private static array $fieldsByPropertyType = [
-        // আবাসিক (Residential) - এদের জন্য প্রায় সব ফিল্ডই প্রযোজ্য
-        'apartment'   => ['bedrooms', 'bathrooms', 'balconies', 'floor_level', 'total_floors', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
-        'duplex'      => ['bedrooms', 'bathrooms', 'balconies', 'floor_level', 'total_floors', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
-        'house'       => ['bedrooms', 'bathrooms', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
-        'villa'       => ['bedrooms', 'bathrooms', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
-        'penthouse'   => ['bedrooms', 'bathrooms', 'balconies', 'floor_level', 'total_floors', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
-        'room'        => ['bedrooms', 'bathrooms', 'facing_direction', 'additional_features', 'house_rules', 'faqs'],
-        'tin-shed'    => ['bedrooms', 'bathrooms', 'additional_features', 'house_rules', 'faqs'],
-        'semi-ripe'   => ['bedrooms', 'bathrooms', 'additional_features', 'house_rules', 'faqs'],
-
-        // বাণিজ্যিক (Commercial) - এদের জন্য house_rules প্রযোজ্য নয়
-        'commercial-space' => ['floor_level', 'total_floors', 'additional_features', 'faqs'],
-        'office'           => ['floor_level', 'total_floors', 'additional_features', 'faqs'],
-        'shopping-mall'    => ['total_floors', 'additional_features', 'faqs'],
-        'factory'          => ['additional_features', 'faqs'],
-        'warehouse'        => ['additional_features', 'faqs'],
-        'hotel'            => ['total_floors', 'additional_features', 'faqs'],
-        'hospital'         => ['total_floors', 'additional_features', 'faqs'],
-
-        // ভূমি (Land) - এদের জন্য শুধুমাত্র faqs প্রযোজ্য হতে পারে
-        'land' => ['faqs'],
-    ];
-
-    /**
-     * সকল প্রপার্টি টাইপের জন্য প্রযোজ্য সাধারণ ফিল্ড।
-     */
-    private static array $commonFields = ['size_sqft', 'year_built'];
-
-    /**
-     * এই মেথডটি প্রতিটি ফিল্ডের জন্য visibility চেক করবে।
-     * এটি static caching ব্যবহার করে যাতে প্রতি রিকোয়েস্টে শুধুমাত্র একবার ডাটাবেজ কোয়েরি হয়।
-     */
-    private static function isFieldVisible(string $fieldName, Get $get): bool
-    {
-        // স্ট্যাটিক ভ্যারিয়েবলগুলো শুধুমাত্র একবার ইনিশিয়ালাইজ হয় এবং রিকোয়েস্টের মধ্যে তাদের মান ধরে রাখে।
-        static $propertyTypeSlug = null;
-        static $lastTypeId = null;
-
-        $currentTypeId = $get('property_type_id');
-
-        // যদি কোনো টাইপ সিলেক্ট করা না থাকে, তাহলে ফিল্ড দেখাও না।
-        if (empty($currentTypeId)) {
-            return false;
-        }
-
-        // যদি টাইপ পরিবর্তন হয়, তবেই কেবল নতুন করে ডাটাবেজ থেকে slug আনা হবে।
-        if ($lastTypeId !== $currentTypeId) {
-            $lastTypeId = $currentTypeId;
-            $propertyTypeSlug = PropertyType::find($currentTypeId)?->slug;
-        }
-
-        if (empty($propertyTypeSlug)) {
-            return false;
-        }
-
-        // চেক করুন ফিল্ডটি সাধারণ ফিল্ডের তালিকায় আছে কিনা।
-        if (in_array($fieldName, self::$commonFields)) {
-            return true;
-        }
-
-        // চেক করুন ফিল্ডটি ওই নির্দিষ্ট প্রপার্টি টাইপের জন্য প্রযোজ্য কিনা।
-        $visibleFields = self::$fieldsByPropertyType[$propertyTypeSlug] ?? [];
-        return in_array($fieldName, $visibleFields);
-    }
-
-    /**
-     * Checks if a section should be visible by checking if any of its fields are visible.
-     */
-    private static function isSectionVisible(array $fields, Get $get): bool
-    {
-        // সেকশনের ফিল্ডগুলোর মধ্যে যেকোনো একটি দৃশ্যমান হলেই সেকশনটি দেখানো হবে।
-        foreach ($fields as $field) {
-            if (self::isFieldVisible($field, $get)) {
-                return true; // একটি পাওয়া গেলেই আর চেক করার দরকার নেই
-            }
-        }
-        return false; // কোনো ফিল্ডই দৃশ্যমান না হলে সেকশনটি হাইড করা হবে
-    }
-
     public static function form(Form $form): Form
     {
         return $form
@@ -194,7 +110,7 @@ class PropertyResource extends Resource
 
                                         Forms\Components\SpatieMediaLibraryFileUpload::make('gallery_images')
                                             ->label('গ্যালারির ছবি (Gallery Images)')
-                                            ->collection('gallery') // <-- 'listing_gallery' থেকে 'gallery' করা হয়েছে
+                                            ->collection('gallery')
                                             ->multiple()
                                             ->image()
                                             ->maxSize(1024)
@@ -215,29 +131,20 @@ class PropertyResource extends Resource
                                                 ->searchable()->preload()->live()->required()
                                                 ->columnSpanFull(),
 
-                                            Select::make('bedrooms')->label('বেডরুম')->options(array_combine(range(0, 10), range(0, 10)))
-                                                ->visible(fn (Get $get) => self::isFieldVisible('bedrooms', $get)),
-                                            Select::make('bathrooms')->label('বাথরুম')->options(array_combine(range(0, 10), range(0, 10)))
-                                                ->visible(fn (Get $get) => self::isFieldVisible('bathrooms', $get)),
-                                            Select::make('balconies')->label('বারান্দা')->options(array_combine(range(0, 10), range(0, 10)))
-                                                ->visible(fn (Get $get) => self::isFieldVisible('balconies', $get)),
+                                            Select::make('bedrooms')->label('বেডরুম')->options(array_combine(range(0, 10), range(0, 10))),
+                                            Select::make('bathrooms')->label('বাথরুম')->options(array_combine(range(0, 10), range(0, 10))),
+                                            Select::make('balconies')->label('বারান্দা')->options(array_combine(range(0, 10), range(0, 10))),
 
-                                            TextInput::make('size_sqft')->label('আকার (স্কয়ার ফিট)')->numeric()->required()
-                                                ->visible(fn (Get $get) => self::isFieldVisible('size_sqft', $get)),
-                                            TextInput::make('floor_level')->label('ফ্লোর লেভেল')
-                                                ->visible(fn (Get $get) => self::isFieldVisible('floor_level', $get)),
-                                            TextInput::make('total_floors')->label('মোট তলা')->numeric()
-                                                ->visible(fn (Get $get) => self::isFieldVisible('total_floors', $get)),
+                                            TextInput::make('size_sqft')->label('আকার (স্কয়ার ফিট)')->numeric()->required(),
+                                            TextInput::make('floor_level')->label('ফ্লোর লেভেল'),
+                                            TextInput::make('total_floors')->label('মোট তলা')->numeric(),
                                             Select::make('facing_direction')->label('কোনমুখী')
-                                                ->options(['south' => 'দক্ষিণ', 'north' => 'উত্তর', 'east' => 'পূর্ব', 'west' => 'পশ্চিম', 'south-east' => 'দক্ষিণ-পূর্ব', 'north-east' => 'উত্তর-পূর্ব'])
-                                                ->visible(fn (Get $get) => self::isFieldVisible('facing_direction', $get)),
-                                            TextInput::make('year_built')->label('নির্মাণ সাল')->numeric()->maxValue(date('Y'))
-                                                ->visible(fn (Get $get) => self::isFieldVisible('year_built', $get)),
+                                                ->options(['south' => 'দক্ষিণ', 'north' => 'উত্তর', 'east' => 'পূর্ব', 'west' => 'পশ্চিম', 'south-east' => 'দক্ষিণ-পূর্ব', 'north-east' => 'উত্তর-পূর্ব']),
+                                            TextInput::make('year_built')->label('নির্মাণ সাল')->numeric()->maxValue(date('Y')),
                                         ]),
                                     ]),
 
                                 Forms\Components\Section::make('অতিরিক্ত তথ্য (Additional Information)')
-                                    ->visible(fn (Get $get) => self::isSectionVisible(['additional_features', 'house_rules', 'faqs'], $get))
                                     ->schema([
                                         KeyValue::make('additional_features')
                                             ->label('অন্যান্য সুবিধা (Additional Features)')
@@ -246,8 +153,7 @@ class PropertyResource extends Resource
                                             ->valueLabel('বিবরণ')
                                             ->addActionLabel('নতুন সুবিধা যোগ করুন')
                                             ->reorderable()
-                                            ->dehydrated(fn ($state) => !empty($state)) // খালি হলে null সেভ করবে
-                                            ->visible(fn (Get $get) => self::isFieldVisible('additional_features', $get))
+                                            ->dehydrated(fn ($state) => !empty($state))
                                             // --- ডেটাবেজ থেকে পড়ার সময় রূপান্তর (সঠিক মেথড) ---
                                             ->formatStateUsing(function (?array $state): array {
                                                 if (!$state) {
@@ -269,14 +175,13 @@ class PropertyResource extends Resource
                                                 return $state;
                                             }),
 
-                                        Textarea::make('house_rules')->label('বাসার নিয়মাবলী (House Rules)')->rows(4)
-                                            ->visible(fn (Get $get) => self::isFieldVisible('house_rules', $get)),
+                                        Textarea::make('house_rules')->label('বাসার নিয়মাবলী (House Rules)')->rows(4),
 
                                         Forms\Components\Repeater::make('faqs')->label('সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQs)')
                                             ->schema([
                                                 Forms\Components\TextInput::make('question')->required(),
                                                 Forms\Components\Textarea::make('answer')->required(),
-                                            ])->columns(2)->visible(fn (Get $get) => self::isFieldVisible('faqs', $get)),
+                                            ])->columns(2),
                                     ]),
 
                                 Forms\Components\Section::make('SEO')

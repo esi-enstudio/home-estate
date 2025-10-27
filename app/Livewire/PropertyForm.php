@@ -7,6 +7,7 @@ use App\Models\Property;
 use App\Models\PropertyType;
 use App\Models\Division;
 use App\Models\District;
+use App\Models\TenantType;
 use App\Models\Union;
 use App\Models\Upazila;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -62,6 +63,7 @@ class PropertyForm extends Component
     // --- Step 4: Pricing & Availability ---
     public int $rent_price = 0;
     public string $rent_type = 'month';
+    public array $selectedTenantTypes = [];
     public int $service_charge = 0;
     public int $security_deposit = 0;
     public string $is_negotiable = 'fixed';
@@ -107,6 +109,9 @@ class PropertyForm extends Component
                 $this->amenityDetails[$amenity->id] = $amenity->pivot->details;
             }
 
+            // *** Tenant Type-গুলোর ID লোড করা (এখানে যোগ করুন) ***
+            $this->selectedTenantTypes = $this->listing->tenantTypes()->pluck('id')->toArray();
+
             // ৩. এডিট মোডের জন্য নির্ভরশীল লোকেশন ড্রপডাউনগুলো লোড করা
             if ($this->division_id) {
                 $this->districts = District::where('division_id', $this->division_id)->get();
@@ -131,11 +136,6 @@ class PropertyForm extends Component
             // --- নতুন এন্ট্রি মোড ---
             $this->listing = new Property();
             $this->available_from = now()->format('Y-m-d'); // ডিফল্ট তারিখ সেট করা
-        }
-
-        // শুরুতে বা এডিট মোডে Property Type অনুযায়ী ফিল্ডগুলো দেখানো
-        if ($this->property_type_id) {
-            $this->updateVisibleFields($this->property_type_id);
         }
 
         // শুরুতে বা এডিট মোডে Property Type অনুযায়ী ফিল্ডগুলো দেখানো
@@ -723,16 +723,24 @@ class PropertyForm extends Component
             $property->amenities()->sync($amenitiesToSync);
         }
 
+        // Tenant Types পিভট টেবিলে ডেটা সিঙ্ক করা হচ্ছে (এখানে যোগ করুন)
+        if (in_array('tenant_types', $this->visibleFields)) {
+            // tenant_types এর কোনো অতিরিক্ত পিভট ডেটা নেই, তাই সরাসরি সিঙ্ক করা যায়
+            $property->tenantTypes()->sync($this->selectedTenantTypes);
+        }
+        // --- সিঙ্ক সেকশন শেষ ---
+
         return redirect()->route('listings.index');
     }
 
     public function render()
     {
         $propertyTypes = PropertyType::all();
+        $tenantTypes = TenantType::all();
 
         // সব amenity লোড করে তাদের 'type' অনুযায়ী গ্রুপ করা হচ্ছে
         $amenities = Amenity::all()->groupBy('type');
 
-        return view('livewire.property-form', compact('propertyTypes', 'amenities'));
+        return view('livewire.property-form', compact('propertyTypes', 'amenities', 'tenantTypes'));
     }
 }

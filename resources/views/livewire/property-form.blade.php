@@ -40,8 +40,6 @@
                     </div>
                 @endif
 
-
-
                 {{-- Step 1: Core Information --}}
                 <div class="{{ $currentStep == 1 ? 'd-block' : 'd-none' }}">
                     <h5 class="card-title mb-4">মৌলিক তথ্য (ধাপ ১/{{ $totalSteps }})</h5>
@@ -417,6 +415,30 @@
                             <div class="col-md-6">
                                 <label class="form-label">কবে থেকে পাওয়া যাবে <span class="text-danger">*</span></label>
                                 <input type="date" wire:model="available_from" class="form-control">
+                            </div>
+                        @endif
+
+                        {{-- Tenant Types Section --}}
+                        @if(in_array('tenant_types', $visibleFields))
+                            <hr class="my-3 col-12">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">কাদের জন্য উপযুক্ত (Suitable For)</label>
+                                <p class="text-muted small">এই প্রোপার্টিটি কোন ধরনের ভাড়াটিয়ার জন্য উপযুক্ত তা নির্বাচন করুন।</p>
+                                <div class="row">
+                                    @forelse($tenantTypes as $tenantType)
+                                        <div class="col-md-4 col-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="{{ $tenantType->id }}" id="tenant-type-{{ $tenantType->id }}" wire:model="selectedTenantTypes">
+                                                <label class="form-check-label" for="tenant-type-{{ $tenantType->id }}">
+                                                    {{ $tenantType->name_bn }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <p class="text-muted">কোনো ভাড়াটিয়ার ধরন যোগ করা হয়নি।</p>
+                                    @endforelse
+                                </div>
+                                @error('selectedTenantTypes') <div class="text-danger mt-2">{{ $message }}</div> @enderror
                             </div>
                         @endif
                     </div>
