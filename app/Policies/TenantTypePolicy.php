@@ -15,7 +15,7 @@ class TenantTypePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_tenant');
+        return $user->can('view_any_tenant::type');
     }
 
     /**
@@ -23,7 +23,7 @@ class TenantTypePolicy
      */
     public function view(User $user, TenantType $tenantType): bool
     {
-        return $user->can('view_tenant');
+        return $user->can('view_tenant::type');
     }
 
     /**
@@ -31,7 +31,7 @@ class TenantTypePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_tenant');
+        return $user->can('create_tenant::type');
     }
 
     /**
@@ -39,7 +39,7 @@ class TenantTypePolicy
      */
     public function update(User $user, TenantType $tenantType): bool
     {
-        return $user->can('update_tenant');
+        return $user->can('update_tenant::type');
     }
 
     /**
@@ -47,7 +47,7 @@ class TenantTypePolicy
      */
     public function delete(User $user, TenantType $tenantType): bool
     {
-        return $user->can('delete_tenant');
+        return $user->can('delete_tenant::type');
     }
 
     /**
@@ -55,7 +55,7 @@ class TenantTypePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_tenant');
+        return $user->can('delete_any_tenant::type');
     }
 
     /**
@@ -63,7 +63,7 @@ class TenantTypePolicy
      */
     public function forceDelete(User $user, TenantType $tenantType): bool
     {
-        return $user->can('force_delete_tenant');
+        return $user->can('force_delete_tenant::type');
     }
 
     /**
@@ -71,7 +71,7 @@ class TenantTypePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_tenant');
+        return $user->can('force_delete_any_tenant::type');
     }
 
     /**
@@ -79,7 +79,7 @@ class TenantTypePolicy
      */
     public function restore(User $user, TenantType $tenantType): bool
     {
-        return $user->can('restore_tenant');
+        return $user->can('restore_tenant::type');
     }
 
     /**
@@ -87,7 +87,7 @@ class TenantTypePolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_tenant');
+        return $user->can('restore_any_tenant::type');
     }
 
     /**
@@ -95,7 +95,7 @@ class TenantTypePolicy
      */
     public function replicate(User $user, TenantType $tenantType): bool
     {
-        return $user->can('replicate_tenant');
+        return $user->can('replicate_tenant::type');
     }
 
     /**
@@ -103,6 +103,6 @@ class TenantTypePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_tenant');
+        return $user->can('reorder_tenant::type');
     }
 }

@@ -11,6 +11,6 @@ return new class extends SettingsMigration
         $this->migrator->add('home_banner.title_highlighted', 'বাসা ভাড়া প্ল্যাটফর্ম');
         $this->migrator->add('home_banner.subtitle', 'এখন ঘরে বসেই খুঁজে নিন আপনার পছন্দের বাসা — দ্রুত, সহজ ও নির্ভরযোগ্যভাবে।');
         $this->migrator->add('home_banner.button_text', 'আপনার বাসা যুক্ত করুন');
-        $this->migrator->add('home_banner.button_link', 'app/properties/create');
+        $this->migrator->add('home_banner.button_link', 'listings/create');
     }
 };

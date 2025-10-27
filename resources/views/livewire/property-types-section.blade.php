@@ -20,15 +20,15 @@
                         <div class="property-type-item">
                             <div class="property-img">
                                 {{-- এই লিঙ্কে ক্লিক করলে ওই ক্যাটাগরির সকল প্রপার্টি দেখাবে --}}
-                                <a href="{{-- route('properties.index', ['type' => $type->slug]) --}}">
-                                    <img src="{{ $type->getFirstMediaUrl('image') ?: 'https://placehold.co/400x280' }}" class="img-fluid" alt="{{ $type->name_bn }}">
+                                <a href="{{ route('properties.index', ['type' => $type->slug]) }}">
+                                    <img src="{{ $type->getFirstMediaUrl('property_type_image') ?: 'https://placehold.co/400x280' }}" class="w-100" alt="{{ $type->name_bn }}">
                                 </a>
-                                <a href="{{-- route('properties.index', ['type' => $type->slug]) --}}" class="overlay-arrow">
+                                <a href="{{ route('properties.index', ['type' => $type->slug]) }}" class="overlay-arrow">
                                     <i class="material-icons-outlined">north_east</i>
                                 </a>
                             </div>
                             <div class="text-center">
-                                <h5 class="mb-1"><a href="{{-- route('properties.index', ['type' => $type->slug]) --}}">{{ $type->name_bn }}</a></h5>
+                                <h5 class="mb-1"><a href="{{ route('properties.index', ['type' => $type->slug]) }}">{{ $type->name_bn }}</a></h5>
                                 <p class="fs-14 mb-0">{{ $type->properties_count }} টি প্রপার্টি রয়েছে</p>
                             </div>
                         </div>
